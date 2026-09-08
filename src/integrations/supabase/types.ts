@@ -14,16 +14,175 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      house_images: {
+        Row: {
+          created_at: string
+          house_id: string
+          id: string
+          image_url: string
+          is_cover: boolean
+          sort_order: number
+          storage_path: string | null
+        }
+        Insert: {
+          created_at?: string
+          house_id: string
+          id?: string
+          image_url: string
+          is_cover?: boolean
+          sort_order?: number
+          storage_path?: string | null
+        }
+        Update: {
+          created_at?: string
+          house_id?: string
+          id?: string
+          image_url?: string
+          is_cover?: boolean
+          sort_order?: number
+          storage_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "house_images_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      houses: {
+        Row: {
+          amenities: string[]
+          availability: Database["public"]["Enums"]["availability_status"]
+          bathrooms: number | null
+          contact_phone: string
+          created_at: string
+          description: string
+          has_electricity: boolean
+          has_water: boolean
+          house_type: Database["public"]["Enums"]["house_type"]
+          id: string
+          landlord_id: string
+          location: string
+          location_details: string | null
+          region: string
+          rent_price: number
+          rooms: number | null
+          updated_at: string
+        }
+        Insert: {
+          amenities?: string[]
+          availability?: Database["public"]["Enums"]["availability_status"]
+          bathrooms?: number | null
+          contact_phone: string
+          created_at?: string
+          description: string
+          has_electricity?: boolean
+          has_water?: boolean
+          house_type: Database["public"]["Enums"]["house_type"]
+          id?: string
+          landlord_id: string
+          location: string
+          location_details?: string | null
+          region: string
+          rent_price: number
+          rooms?: number | null
+          updated_at?: string
+        }
+        Update: {
+          amenities?: string[]
+          availability?: Database["public"]["Enums"]["availability_status"]
+          bathrooms?: number | null
+          contact_phone?: string
+          created_at?: string
+          description?: string
+          has_electricity?: boolean
+          has_water?: boolean
+          house_type?: Database["public"]["Enums"]["house_type"]
+          id?: string
+          landlord_id?: string
+          location?: string
+          location_details?: string | null
+          region?: string
+          rent_price?: number
+          rooms?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          phone_number: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id: string
+          phone_number: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          phone_number?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      admin_landlords: {
+        Args: never
+        Returns: {
+          created_at: string
+          display_name: string
+          id: string
+          listing_count: number
+          phone_number: string
+        }[]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      house_is_public: { Args: { _house_id: string }; Returns: boolean }
+      owns_house: { Args: { _house_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "landlord"
+      availability_status: "available" | "unavailable"
+      house_type: "studio_apartment" | "single_room"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +309,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "landlord"],
+      availability_status: ["available", "unavailable"],
+      house_type: ["studio_apartment", "single_room"],
+    },
   },
 } as const
