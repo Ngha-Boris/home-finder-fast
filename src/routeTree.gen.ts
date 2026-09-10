@@ -10,11 +10,35 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HousesIndexRouteImport } from './routes/houses.index'
+import { Route as HousesIdRouteImport } from './routes/houses.$id'
+import { Route as LandlordLoginRouteImport } from './routes/landlord.login'
+import { Route as LandlordRegisterRouteImport } from './routes/landlord.register'
 import { Route as ApiPublicImgSplatRouteImport } from './routes/api/public/img/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HousesIndexRoute = HousesIndexRouteImport.update({
+  id: '/houses/',
+  path: '/houses/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HousesIdRoute = HousesIdRouteImport.update({
+  id: '/houses/$id',
+  path: '/houses/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LandlordLoginRoute = LandlordLoginRouteImport.update({
+  id: '/landlord/login',
+  path: '/landlord/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LandlordRegisterRoute = LandlordRegisterRouteImport.update({
+  id: '/landlord/register',
+  path: '/landlord/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicImgSplatRoute = ApiPublicImgSplatRouteImport.update({
@@ -25,27 +49,62 @@ const ApiPublicImgSplatRoute = ApiPublicImgSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/houses/$id': typeof HousesIdRoute
+  '/landlord/login': typeof LandlordLoginRoute
+  '/landlord/register': typeof LandlordRegisterRoute
+  '/houses/': typeof HousesIndexRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/houses/$id': typeof HousesIdRoute
+  '/landlord/login': typeof LandlordLoginRoute
+  '/landlord/register': typeof LandlordRegisterRoute
+  '/houses': typeof HousesIndexRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/houses/$id': typeof HousesIdRoute
+  '/landlord/login': typeof LandlordLoginRoute
+  '/landlord/register': typeof LandlordRegisterRoute
+  '/houses/': typeof HousesIndexRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/img/$'
+  fullPaths:
+    | '/'
+    | '/houses/$id'
+    | '/landlord/login'
+    | '/landlord/register'
+    | '/houses/'
+    | '/api/public/img/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/img/$'
-  id: '__root__' | '/' | '/api/public/img/$'
+  to:
+    | '/'
+    | '/houses/$id'
+    | '/landlord/login'
+    | '/landlord/register'
+    | '/houses'
+    | '/api/public/img/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/houses/$id'
+    | '/landlord/login'
+    | '/landlord/register'
+    | '/houses/'
+    | '/api/public/img/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HousesIdRoute: typeof HousesIdRoute
+  LandlordLoginRoute: typeof LandlordLoginRoute
+  LandlordRegisterRoute: typeof LandlordRegisterRoute
+  HousesIndexRoute: typeof HousesIndexRoute
   ApiPublicImgSplatRoute: typeof ApiPublicImgSplatRoute
 }
 
@@ -56,6 +115,34 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/houses/': {
+      id: '/houses/'
+      path: '/houses'
+      fullPath: '/houses/'
+      preLoaderRoute: typeof HousesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/houses/$id': {
+      id: '/houses/$id'
+      path: '/houses/$id'
+      fullPath: '/houses/$id'
+      preLoaderRoute: typeof HousesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/landlord/login': {
+      id: '/landlord/login'
+      path: '/landlord/login'
+      fullPath: '/landlord/login'
+      preLoaderRoute: typeof LandlordLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/landlord/register': {
+      id: '/landlord/register'
+      path: '/landlord/register'
+      fullPath: '/landlord/register'
+      preLoaderRoute: typeof LandlordRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/img/$': {
@@ -70,6 +157,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HousesIdRoute: HousesIdRoute,
+  LandlordLoginRoute: LandlordLoginRoute,
+  LandlordRegisterRoute: LandlordRegisterRoute,
+  HousesIndexRoute: HousesIndexRoute,
   ApiPublicImgSplatRoute: ApiPublicImgSplatRoute,
 }
 export const routeTree = rootRouteImport
