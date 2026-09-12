@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ImagePlus, Loader2, Star, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { StorageImage } from "@/components/storage-image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -111,7 +112,12 @@ export function HouseForm({
     }
     try {
       await deleteImage(image);
-      setExisting((imgs) => imgs.filter((i) => i.id !== image.id));
+      const remaining = existing.filter((i) => i.id !== image.id);
+      if (image.is_cover && house && remaining.length) {
+        await setCoverImage(house.id, remaining[0]!.id);
+        remaining[0] = { ...remaining[0]!, is_cover: true };
+      }
+      setExisting(remaining);
       toast.success("Photo removed");
     } catch (e) {
       toast.error((e as Error).message);
@@ -136,11 +142,18 @@ export function HouseForm({
   const validate = () => {
     const next: Record<string, string> = {};
     const rentNumber = Number(rent);
-    if (!Number.isFinite(rentNumber) || rentNumber <= 0) next["rent"] = "Enter a valid monthly rent.";
+    if (!Number.isFinite(rentNumber) || rentNumber <= 0)
+      next["rent"] = "Enter a valid monthly rent.";
     if (!region) next["region"] = "Choose a region.";
     if (location.trim().length < 3) next["location"] = "Enter the neighbourhood or town.";
     if (description.trim().length < 20) next["description"] = "Write at least 20 characters.";
     if (!isValidLocalPhone(phone)) next["phone"] = "Enter a valid 9-digit phone number.";
+    if (rooms && (!Number.isInteger(Number(rooms)) || Number(rooms) < 0)) {
+      next["rooms"] = "Enter a whole number.";
+    }
+    if (bathrooms && (!Number.isInteger(Number(bathrooms)) || Number(bathrooms) < 0)) {
+      next["bathrooms"] = "Enter a whole number.";
+    }
     if (existing.length + pending.length === 0) next["photos"] = "Add at least one photo.";
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -263,7 +276,9 @@ export function HouseForm({
                 ))}
               </SelectContent>
             </Select>
-            {errors["region"] ? <p className="text-xs text-destructive">{errors["region"]}</p> : null}
+            {errors["region"] ? (
+              <p className="text-xs text-destructive">{errors["region"]}</p>
+            ) : null}
           </div>
 
           <div className="space-y-1.5">
@@ -271,7 +286,7 @@ export function HouseForm({
             <Input
               id="location"
               className="h-11"
-              placeholder="e.g. Bonamoussadi, Douala"
+              placeholder="Neighbourhood and city"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               aria-invalid={!!errors["location"]}
@@ -335,7 +350,9 @@ export function HouseForm({
               className="h-11"
               value={rooms}
               onChange={(e) => setRooms(e.target.value)}
+              aria-invalid={!!errors["rooms"]}
             />
+            {errors["rooms"] ? <p className="text-xs text-destructive">{errors["rooms"]}</p> : null}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="baths">Bathrooms</Label>
@@ -346,7 +363,11 @@ export function HouseForm({
               className="h-11"
               value={bathrooms}
               onChange={(e) => setBathrooms(e.target.value)}
+              aria-invalid={!!errors["bathrooms"]}
             />
+            {errors["bathrooms"] ? (
+              <p className="text-xs text-destructive">{errors["bathrooms"]}</p>
+            ) : null}
           </div>
         </div>
         <div className="flex flex-wrap gap-6">
@@ -364,7 +385,7 @@ export function HouseForm({
           <Input
             id="amenities"
             className="h-11"
-            placeholder="Parking, Security guard, Water tank"
+            placeholder="Separate amenities with commas"
             value={amenities}
             onChange={(e) => setAmenities(e.target.value)}
           />
@@ -398,7 +419,13 @@ export function HouseForm({
           className="hidden"
           onChange={(e) => addFiles(e.target.files)}
         />
-        <Button type="button" variant="outline" className="h-11" onClick={() => fileRef.current?.click()}>
+        <Button
+          type="button"
+          variant="outline"
+          className="h-11"
+          disabled={saving}
+          onClick={() => fileRef.current?.click()}
+        >
           <ImagePlus className="h-4 w-4" />
           Choose photos
         </Button>
@@ -407,13 +434,18 @@ export function HouseForm({
         {existing.length || pending.length ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {existing.map((img) => (
-              <div key={img.id} className="group relative overflow-hidden rounded-lg border border-border">
-                <img
-                  src={img.image_url}
-                  alt=""
+              <div
+                key={img.id}
+                className="group relative overflow-hidden rounded-lg border border-border"
+              >
+                <StorageImage
+                  image={img}
+                  alt="Listing photo"
                   loading="lazy"
                   width={320}
                   height={240}
+                  sizes="(max-width: 640px) 50vw, 12rem"
+                  responsiveWidths={[160, 240, 320]}
                   className="aspect-[4/3] w-full object-cover"
                 />
                 {img.is_cover ? (
@@ -445,7 +477,10 @@ export function HouseForm({
               </div>
             ))}
             {pending.map((p) => (
-              <div key={p.id} className="relative overflow-hidden rounded-lg border border-dashed border-primary/50">
+              <div
+                key={p.id}
+                className="relative overflow-hidden rounded-lg border border-dashed border-primary/50"
+              >
                 <img src={p.url} alt="" className="aspect-[4/3] w-full object-cover" />
                 <Button
                   type="button"

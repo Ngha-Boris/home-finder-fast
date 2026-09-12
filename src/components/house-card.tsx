@@ -1,10 +1,17 @@
 import { Link } from "@tanstack/react-router";
 import { Bath, BedDouble, CalendarDays, MapPin } from "lucide-react";
+import { StorageImage } from "@/components/storage-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { coverImage, formatDate, formatPrice, houseTypeLabel, type House } from "@/lib/houses-types";
+import {
+  coverImage,
+  formatDate,
+  formatPrice,
+  houseTypeLabel,
+  type House,
+} from "@/lib/houses-types";
 
 export function HouseCard({ house }: { house: House }) {
   const cover = coverImage(house);
@@ -16,12 +23,14 @@ export function HouseCard({ house }: { house: House }) {
         className="relative block aspect-[4/3] overflow-hidden bg-muted"
       >
         {cover ? (
-          <img
-            src={cover.image_url}
+          <StorageImage
+            image={cover}
             alt={`${houseTypeLabel(house.house_type)} in ${house.location}`}
             loading="lazy"
             width={800}
             height={600}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 24rem"
+            responsiveWidths={[320, 480, 640, 800]}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
@@ -44,7 +53,9 @@ export function HouseCard({ house }: { house: House }) {
 
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div>
-          <p className="font-display text-xl font-bold text-primary">{formatPrice(house.rent_price)}</p>
+          <p className="font-display text-xl font-bold text-primary">
+            {formatPrice(house.rent_price)}
+          </p>
           <p className="text-xs text-muted-foreground">per month</p>
         </div>
         <p className="flex items-start gap-1.5 text-sm font-medium">

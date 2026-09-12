@@ -5,13 +5,16 @@ import { LandlordShell } from "@/components/landlord-shell";
 import { ErrorState } from "@/components/states";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchHouse } from "@/lib/houses-api";
+import { fetchMyHouse } from "@/lib/houses-api";
 
 export const Route = createFileRoute("/_landlord/landlord/listings/$id/edit")({
   head: () => ({
     meta: [
       { title: "Edit listing — Nyumba" },
-      { name: "description", content: "Update the details, photos and availability of your listing." },
+      {
+        name: "description",
+        content: "Update the details, photos and availability of your listing.",
+      },
       { property: "og:title", content: "Edit listing — Nyumba" },
       { property: "og:description", content: "Update your rental listing on Nyumba." },
     ],
@@ -28,7 +31,7 @@ function EditListingPage() {
       const { data: auth } = await supabase.auth.getUser();
       const userId = auth.user!.id;
       const [house, profile] = await Promise.all([
-        fetchHouse(id),
+        fetchMyHouse(id),
         supabase.from("profiles").select("phone_number").eq("id", userId).maybeSingle(),
       ]);
       return { userId, house, phone: profile.data?.phone_number ?? "" };

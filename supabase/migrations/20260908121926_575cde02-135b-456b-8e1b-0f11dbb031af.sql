@@ -35,5 +35,5 @@ CREATE POLICY "Landlords delete own folder" ON storage.objects
   FOR DELETE TO authenticated
   USING (bucket_id = 'house-images' AND ((storage.foldername(name))[1] = auth.uid()::text OR public.has_role(auth.uid(), 'admin')));
 
--- Seed image URLs served through the app image endpoint
+-- Image URLs served through the app image endpoint
 UPDATE public.house_images SET image_url = '/api/public/img/' || storage_path WHERE storage_path IS NOT NULL;

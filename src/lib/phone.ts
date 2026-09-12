@@ -19,7 +19,7 @@ export function isValidLocalPhone(value: string) {
   return toLocal9(value) !== null;
 }
 
-/** Normalised international form without "+" e.g. 237677123456 */
+/** Normalised international form without "+". */
 export function normalizePhone(value: string): string | null {
   const local = toLocal9(value);
   return local ? COUNTRY_CODE + local : null;
@@ -30,7 +30,9 @@ export function formatPhoneDisplay(normalized: string) {
     ? normalized.slice(COUNTRY_CODE.length)
     : normalized;
   const groups = local.match(/^(\d{3})(\d{2})(\d{2})(\d{2})$/);
-  return groups ? `+${COUNTRY_CODE} ${groups[1]} ${groups[2]} ${groups[3]} ${groups[4]}` : `+${normalized}`;
+  return groups
+    ? `+${COUNTRY_CODE} ${groups[1]} ${groups[2]} ${groups[3]} ${groups[4]}`
+    : `+${normalized}`;
 }
 
 export function telLink(normalized: string) {

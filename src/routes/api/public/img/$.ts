@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createClient } from "@supabase/supabase-js";
+import { getRequest } from "@tanstack/react-start/server";
 
 /**
  * Public image endpoint. Streams photos of AVAILABLE houses from private storage.
@@ -9,28 +9,46 @@ export const Route = createFileRoute("/api/public/img/$")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const path = (params as { _splat?: string })._splat ?? "";
+        const request = getRequest();
+        const url = request ? new URL(request.url) : null;
+        const widthParam = Number(url?.searchParams.get("w") ?? "");
+        const width =
+          Number.isFinite(widthParam) && widthParam >= 120 && widthParam <= 1600
+            ? Math.round(widthParam)
+            : undefined;
+        const rawPath = (params as { _splat?: string })._splat ?? "";
+        const path = decodeURIComponent(rawPath);
         if (!path || path.includes("..")) return new Response("Not found", { status: 404 });
 
-        const url = process.env["SUPABASE_URL"];
-        const serviceKey = process.env["SUPABASE_SERVICE_ROLE_KEY"];
-        if (!url || !serviceKey) return new Response("Not configured", { status: 500 });
+        const { supabaseAdmin: admin } = await import("@/integrations/supabase/client.server");
 
-        const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
-
-        const { data: image } = await admin
+        const { data: image, error: imageError } = await admin
           .from("house_images")
-          .select("house_id, houses!inner(availability)")
+          .select("house_id")
           .eq("storage_path", path)
           .limit(1)
           .maybeSingle();
 
-        const availability = (image as { houses?: { availability?: string } } | null)?.houses?.availability;
-        if (!image || availability !== "available") {
+        if (imageError || !image?.house_id) {
           return new Response("Not found", { status: 404 });
         }
 
-        const { data: blob, error } = await admin.storage.from("house-images").download(path);
+        const { data: house, error: houseError } = await admin
+          .from("houses")
+          .select("availability")
+          .eq("id", image.house_id)
+          .maybeSingle();
+
+        if (houseError || house?.availability !== "available") {
+          return new Response("Not found", { status: 404 });
+        }
+
+        const { data: blob, error } = await admin.storage
+          .from("house-images")
+          .download(
+            path,
+            width ? { transform: { width, quality: 75, resize: "contain" } } : undefined,
+          );
         if (error || !blob) return new Response("Not found", { status: 404 });
 
         return new Response(blob, {

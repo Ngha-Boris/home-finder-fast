@@ -86,7 +86,7 @@ function LoginPage() {
                   id="phone"
                   inputMode="numeric"
                   autoComplete="tel-national"
-                  placeholder="677123456"
+                  placeholder="9-digit phone number"
                   className="h-12 pl-20"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -110,7 +110,9 @@ function LoginPage() {
                   aria-invalid={!!errors.password}
                 />
               </div>
-              {errors.password ? <p className="text-xs text-destructive">{errors.password}</p> : null}
+              {errors.password ? (
+                <p className="text-xs text-destructive">{errors.password}</p>
+              ) : null}
             </div>
 
             <Button type="submit" size="lg" className="h-12 w-full" disabled={submitting}>

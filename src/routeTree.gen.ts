@@ -17,6 +17,8 @@ import { Route as HousesIdRouteImport } from './routes/houses.$id'
 import { Route as LandlordLoginRouteImport } from './routes/landlord.login'
 import { Route as LandlordRegisterRouteImport } from './routes/landlord.register'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
+import { Route as AdminAdminLandlordsRouteImport } from './routes/_admin/admin.landlords'
+import { Route as AdminAdminListingsRouteImport } from './routes/_admin/admin.listings'
 import { Route as LandlordLandlordDashboardRouteImport } from './routes/_landlord/landlord.dashboard'
 import { Route as LandlordLandlordProfileRouteImport } from './routes/_landlord/landlord.profile'
 import { Route as LandlordLandlordListingsIndexRouteImport } from './routes/_landlord/landlord.listings.index'
@@ -62,6 +64,16 @@ const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminLandlordsRoute = AdminAdminLandlordsRouteImport.update({
+  id: '/admin/landlords',
+  path: '/admin/landlords',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminListingsRoute = AdminAdminListingsRouteImport.update({
+  id: '/admin/listings',
+  path: '/admin/listings',
+  getParentRoute: () => AdminRoute,
+} as any)
 const LandlordLandlordDashboardRoute =
   LandlordLandlordDashboardRouteImport.update({
     id: '/landlord/dashboard',
@@ -103,6 +115,8 @@ export interface FileRoutesByFullPath {
   '/landlord/login': typeof LandlordLoginRoute
   '/landlord/register': typeof LandlordRegisterRoute
   '/houses/': typeof HousesIndexRoute
+  '/admin/landlords': typeof AdminAdminLandlordsRoute
+  '/admin/listings': typeof AdminAdminListingsRoute
   '/landlord/dashboard': typeof LandlordLandlordDashboardRoute
   '/landlord/profile': typeof LandlordLandlordProfileRoute
   '/admin/': typeof AdminAdminIndexRoute
@@ -117,6 +131,8 @@ export interface FileRoutesByTo {
   '/landlord/login': typeof LandlordLoginRoute
   '/landlord/register': typeof LandlordRegisterRoute
   '/houses': typeof HousesIndexRoute
+  '/admin/landlords': typeof AdminAdminLandlordsRoute
+  '/admin/listings': typeof AdminAdminListingsRoute
   '/landlord/dashboard': typeof LandlordLandlordDashboardRoute
   '/landlord/profile': typeof LandlordLandlordProfileRoute
   '/admin': typeof AdminAdminIndexRoute
@@ -134,6 +150,8 @@ export interface FileRoutesById {
   '/landlord/login': typeof LandlordLoginRoute
   '/landlord/register': typeof LandlordRegisterRoute
   '/houses/': typeof HousesIndexRoute
+  '/_admin/admin/landlords': typeof AdminAdminLandlordsRoute
+  '/_admin/admin/listings': typeof AdminAdminListingsRoute
   '/_landlord/landlord/dashboard': typeof LandlordLandlordDashboardRoute
   '/_landlord/landlord/profile': typeof LandlordLandlordProfileRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
@@ -150,6 +168,8 @@ export interface FileRouteTypes {
     | '/landlord/login'
     | '/landlord/register'
     | '/houses/'
+    | '/admin/landlords'
+    | '/admin/listings'
     | '/landlord/dashboard'
     | '/landlord/profile'
     | '/admin/'
@@ -164,6 +184,8 @@ export interface FileRouteTypes {
     | '/landlord/login'
     | '/landlord/register'
     | '/houses'
+    | '/admin/landlords'
+    | '/admin/listings'
     | '/landlord/dashboard'
     | '/landlord/profile'
     | '/admin'
@@ -180,6 +202,8 @@ export interface FileRouteTypes {
     | '/landlord/login'
     | '/landlord/register'
     | '/houses/'
+    | '/_admin/admin/landlords'
+    | '/_admin/admin/listings'
     | '/_landlord/landlord/dashboard'
     | '/_landlord/landlord/profile'
     | '/_admin/admin/'
@@ -258,6 +282,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/landlords': {
+      id: '/_admin/admin/landlords'
+      path: '/admin/landlords'
+      fullPath: '/admin/landlords'
+      preLoaderRoute: typeof AdminAdminLandlordsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/listings': {
+      id: '/_admin/admin/listings'
+      path: '/admin/listings'
+      fullPath: '/admin/listings'
+      preLoaderRoute: typeof AdminAdminListingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_landlord/landlord/dashboard': {
       id: '/_landlord/landlord/dashboard'
       path: '/landlord/dashboard'
@@ -304,10 +342,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminAdminLandlordsRoute: typeof AdminAdminLandlordsRoute
+  AdminAdminListingsRoute: typeof AdminAdminListingsRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAdminLandlordsRoute: AdminAdminLandlordsRoute,
+  AdminAdminListingsRoute: AdminAdminListingsRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
 }
 

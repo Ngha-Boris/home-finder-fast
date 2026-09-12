@@ -1,8 +1,19 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, LayoutDashboard, List, LogOut, PlusCircle, User } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Building2,
+  Home,
+  LayoutDashboard,
+  List,
+  LogOut,
+  PlusCircle,
+  ShieldCheck,
+  User,
+  Users,
+} from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { useSignOut } from "@/hooks/use-auth";
+import { fetchIsAdmin, useSession, useSignOut } from "@/hooks/use-auth";
 import { useOnline } from "@/hooks/use-online";
 
 const NAV = [
@@ -14,8 +25,22 @@ const NAV = [
 
 export function LandlordShell({ children }: { children: ReactNode }) {
   const signOut = useSignOut();
+  const { user } = useSession();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const online = useOnline();
+  const admin = useQuery({
+    queryKey: ["is-admin", user?.id],
+    queryFn: () => fetchIsAdmin(user),
+    enabled: !!user,
+  });
+  const nav = admin.data
+    ? [
+        ...NAV,
+        { to: "/admin", label: "Admin", icon: ShieldCheck },
+        { to: "/admin/listings", label: "Listings", icon: Building2 },
+        { to: "/admin/landlords", label: "Landlords", icon: Users },
+      ]
+    : NAV;
 
   return (
     <div className="flex min-h-screen flex-col bg-secondary/30">
@@ -33,7 +58,7 @@ export function LandlordShell({ children }: { children: ReactNode }) {
           </Button>
         </div>
         <nav className="container-page flex gap-1 overflow-x-auto pb-2">
-          {NAV.map((item) => {
+          {nav.map((item) => {
             const active = pathname === item.to;
             return (
               <Button

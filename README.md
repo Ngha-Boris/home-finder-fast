@@ -1041,23 +1041,9 @@ Valid listing data
 
 Show validation messages directly beside the relevant field.
 
-25. Seed Data
+25. Production Data
 
-Create realistic seed/demo data so the application is immediately usable after setup.
-
-Create approximately:
-
-10–20 houses
-
-Multiple landlords
-
-Multiple house images
-
-Both house types
-
-Different rent prices
-
-Different regions
+Use real landlord-created listings only.
 
 This should allow us to test:
 
@@ -1266,10 +1252,6 @@ Working phone links
 Working WhatsApp links
 
 Working cache/offline browsing
-
-Seed/demo data
-
-Use realistic sample content rather than placeholder "Lorem ipsum".
 
 Keep the code modular and easy to extend.
 

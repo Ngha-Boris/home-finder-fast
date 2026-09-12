@@ -1,14 +1,23 @@
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { StorageImage } from "@/components/storage-image";
 import { Button } from "@/components/ui/button";
 import type { HouseImageRow } from "@/lib/houses-types";
 
 export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: string }) {
   const [index, setIndex] = useState(0);
   const [lightbox, setLightbox] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
 
   const count = images.length;
   const go = (delta: number) => setIndex((i) => (i + delta + count) % count);
+  const handleTouchEnd = (x: number) => {
+    if (touchStart === null || count < 2) return;
+    const delta = x - touchStart;
+    setTouchStart(null);
+    if (Math.abs(delta) < 40) return;
+    go(delta > 0 ? -1 : 1);
+  };
 
   useEffect(() => {
     if (!lightbox) return;
@@ -35,15 +44,19 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
       <div className="relative overflow-hidden rounded-xl bg-muted">
         <button
           type="button"
+          onTouchStart={(e) => setTouchStart(e.touches[0]?.clientX ?? null)}
+          onTouchEnd={(e) => handleTouchEnd(e.changedTouches[0]?.clientX ?? 0)}
           onClick={() => setLightbox(true)}
           className="block w-full cursor-zoom-in"
           aria-label="Open larger photo"
         >
-          <img
-            src={images[index]!.image_url}
+          <StorageImage
+            image={images[index]!}
             alt={`${alt} — photo ${index + 1}`}
             width={1024}
             height={768}
+            sizes="(max-width: 1024px) 100vw, 56rem"
+            responsiveWidths={[480, 768, 1024, 1280]}
             className="aspect-[4/3] w-full object-cover"
           />
         </button>
@@ -86,12 +99,14 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
               }`}
               aria-label={`Show photo ${i + 1}`}
             >
-              <img
-                src={img.image_url}
+              <StorageImage
+                image={img}
                 alt=""
                 loading="lazy"
                 width={192}
                 height={128}
+                sizes="6rem"
+                responsiveWidths={[160, 240, 320]}
                 className="h-full w-full object-cover"
               />
             </button>
@@ -106,9 +121,11 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
           aria-modal="true"
           onClick={() => setLightbox(false)}
         >
-          <img
-            src={images[index]!.image_url}
+          <StorageImage
+            image={images[index]!}
             alt={`${alt} — photo ${index + 1}`}
+            sizes="100vw"
+            responsiveWidths={[768, 1024, 1440, 1600]}
             className="max-h-full max-w-full rounded-lg object-contain"
             onClick={(e) => e.stopPropagation()}
           />

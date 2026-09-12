@@ -1,4 +1,4 @@
-const VERSION = "nyumba-v1";
+const VERSION = "nyumba-v2";
 const SHELL_CACHE = `${VERSION}-shell`;
 const ASSET_CACHE = `${VERSION}-assets`;
 const IMAGE_CACHE = `${VERSION}-images`;
@@ -53,7 +53,10 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Build assets: cache-first (hashed filenames).
-  if (url.pathname.startsWith("/_build/") || /\.(css|js|woff2?|svg|png|jpg|webp|ico)$/.test(url.pathname)) {
+  if (
+    url.pathname.startsWith("/_build/") ||
+    /\.(css|js|woff2?|svg|png|jpg|webp|ico)$/.test(url.pathname)
+  ) {
     event.respondWith(
       caches.open(ASSET_CACHE).then(async (cache) => {
         const hit = await cache.match(request);
@@ -69,9 +72,16 @@ self.addEventListener("fetch", (event) => {
   // Navigations: network-first with an offline fallback page.
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(async () => {
-        const cache = await caches.open(SHELL_CACHE);
-        return (await cache.match(OFFLINE_URL)) ?? Response.error();
+      caches.open(SHELL_CACHE).then(async (cache) => {
+        try {
+          const response = await fetch(request);
+          if (response.ok) cache.put(request, response.clone());
+          return response;
+        } catch {
+          return (
+            (await cache.match(request)) ?? (await cache.match(OFFLINE_URL)) ?? Response.error()
+          );
+        }
       }),
     );
   }

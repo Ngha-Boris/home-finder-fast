@@ -17,7 +17,11 @@ export async function fetchAvailableHouses(): Promise<House[]> {
 }
 
 export async function fetchHouse(id: string): Promise<House | null> {
-  const { data, error } = await supabase.from("houses").select(HOUSE_SELECT).eq("id", id).maybeSingle();
+  const { data, error } = await supabase
+    .from("houses")
+    .select(HOUSE_SELECT)
+    .eq("id", id)
+    .maybeSingle();
   if (error) throw error;
   return (data as House | null) ?? null;
 }
@@ -32,11 +36,30 @@ export async function fetchMyHouses(): Promise<House[]> {
   return data as House[];
 }
 
+export async function fetchMyHouse(id: string): Promise<House | null> {
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError) throw authError;
+  if (!auth.user) return null;
+
+  const { data, error } = await supabase
+    .from("houses")
+    .select(HOUSE_SELECT)
+    .eq("id", id)
+    .eq("landlord_id", auth.user.id)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as House | null) ?? null;
+}
+
 export type HouseInsert = Database["public"]["Tables"]["houses"]["Insert"];
 export type HouseUpdate = Database["public"]["Tables"]["houses"]["Update"];
 
 export async function createHouse(values: HouseInsert): Promise<House> {
-  const { data, error } = await supabase.from("houses").insert(values).select(HOUSE_SELECT).single();
+  const { data, error } = await supabase
+    .from("houses")
+    .insert(values)
+    .select(HOUSE_SELECT)
+    .single();
   if (error) throw error;
   return data as House;
 }
@@ -47,7 +70,7 @@ export async function updateHouse(id: string, values: HouseUpdate): Promise<void
 }
 
 export async function deleteHouse(house: House): Promise<void> {
-  const paths = house.house_images.map((i) => i.storage_path).filter((p): p is string => !!p && !p.startsWith("seed/"));
+  const paths = house.house_images.map((i) => i.storage_path).filter((p): p is string => !!p);
   if (paths.length) await supabase.storage.from("house-images").remove(paths);
   const { error } = await supabase.from("houses").delete().eq("id", house.id);
   if (error) throw error;
@@ -60,7 +83,7 @@ export async function insertImages(rows: Database["public"]["Tables"]["house_ima
 }
 
 export async function deleteImage(image: HouseImageRow) {
-  if (image.storage_path && !image.storage_path.startsWith("seed/")) {
+  if (image.storage_path) {
     await supabase.storage.from("house-images").remove([image.storage_path]);
   }
   const { error } = await supabase.from("house_images").delete().eq("id", image.id);
@@ -68,9 +91,15 @@ export async function deleteImage(image: HouseImageRow) {
 }
 
 export async function setCoverImage(houseId: string, imageId: string) {
-  const { error: e1 } = await supabase.from("house_images").update({ is_cover: false }).eq("house_id", houseId);
+  const { error: e1 } = await supabase
+    .from("house_images")
+    .update({ is_cover: false })
+    .eq("house_id", houseId);
   if (e1) throw e1;
-  const { error: e2 } = await supabase.from("house_images").update({ is_cover: true }).eq("id", imageId);
+  const { error: e2 } = await supabase
+    .from("house_images")
+    .update({ is_cover: true })
+    .eq("id", imageId);
   if (e2) throw e2;
 }
 
@@ -81,7 +110,7 @@ export async function uploadHouseImage(userId: string, file: Blob, ext = "jpg") 
     .from("house-images")
     .upload(path, file, { contentType: "image/jpeg", cacheControl: "31536000" });
   if (error) throw error;
-  return { storage_path: path, image_url: `/api/public/img/${path}` };
+  return { storage_path: path, image_url: `/api/public/img/${encodeURIComponent(path)}` };
 }
 
 /** Admin: every house regardless of availability. */

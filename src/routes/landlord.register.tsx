@@ -81,7 +81,9 @@ function RegisterPage() {
         display_name: name.trim() || null,
       });
       if (profileError && !profileError.message.includes("duplicate")) {
-        toast.error("Account created, but saving your details failed. You can fix this in Profile.");
+        toast.error(
+          "Account created, but saving your details failed. You can fix this in Profile.",
+        );
       }
     }
 
@@ -128,14 +130,16 @@ function RegisterPage() {
                   id="phone"
                   inputMode="numeric"
                   autoComplete="tel-national"
-                  placeholder="677123456"
+                  placeholder="9-digit phone number"
                   className="h-12 pl-20"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   aria-invalid={!!errors["phone"]}
                 />
               </div>
-              {errors["phone"] ? <p className="text-xs text-destructive">{errors["phone"]}</p> : null}
+              {errors["phone"] ? (
+                <p className="text-xs text-destructive">{errors["phone"]}</p>
+              ) : null}
             </div>
 
             <div className="space-y-1.5">
@@ -171,7 +175,9 @@ function RegisterPage() {
                   aria-invalid={!!errors["confirm"]}
                 />
               </div>
-              {errors["confirm"] ? <p className="text-xs text-destructive">{errors["confirm"]}</p> : null}
+              {errors["confirm"] ? (
+                <p className="text-xs text-destructive">{errors["confirm"]}</p>
+              ) : null}
             </div>
 
             <Button type="submit" size="lg" className="h-12 w-full" disabled={submitting}>

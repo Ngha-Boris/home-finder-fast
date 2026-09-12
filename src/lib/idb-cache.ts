@@ -2,7 +2,7 @@
  * Tiny IndexedDB key-value cache used for offline-first house browsing.
  * Falls back to a no-op on the server or when IndexedDB is unavailable.
  */
-const DB_NAME = "house-finder-cache";
+const DB_NAME = "house-finder-cache-v2";
 const STORE = "kv";
 const VERSION = 1;
 

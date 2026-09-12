@@ -32,6 +32,14 @@ export function useCachedQuery<T>(opts: {
       return value;
     },
   });
+  const queryRefetch = query.refetch;
+
+  useEffect(() => {
+    if (opts.enabled === false || typeof window === "undefined") return;
+    const refetchOnOnline = () => void queryRefetch();
+    window.addEventListener("online", refetchOnOnline);
+    return () => window.removeEventListener("online", refetchOnOnline);
+  }, [opts.enabled, queryRefetch]);
 
   const data = query.data ?? cached?.value;
   const cacheChecked = cached !== undefined;
@@ -39,5 +47,13 @@ export function useCachedQuery<T>(opts: {
   const isFromCache = query.data === undefined && cached != null;
   const isError = query.isError && data === undefined;
 
-  return { data, isLoading, isError, isFromCache, refetch: query.refetch, isFetching: query.isFetching, error: query.error };
+  return {
+    data,
+    isLoading,
+    isError,
+    isFromCache,
+    refetch: queryRefetch,
+    isFetching: query.isFetching,
+    error: query.error,
+  };
 }
