@@ -105,7 +105,10 @@ export function HouseForm({
   };
 
   const removeExisting = async (image: HouseImageRow) => {
-    if (!online) return toast.error("This action requires an internet connection.");
+    if (!online) {
+      toast.error("This action requires an internet connection.");
+      return;
+    }
     try {
       await deleteImage(image);
       setExisting((imgs) => imgs.filter((i) => i.id !== image.id));
@@ -117,7 +120,10 @@ export function HouseForm({
 
   const makeCover = async (image: HouseImageRow) => {
     if (!house) return;
-    if (!online) return toast.error("This action requires an internet connection.");
+    if (!online) {
+      toast.error("This action requires an internet connection.");
+      return;
+    }
     try {
       await setCoverImage(house.id, image.id);
       setExisting((imgs) => imgs.map((i) => ({ ...i, is_cover: i.id === image.id })));
@@ -142,7 +148,10 @@ export function HouseForm({
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!online) return toast.error("This action requires an internet connection.");
+    if (!online) {
+      toast.error("This action requires an internet connection.");
+      return;
+    }
     if (!validate()) return;
 
     setSaving(true);

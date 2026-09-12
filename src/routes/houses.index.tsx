@@ -27,7 +27,13 @@ import {
 } from "@/lib/houses-types";
 import { CACHE_KEYS } from "@/lib/idb-cache";
 
-type Search = { q?: string; type?: string; region?: string; min?: number; max?: number };
+type Search = {
+  q?: string | undefined;
+  type?: string | undefined;
+  region?: string | undefined;
+  min?: number | undefined;
+  max?: number | undefined;
+};
 
 const PAGE_SIZE = 9;
 
@@ -59,7 +65,7 @@ export const Route = createFileRoute("/houses/")({
 
 function HousesPage() {
   const search = Route.useSearch();
-  const navigate = useNavigate({ from: "/houses" });
+  const navigate = useNavigate({ from: "/houses/" });
 
   const [queryInput, setQueryInput] = useState(search.q ?? "");
   const [showFilters, setShowFilters] = useState(false);
@@ -70,7 +76,7 @@ function HousesPage() {
     const t = setTimeout(() => {
       const value = queryInput.trim();
       if ((search.q ?? "") !== value) {
-        navigate({ search: (prev) => ({ ...prev, q: value || undefined }), replace: true });
+        navigate({ search: (prev: Search) => ({ ...prev, q: value || undefined }), replace: true });
       }
     }, 300);
     return () => clearTimeout(t);
@@ -112,7 +118,7 @@ function HousesPage() {
   };
 
   const setPreset = (min?: number, max?: number) =>
-    navigate({ search: (prev) => ({ ...prev, min, max }), replace: true });
+    navigate({ search: (prev: Search) => ({ ...prev, min, max }), replace: true });
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -153,7 +159,7 @@ function HousesPage() {
               value={search.type ?? "all"}
               onValueChange={(v) =>
                 navigate({
-                  search: (prev) => ({ ...prev, type: v === "all" ? undefined : (v as HouseType) }),
+                  search: (prev: Search) => ({ ...prev, type: v === "all" ? undefined : (v as HouseType) }),
                   replace: true,
                 })
               }
@@ -178,7 +184,7 @@ function HousesPage() {
               value={search.region ?? "all"}
               onValueChange={(v) =>
                 navigate({
-                  search: (prev) => ({ ...prev, region: v === "all" ? undefined : v }),
+                  search: (prev: Search) => ({ ...prev, region: v === "all" ? undefined : v }),
                   replace: true,
                 })
               }
@@ -208,7 +214,7 @@ function HousesPage() {
               value={search.min ?? ""}
               onChange={(e) =>
                 navigate({
-                  search: (prev) => ({ ...prev, min: e.target.value ? Number(e.target.value) : undefined }),
+                  search: (prev: Search) => ({ ...prev, min: e.target.value ? Number(e.target.value) : undefined }),
                   replace: true,
                 })
               }
@@ -226,7 +232,7 @@ function HousesPage() {
               value={search.max ?? ""}
               onChange={(e) =>
                 navigate({
-                  search: (prev) => ({ ...prev, max: e.target.value ? Number(e.target.value) : undefined }),
+                  search: (prev: Search) => ({ ...prev, max: e.target.value ? Number(e.target.value) : undefined }),
                   replace: true,
                 })
               }
