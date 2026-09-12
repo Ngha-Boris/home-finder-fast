@@ -35,7 +35,7 @@ function ProfilePage() {
       const userId = auth.user!.id;
       const { data: profile } = await supabase
         .from("profiles")
-        .select("id, full_name, phone")
+        .select("id, display_name, phone_number")
         .eq("id", userId)
         .maybeSingle();
       return profile;
@@ -43,14 +43,14 @@ function ProfilePage() {
   });
 
   useEffect(() => {
-    if (data?.full_name) setFullName(data.full_name);
-  }, [data?.full_name]);
+    if (data?.display_name) setFullName(data.full_name);
+  }, [data?.display_name]);
 
   const save = useMutation({
     mutationFn: async () => {
       const { error } = await supabase
         .from("profiles")
-        .update({ full_name: fullName.trim() })
+        .update({ display_name: fullName.trim() })
         .eq("id", data!.id);
       if (error) throw error;
     },
@@ -81,7 +81,7 @@ function ProfilePage() {
             </div>
             <div className="space-y-1.5">
               <Label>Phone number</Label>
-              <Input className="h-11" value={formatPhoneDisplay(data?.phone ?? "")} readOnly disabled />
+              <Input className="h-11" value={formatPhoneDisplay(data?.phone_number ?? "")} readOnly disabled />
               <p className="text-xs text-muted-foreground">
                 Your phone number is your login and can't be changed here.
               </p>

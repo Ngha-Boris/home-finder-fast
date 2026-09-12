@@ -29,9 +29,9 @@ function EditListingPage() {
       const userId = auth.user!.id;
       const [house, profile] = await Promise.all([
         fetchHouse(id),
-        supabase.from("profiles").select("phone").eq("id", userId).maybeSingle(),
+        supabase.from("profiles").select("phone_number").eq("id", userId).maybeSingle(),
       ]);
-      return { userId, house, phone: profile.data?.phone ?? "" };
+      return { userId, house, phone: profile.data?.phone_number ?? "" };
     },
   });
 
@@ -42,11 +42,7 @@ function EditListingPage() {
         {isPending ? (
           <Skeleton className="h-96 w-full rounded-xl" />
         ) : isError || !data?.house ? (
-          <ErrorState
-            title="Listing not found"
-            description="This listing may have been deleted."
-            onRetry={() => refetch()}
-          />
+          <ErrorState message="This listing could not be found." onRetry={() => refetch()} />
         ) : (
           <HouseForm userId={data.userId} defaultPhone={data.phone} house={data.house} />
         )}

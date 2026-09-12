@@ -77,9 +77,9 @@ function AdminPage() {
             <TableBody>
               {(landlords.data ?? []).map((l) => (
                 <TableRow key={l.id}>
-                  <TableCell className="font-medium">{l.full_name ?? "—"}</TableCell>
-                  <TableCell>{l.phone ? formatPhoneDisplay(l.phone) : "—"}</TableCell>
-                  <TableCell className="text-right">{l.house_count ?? 0}</TableCell>
+                  <TableCell className="font-medium">{l.display_name ?? "—"}</TableCell>
+                  <TableCell>{l.phone_number ? formatPhoneDisplay(l.phone_number) : "—"}</TableCell>
+                  <TableCell className="text-right">{l.listing_count ?? 0}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

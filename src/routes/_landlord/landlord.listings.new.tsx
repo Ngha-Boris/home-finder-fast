@@ -25,10 +25,10 @@ function NewListingPage() {
       const userId = auth.user!.id;
       const { data: profile } = await supabase
         .from("profiles")
-        .select("phone, full_name")
+        .select("phone_number, display_name")
         .eq("id", userId)
         .maybeSingle();
-      return { userId, phone: profile?.phone ?? "" };
+      return { userId, phone: profile?.phone_number ?? "" };
     },
   });
 
