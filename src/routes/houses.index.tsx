@@ -28,11 +28,11 @@ import {
 import { CACHE_KEYS } from "@/lib/idb-cache";
 
 type Search = {
-  q: string | undefined;
-  type: string | undefined;
-  region: string | undefined;
-  min: number | undefined;
-  max: number | undefined;
+  q?: string | undefined;
+  type?: string | undefined;
+  region?: string | undefined;
+  min?: number | undefined;
+  max?: number | undefined;
 };
 
 const PAGE_SIZE = 9;

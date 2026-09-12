@@ -43,7 +43,7 @@ function ProfilePage() {
   });
 
   useEffect(() => {
-    if (data?.display_name) setFullName(data.full_name);
+    if (data?.display_name) setFullName(data.display_name);
   }, [data?.display_name]);
 
   const save = useMutation({
