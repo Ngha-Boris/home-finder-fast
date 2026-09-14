@@ -25,22 +25,14 @@ export const Route = createFileRoute("/api/public/img/$")({
 
           const { data: image, error: imageError } = await admin
             .from("house_images")
-            .select("house_id")
+            .select("house_id, houses!inner(availability)")
             .eq("storage_path", path)
             .limit(1)
             .maybeSingle();
 
-          if (imageError || !image?.house_id) {
-            return new Response("Not found", { status: 404 });
-          }
+          const house = Array.isArray(image?.houses) ? image?.houses[0] : image?.houses;
 
-          const { data: house, error: houseError } = await admin
-            .from("houses")
-            .select("availability")
-            .eq("id", image.house_id)
-            .maybeSingle();
-
-          if (houseError || house?.availability !== "available") {
+          if (imageError || !image?.house_id || house?.availability !== "available") {
             return new Response("Not found", { status: 404 });
           }
 

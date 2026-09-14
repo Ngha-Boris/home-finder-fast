@@ -4,15 +4,7 @@ import { HouseForm } from "@/components/house-form";
 import { LandlordShell } from "@/components/landlord-shell";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-
-function phoneFromAuthUser(user: {
-  email?: string | null;
-  user_metadata?: { phone_number?: unknown };
-}) {
-  if (typeof user.user_metadata?.phone_number === "string") return user.user_metadata.phone_number;
-  const emailLocalPart = user.email?.split("@")[0];
-  return emailLocalPart && /^\d{9,12}$/.test(emailLocalPart) ? emailLocalPart : "";
-}
+import { phoneFromAuthIdentity, phoneInputValue } from "@/lib/phone";
 
 export const Route = createFileRoute("/_landlord/landlord/listings/new")({
   head: () => ({
@@ -41,7 +33,10 @@ function NewListingPage() {
         .select("phone_number, display_name")
         .eq("id", userId)
         .maybeSingle();
-      return { userId, phone: profile?.phone_number ?? phoneFromAuthUser(user) };
+      return {
+        userId,
+        phone: phoneInputValue(profile?.phone_number) || phoneFromAuthIdentity(user),
+      };
     },
   });
 

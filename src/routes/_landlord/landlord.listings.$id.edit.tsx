@@ -6,6 +6,7 @@ import { ErrorState } from "@/components/states";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchMyHouse } from "@/lib/houses-api";
+import { phoneFromAuthIdentity, phoneInputValue } from "@/lib/phone";
 
 export const Route = createFileRoute("/_landlord/landlord/listings/$id/edit")({
   head: () => ({
@@ -29,12 +30,17 @@ function EditListingPage() {
     queryKey: ["edit-house", id],
     queryFn: async () => {
       const { data: auth } = await supabase.auth.getUser();
-      const userId = auth.user!.id;
+      const user = auth.user!;
+      const userId = user.id;
       const [house, profile] = await Promise.all([
         fetchMyHouse(id),
         supabase.from("profiles").select("phone_number").eq("id", userId).maybeSingle(),
       ]);
-      return { userId, house, phone: profile.data?.phone_number ?? "" };
+      return {
+        userId,
+        house,
+        phone: phoneInputValue(profile.data?.phone_number) || phoneFromAuthIdentity(user),
+      };
     },
   });
 

@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import type { HouseImageRow } from "@/lib/houses-types";
 
 const DEFAULT_WIDTHS = [320, 640, 960, 1280];
+const SIGNED_URL_TTL_SECONDS = 60 * 60;
+const signedUrlCache = new Map<string, { src: string; srcSet?: string; expiresAt: number }>();
 
 type StorageImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "alt" | "srcSet"> & {
   image: HouseImageRow;
@@ -17,6 +19,10 @@ function publicImageUrl(imageUrl: string, width: number) {
 
 function canUsePublicVariants(imageUrl: string) {
   return imageUrl.startsWith("/api/public/img/");
+}
+
+function signedCacheKey(path: string, widthsKey: string) {
+  return `${path}|${widthsKey}`;
 }
 
 export function StorageImage({
@@ -36,45 +42,72 @@ export function StorageImage({
   );
 
   const widthsKey = useMemo(() => responsiveWidths.join(","), [responsiveWidths]);
+  const widths = useMemo(
+    () =>
+      widthsKey
+        .split(",")
+        .map((width) => Number(width))
+        .filter(Number.isFinite),
+    [widthsKey],
+  );
 
   useEffect(() => {
     let cancelled = false;
     setSrc(image.image_url);
     setSrcSet(
       canUsePublicVariants(image.image_url)
-        ? responsiveWidths
-            .map((width) => `${publicImageUrl(image.image_url, width)} ${width}w`)
-            .join(", ")
+        ? widths.map((width) => `${publicImageUrl(image.image_url, width)} ${width}w`).join(", ")
         : undefined,
     );
 
-    if (!image.storage_path) return;
+    if (!image.storage_path || canUsePublicVariants(image.image_url)) return;
+
+    const cacheKey = signedCacheKey(image.storage_path, widthsKey);
+    const cached = signedUrlCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      setSrc(cached.src);
+      setSrcSet(cached.srcSet);
+      return;
+    }
 
     Promise.all([
-      supabase.storage.from("house-images").createSignedUrl(image.storage_path, 60 * 60),
+      supabase.storage
+        .from("house-images")
+        .createSignedUrl(image.storage_path, SIGNED_URL_TTL_SECONDS),
       Promise.all(
-        responsiveWidths.map((width) =>
-          supabase.storage.from("house-images").createSignedUrl(image.storage_path!, 60 * 60, {
-            transform: { width, quality: 75, resize: "contain" },
-          }),
+        widths.map((width) =>
+          supabase.storage
+            .from("house-images")
+            .createSignedUrl(image.storage_path!, SIGNED_URL_TTL_SECONDS, {
+              transform: { width, quality: 75, resize: "contain" },
+            }),
         ),
       ),
     ]).then(([full, variants]) => {
       if (cancelled) return;
-      if (full.data?.signedUrl) setSrc(full.data.signedUrl);
+      const nextSrc = full.data?.signedUrl;
       const signedSet = variants
         .map((variant, index) =>
-          variant.data?.signedUrl ? `${variant.data.signedUrl} ${responsiveWidths[index]}w` : null,
+          variant.data?.signedUrl ? `${variant.data.signedUrl} ${widths[index]}w` : null,
         )
         .filter(Boolean)
         .join(", ");
-      if (signedSet) setSrcSet(signedSet);
+      const nextSrcSet = signedSet || undefined;
+      if (nextSrc) {
+        setSrc(nextSrc);
+        setSrcSet(nextSrcSet);
+        signedUrlCache.set(cacheKey, {
+          src: nextSrc,
+          srcSet: nextSrcSet,
+          expiresAt: Date.now() + (SIGNED_URL_TTL_SECONDS - 60) * 1000,
+        });
+      }
     });
 
     return () => {
       cancelled = true;
     };
-  }, [image.image_url, image.storage_path, responsiveWidths, widthsKey]);
+  }, [image.image_url, image.storage_path, widths, widthsKey]);
 
   return (
     <img
