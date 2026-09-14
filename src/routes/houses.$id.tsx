@@ -58,13 +58,13 @@ import { formatPhoneDisplay, telLink, whatsappLink } from "@/lib/phone";
 export const Route = createFileRoute("/houses/$id")({
   head: () => ({
     meta: [
-      { title: "House details — Nyumba" },
+      { title: "House details — Easy Rent" },
       {
         name: "description",
         content:
           "See photos, rent, location and amenities for this rental house, then call or WhatsApp the landlord directly.",
       },
-      { property: "og:title", content: "House details — Nyumba" },
+      { property: "og:title", content: "House details — Easy Rent" },
       {
         property: "og:description",
         content: "Photos, rent, location and direct landlord contact for this rental house.",
@@ -121,12 +121,12 @@ function HouseDetailsPage() {
   });
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="app-surface flex min-h-screen flex-col">
       <SiteHeader />
       <OfflineBanner />
 
-      <main className="container-page flex-1 py-6">
-        <Button asChild variant="ghost" className="-ml-2 mb-4">
+      <main className="container-page flex-1 py-4 sm:py-6">
+        <Button asChild variant="ghost" className="-ml-2 mb-3 sm:mb-4">
           <Link to="/houses">
             <ArrowLeft className="h-4 w-4" />
             Back to houses
@@ -149,17 +149,17 @@ function HouseDetailsPage() {
         ) : !house ? (
           <ErrorState message="This listing is no longer available." />
         ) : (
-          <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+          <div className="grid min-w-0 gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-8">
             <div>
               <ImageGallery
                 images={sortedImages(house)}
                 alt={`${houseTypeLabel(house.house_type)} in ${house.location}`}
               />
 
-              <div className="mt-8 space-y-6">
+              <div className="mt-6 space-y-6 sm:mt-8">
                 <div>
                   <h2 className="font-display text-xl font-bold">About this property</h2>
-                  <p className="mt-2 whitespace-pre-line text-muted-foreground">
+                  <p className="mt-2 whitespace-pre-line break-words text-sm leading-6 text-muted-foreground sm:text-base">
                     {house.description}
                   </p>
                 </div>
@@ -200,20 +200,22 @@ function HouseDetailsPage() {
                 {house.location_details ? (
                   <div>
                     <h3 className="font-display text-lg font-semibold">Getting there</h3>
-                    <p className="mt-1 text-muted-foreground">{house.location_details}</p>
+                    <p className="mt-1 break-words text-sm leading-6 text-muted-foreground sm:text-base">
+                      {house.location_details}
+                    </p>
                   </div>
                 ) : null}
               </div>
             </div>
 
             <aside className="lg:sticky lg:top-24 lg:self-start">
-              <Card className="space-y-5 p-6 shadow-card">
+              <Card className="space-y-5 border-white/70 p-4 shadow-card sm:p-6">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="secondary">{houseTypeLabel(house.house_type)}</Badge>
                   <Badge
                     className={
                       house.availability === "available"
-                        ? "bg-success text-success-foreground"
+                        ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground"
                     }
                   >
@@ -222,14 +224,14 @@ function HouseDetailsPage() {
                 </div>
 
                 <div>
-                  <p className="font-display text-3xl font-extrabold text-primary">
+                  <p className="break-words font-display text-2xl font-extrabold text-foreground sm:text-3xl">
                     {formatPrice(house.rent_price)}
                   </p>
                   <p className="text-sm text-muted-foreground">per month</p>
                 </div>
 
                 <p className="flex items-start gap-2 text-sm">
-                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                   <span>
                     <span className="font-medium">{house.location}</span>
                     <br />
@@ -239,7 +241,7 @@ function HouseDetailsPage() {
 
                 <div className="space-y-2 border-t border-border pt-5">
                   <p className="text-sm font-medium">Contact the landlord</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="break-words text-sm text-muted-foreground">
                     {formatPhoneDisplay(house.contact_phone)}
                   </p>
                   <Button asChild size="lg" className="h-12 w-full">
@@ -255,7 +257,7 @@ function HouseDetailsPage() {
                     <a
                       href={whatsappLink(
                         house.contact_phone,
-                        `Hello, I saw your ${houseTypeLabel(house.house_type).toLowerCase()} in ${house.location} on Nyumba. Is it still available?`,
+                        `Hello, I saw your ${houseTypeLabel(house.house_type).toLowerCase()} in ${house.location} on Easy Rent. Is it still available?`,
                       )}
                       target="_blank"
                       rel="noreferrer"
@@ -288,7 +290,7 @@ function HouseDetailsPage() {
                         Report listing
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-lg">
                       <DialogHeader>
                         <DialogTitle>Report this listing</DialogTitle>
                       </DialogHeader>
@@ -357,8 +359,8 @@ function Fact({
   value: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
-      <Icon className="h-5 w-5 text-primary" />
+    <div className="flex items-center gap-3 rounded-xl border border-border bg-card/90 px-4 py-3 shadow-sm">
+      <Icon className="h-5 w-5 text-muted-foreground" />
       <div>
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className="text-sm font-medium">{value}</p>

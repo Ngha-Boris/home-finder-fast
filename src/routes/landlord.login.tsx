@@ -11,7 +11,7 @@ import { useSession } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { isValidLocalPhone, normalizePhone } from "@/lib/phone";
 
-const LANDLORD_AUTH_DRAFT_KEY = "nyumba:landlord-auth-draft";
+const LANDLORD_AUTH_DRAFT_KEY = "easy-rent:landlord-auth-draft";
 
 function readAuthDraft() {
   if (typeof window === "undefined") return null;
@@ -33,10 +33,13 @@ function saveAuthDraft(phone: string, password: string) {
 export const Route = createFileRoute("/landlord/login")({
   head: () => ({
     meta: [
-      { title: "Landlord login — Nyumba" },
-      { name: "description", content: "Sign in to manage your rental listings on Nyumba." },
-      { property: "og:title", content: "Landlord login — Nyumba" },
-      { property: "og:description", content: "Sign in to manage your rental listings on Nyumba." },
+      { title: "Landlord login — Easy Rent" },
+      { name: "description", content: "Sign in to manage your rental listings on Easy Rent." },
+      { property: "og:title", content: "Landlord login — Easy Rent" },
+      {
+        property: "og:description",
+        content: "Sign in to manage your rental listings on Easy Rent.",
+      },
     ],
   }),
   component: LoginPage,
@@ -89,12 +92,15 @@ function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="app-surface flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="container-page flex flex-1 items-center justify-center py-12">
-        <Card className="w-full max-w-md space-y-6 p-6 shadow-card sm:p-8">
+      <main className="container-page flex flex-1 items-center justify-center py-6 sm:py-12">
+        <Card className="w-full max-w-md space-y-5 border-white/70 p-4 shadow-card sm:space-y-6 sm:p-8">
           <div>
-            <h1 className="font-display text-2xl font-bold">Landlord login</h1>
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <Phone className="h-5 w-5" />
+            </div>
+            <h1 className="font-display text-xl font-extrabold sm:text-2xl">Landlord login</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Sign in with the phone number you registered with.
             </p>

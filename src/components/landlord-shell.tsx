@@ -53,21 +53,21 @@ export function LandlordShell({ children }: { children: ReactNode }) {
     : NAV;
 
   return (
-    <div className="flex min-h-screen flex-col bg-secondary/30">
-      <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-md">
-        <div className="container-page flex h-16 items-center justify-between gap-3">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="gradient-brand flex h-9 w-9 items-center justify-center rounded-xl text-primary-foreground">
+    <div className="app-surface flex min-h-screen flex-col">
+      <header className="sticky top-0 z-40 border-b border-border/70 bg-card/85 shadow-sm backdrop-blur-xl">
+        <div className="container-page flex h-14 items-center justify-between gap-3 sm:h-16">
+          <Link to="/" className="flex min-w-0 items-center gap-2">
+            <span className="gradient-brand flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-primary-foreground shadow-card">
               <Home className="h-5 w-5" />
             </span>
-            <span className="font-display text-lg font-bold">Nyumba</span>
+            <span className="truncate font-display text-lg font-extrabold">Easy Rent</span>
           </Link>
-          <Button variant="ghost" onClick={() => void signOut()}>
+          <Button variant="ghost" size="sm" className="shrink-0" onClick={() => void signOut()}>
             <LogOut className="h-4 w-4" />
             <span className="hidden sm:inline">Logout</span>
           </Button>
         </div>
-        <nav className="container-page flex gap-1 overflow-x-auto pb-2">
+        <nav className="container-page flex gap-1 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {nav.map((item) => {
             const active = pathname === item.to;
             return (
@@ -76,7 +76,7 @@ export function LandlordShell({ children }: { children: ReactNode }) {
                 asChild
                 size="sm"
                 variant={active ? "default" : "ghost"}
-                className="shrink-0"
+                className="h-9 shrink-0 px-2.5 text-xs sm:px-3 sm:text-sm"
               >
                 <Link to={item.to}>
                   <item.icon className="h-4 w-4" />
@@ -94,7 +94,7 @@ export function LandlordShell({ children }: { children: ReactNode }) {
         </div>
       ) : null}
 
-      <main className="container-page flex-1 py-8">{children}</main>
+      <main className="container-page flex-1 py-5 sm:py-8">{children}</main>
     </div>
   );
 }

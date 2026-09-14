@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Home } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { HouseCard, HouseCardSkeleton } from "@/components/house-card";
 import { CachedNotice, OfflineBanner } from "@/components/offline-banner";
@@ -37,12 +38,12 @@ export const Route = createFileRoute("/houses/")({
   }),
   head: () => ({
     meta: [
-      { title: "Browse rental houses — Nyumba" },
+      { title: "Browse rental houses — Easy Rent" },
       {
         name: "description",
         content: "Browse available studio apartments, rooms and houses across Cameroon.",
       },
-      { property: "og:title", content: "Browse rental houses — Nyumba" },
+      { property: "og:title", content: "Browse rental houses — Easy Rent" },
       {
         property: "og:description",
         content: "Browse available rental houses and contact landlords directly.",
@@ -97,17 +98,27 @@ function HousesPage() {
   );
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="app-surface flex min-h-screen flex-col">
       <SiteHeader />
       <OfflineBanner />
 
-      <main className="container-page flex-1 py-8">
-        <h1 className="font-display text-3xl font-bold">Available houses</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {isLoading
-            ? "Loading listings…"
-            : `${filtered.length} available house${filtered.length === 1 ? "" : "s"}`}
-        </p>
+      <main className="container-page flex-1 py-5 sm:py-8">
+        <div className="stage-surface overflow-hidden rounded-2xl border border-white/15 p-5 text-primary-foreground shadow-card sm:p-8">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-0">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1 text-xs font-semibold">
+                <Home className="h-3.5 w-3.5" />
+                Live rental feed
+              </div>
+              <h1 className="font-display text-3xl font-extrabold sm:text-4xl">Available houses</h1>
+              <p className="mt-2 text-sm text-primary-foreground/78">
+                {isLoading
+                  ? "Loading listings..."
+                  : `${filtered.length} available house${filtered.length === 1 ? "" : "s"}`}
+              </p>
+            </div>
+          </div>
+        </div>
 
         <div className="mt-6">
           <CachedNotice show={isFromCache} />

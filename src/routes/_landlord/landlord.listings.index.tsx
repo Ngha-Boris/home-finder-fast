@@ -17,9 +17,9 @@ import { HOUSE_TYPES, houseTypeLabel, type House, type HouseType } from "@/lib/h
 export const Route = createFileRoute("/_landlord/landlord/listings/")({
   head: () => ({
     meta: [
-      { title: "My listings — Nyumba" },
+      { title: "My listings — Easy Rent" },
       { name: "description", content: "View, edit and delete the rental houses you have listed." },
-      { property: "og:title", content: "My listings — Nyumba" },
+      { property: "og:title", content: "My listings — Easy Rent" },
       { property: "og:description", content: "View, edit and delete your rental listings." },
     ],
   }),
@@ -71,19 +71,21 @@ function MyListingsPage() {
 
   return (
     <LandlordShell>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="font-display text-3xl font-bold">My listings</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Review, update, and publish the properties tenants can contact you about.
-          </p>
+      <div className="stage-surface overflow-hidden rounded-2xl border border-white/15 p-5 text-primary-foreground shadow-card sm:p-7">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="font-display text-2xl font-extrabold sm:text-3xl">My listings</h1>
+            <p className="mt-1 text-sm text-primary-foreground/78">
+              Review, update, and publish the properties tenants can contact you about.
+            </p>
+          </div>
+          <Button asChild variant="heroOutline" className="w-full sm:w-auto">
+            <Link to="/landlord/listings/new">
+              <PlusCircle className="h-4 w-4" />
+              Add House
+            </Link>
+          </Button>
         </div>
-        <Button asChild>
-          <Link to="/landlord/listings/new">
-            <PlusCircle className="h-4 w-4" />
-            Add House
-          </Link>
-        </Button>
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -92,7 +94,7 @@ function MyListingsPage() {
         <SummaryCard icon={EyeOff} label="Unavailable" value={isPending ? null : unavailable} />
       </div>
 
-      <Card className="mt-6 space-y-4 p-4 shadow-card">
+      <Card className="mt-6 space-y-4 border-white/70 p-3 shadow-card sm:p-4">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -104,13 +106,14 @@ function MyListingsPage() {
           />
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           {(["all", "available", "unavailable"] as const).map((value) => (
             <Button
               key={value}
               type="button"
               size="sm"
               variant={status === value ? "default" : "secondary"}
+              className="justify-center"
               onClick={() => setStatus(value)}
             >
               {value === "all" ? "All status" : value === "available" ? "Available" : "Unavailable"}
@@ -122,13 +125,20 @@ function MyListingsPage() {
               type="button"
               size="sm"
               variant={type === option.value ? "default" : "secondary"}
+              className="justify-center"
               onClick={() => setType(type === option.value ? "all" : option.value)}
             >
               {option.label}
             </Button>
           ))}
           {hasFilters ? (
-            <Button type="button" size="sm" variant="ghost" onClick={clearFilters}>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              className="justify-center"
+              onClick={clearFilters}
+            >
               <X className="h-4 w-4" />
               Clear
             </Button>
@@ -161,7 +171,7 @@ function MyListingsPage() {
           />
         ) : (
           <>
-            <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+            <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-3">
               <span>
                 Showing {filtered.length} of {houses.length} listing{houses.length === 1 ? "" : "s"}
               </span>
@@ -187,8 +197,8 @@ function SummaryCard({
   value: number | null;
 }) {
   return (
-    <Card className="flex items-center gap-3 p-4 shadow-card">
-      <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+    <Card className="flex items-center gap-3 border-white/70 p-4 shadow-card">
+      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
         <Icon className="h-5 w-5" />
       </span>
       <div>

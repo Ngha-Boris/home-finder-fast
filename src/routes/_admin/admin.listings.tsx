@@ -11,9 +11,9 @@ import { fetchAllHousesAdmin } from "@/lib/houses-api";
 export const Route = createFileRoute("/_admin/admin/listings")({
   head: () => ({
     meta: [
-      { title: "Admin listings - Nyumba" },
-      { name: "description", content: "Review and moderate every listing on Nyumba." },
-      { property: "og:title", content: "Admin listings - Nyumba" },
+      { title: "Admin listings - Easy Rent" },
+      { name: "description", content: "Review and moderate every listing on Easy Rent." },
+      { property: "og:title", content: "Admin listings - Easy Rent" },
       { property: "og:description", content: "Review and moderate rental listings." },
       { name: "robots", content: "noindex" },
     ],
@@ -49,7 +49,7 @@ function AdminListingsPage() {
         ) : (houses.data ?? []).length === 0 ? (
           <EmptyState
             title="No listings yet"
-            description="Every listing added to Nyumba will appear here."
+            description="Every listing added to Easy Rent will appear here."
           />
         ) : (
           houses.data!.map((house) => <ListingRow key={house.id} house={house} adminMode />)

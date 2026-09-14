@@ -11,7 +11,7 @@ import { useSession } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { isValidLocalPhone, normalizePhone } from "@/lib/phone";
 
-const LANDLORD_AUTH_DRAFT_KEY = "nyumba:landlord-auth-draft";
+const LANDLORD_AUTH_DRAFT_KEY = "easy-rent:landlord-auth-draft";
 
 function readAuthDraft() {
   if (typeof window === "undefined") return null;
@@ -38,15 +38,16 @@ function clearAuthDraft() {
 export const Route = createFileRoute("/landlord/register")({
   head: () => ({
     meta: [
-      { title: "Register as a landlord — Nyumba" },
+      { title: "Register as a landlord — Easy Rent" },
       {
         name: "description",
-        content: "Create a free landlord account and list your rental houses on Nyumba in minutes.",
+        content:
+          "Create a free landlord account and list your rental houses on Easy Rent in minutes.",
       },
-      { property: "og:title", content: "Register as a landlord — Nyumba" },
+      { property: "og:title", content: "Register as a landlord — Easy Rent" },
       {
         property: "og:description",
-        content: "Create a free landlord account and list your rental houses on Nyumba.",
+        content: "Create a free landlord account and list your rental houses on Easy Rent.",
       },
     ],
   }),
@@ -118,12 +119,17 @@ function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="app-surface flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="container-page flex flex-1 items-center justify-center py-12">
-        <Card className="w-full max-w-md space-y-6 p-6 shadow-card sm:p-8">
+      <main className="container-page flex flex-1 items-center justify-center py-6 sm:py-12">
+        <Card className="w-full max-w-md space-y-5 border-white/70 p-4 shadow-card sm:space-y-6 sm:p-8">
           <div>
-            <h1 className="font-display text-2xl font-bold">Create your landlord account</h1>
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <Phone className="h-5 w-5" />
+            </div>
+            <h1 className="font-display text-xl font-extrabold sm:text-2xl">
+              Create your landlord account
+            </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Tenants will call and WhatsApp you on this number.
             </p>

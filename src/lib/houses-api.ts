@@ -231,7 +231,7 @@ export async function reportListing(input: {
   reason: ListingReportReason;
   details?: string | null;
 }) {
-  const throttleKey = `nyumba:report:${input.houseId}:${input.reporterUserId ?? "anon"}`;
+  const throttleKey = `easy-rent:report:${input.houseId}:${input.reporterUserId ?? "anon"}`;
   if (!clientWindowAllows(throttleKey, LISTING_REPORT_WINDOW_MS)) {
     throw new Error("You already reported this listing recently. Thank you.");
   }
@@ -246,7 +246,7 @@ export async function reportListing(input: {
 }
 
 export async function logContactEvent(houseId: string, contactMethod: "call" | "whatsapp") {
-  const throttleKey = `nyumba:contact:${houseId}:${contactMethod}`;
+  const throttleKey = `easy-rent:contact:${houseId}:${contactMethod}`;
   if (!clientWindowAllows(throttleKey, CONTACT_EVENT_WINDOW_MS)) return;
 
   const { error } = await supabase

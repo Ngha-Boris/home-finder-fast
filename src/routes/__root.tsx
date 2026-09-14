@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { InstallPwaPrompt } from "@/components/install-pwa-prompt";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -79,14 +80,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Nyumba — Find a house to rent in Cameroon" },
+      { title: "Easy Rent — Find a house to rent in Cameroon" },
       {
         name: "description",
         content:
           "Browse verified rental houses across Cameroon and call or WhatsApp the landlord directly. No account needed.",
       },
-      { name: "theme-color", content: "#0f5c58" },
-      { property: "og:title", content: "Nyumba — Find a house to rent in Cameroon" },
+      { name: "theme-color", content: "#10131c" },
+      { property: "og:title", content: "Easy Rent — Find a house to rent in Cameroon" },
       {
         property: "og:description",
         content: "Browse rental houses across Cameroon and contact landlords directly.",
@@ -154,6 +155,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <InstallPwaPrompt />
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );

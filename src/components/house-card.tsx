@@ -16,11 +16,11 @@ import {
 export function HouseCard({ house }: { house: House }) {
   const cover = coverImage(house);
   return (
-    <Card className="group flex flex-col overflow-hidden p-0 shadow-card transition-shadow hover:shadow-card-hover">
+    <Card className="group flex min-w-0 flex-col overflow-hidden p-0 transition-all hover:-translate-y-1 hover:shadow-card-hover">
       <Link
         to="/houses/$id"
         params={{ id: house.id }}
-        className="relative block aspect-[4/3] overflow-hidden bg-muted"
+        className="relative block aspect-[4/3] overflow-hidden bg-secondary"
       >
         {cover ? (
           <StorageImage
@@ -39,33 +39,35 @@ export function HouseCard({ house }: { house: House }) {
           </div>
         )}
         <Badge
-          className="absolute left-3 top-3 bg-card/90 text-card-foreground backdrop-blur"
+          className="absolute left-3 top-3 border-white/40 bg-card/90 text-card-foreground shadow-sm backdrop-blur"
           variant="secondary"
         >
           {houseTypeLabel(house.house_type)}
         </Badge>
         <Badge
-          className={`absolute right-3 top-3 ${house.availability === "available" ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}
+          className={`absolute right-3 top-3 shadow-sm ${house.availability === "available" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
         >
           {house.availability === "available" ? "Available" : "Unavailable"}
         </Badge>
       </Link>
 
-      <div className="flex flex-1 flex-col gap-3 p-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-3 p-4">
         <div>
-          <p className="font-display text-xl font-bold text-primary">
+          <p className="break-words font-display text-lg font-extrabold text-foreground sm:text-xl">
             {formatPrice(house.rent_price)}
           </p>
           <p className="text-xs text-muted-foreground">per month</p>
         </div>
-        <p className="flex items-start gap-1.5 text-sm font-medium">
-          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-          <span>
+        <p className="flex min-w-0 items-start gap-1.5 text-sm font-medium">
+          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+          <span className="min-w-0 break-words">
             {house.location}
             <span className="text-muted-foreground"> · {house.region}</span>
           </span>
         </p>
-        <p className="line-clamp-2 text-sm text-muted-foreground">{house.description}</p>
+        <p className="line-clamp-2 break-words text-sm text-muted-foreground">
+          {house.description}
+        </p>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
           {house.rooms ? (
             <span className="flex items-center gap-1">

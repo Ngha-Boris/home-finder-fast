@@ -9,13 +9,13 @@ import { phoneFromAuthIdentity, phoneInputValue } from "@/lib/phone";
 export const Route = createFileRoute("/_landlord/landlord/listings/new")({
   head: () => ({
     meta: [
-      { title: "Add a house — Nyumba" },
+      { title: "Add a house — Easy Rent" },
       {
         name: "description",
         content: "List a new rental house with photos, rent and contact details.",
       },
-      { property: "og:title", content: "Add a house — Nyumba" },
-      { property: "og:description", content: "List a new rental house on Nyumba." },
+      { property: "og:title", content: "Add a house — Easy Rent" },
+      { property: "og:description", content: "List a new rental house on Easy Rent." },
     ],
   }),
   component: NewListingPage,

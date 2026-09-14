@@ -238,8 +238,8 @@ export function HouseForm({
   };
 
   return (
-    <form onSubmit={onSubmit} noValidate className="space-y-6">
-      <Card className="space-y-5 p-5 shadow-card sm:p-6">
+    <form onSubmit={onSubmit} noValidate className="space-y-5 sm:space-y-6">
+      <Card className="space-y-5 border-white/70 p-4 shadow-card sm:p-6">
         <h2 className="font-display text-lg font-semibold">Property details</h2>
 
         <div className="grid gap-5 sm:grid-cols-2">
@@ -350,7 +350,7 @@ export function HouseForm({
         </label>
       </Card>
 
-      <Card className="space-y-5 p-5 shadow-card sm:p-6">
+      <Card className="space-y-5 border-white/70 p-4 shadow-card sm:p-6">
         <h2 className="font-display text-lg font-semibold">Extra details (optional)</h2>
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="space-y-1.5">
@@ -382,12 +382,12 @@ export function HouseForm({
             ) : null}
           </div>
         </div>
-        <div className="flex flex-wrap gap-6">
-          <label className="flex items-center gap-2 text-sm">
+        <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-6">
+          <label className="flex min-h-10 items-center gap-2 text-sm">
             <Checkbox checked={hasWater} onCheckedChange={(v) => setHasWater(!!v)} />
             Water available
           </label>
-          <label className="flex items-center gap-2 text-sm">
+          <label className="flex min-h-10 items-center gap-2 text-sm">
             <Checkbox checked={hasElectricity} onCheckedChange={(v) => setHasElectricity(!!v)} />
             Electricity available
           </label>
@@ -414,7 +414,7 @@ export function HouseForm({
         </div>
       </Card>
 
-      <Card className="space-y-4 p-5 shadow-card sm:p-6">
+      <Card className="space-y-4 border-white/70 p-4 shadow-card sm:p-6">
         <div>
           <h2 className="font-display text-lg font-semibold">Photos *</h2>
           <p className="text-sm text-muted-foreground">
@@ -434,7 +434,7 @@ export function HouseForm({
         <Button
           type="button"
           variant="outline"
-          className="h-11"
+          className="h-11 w-full sm:w-auto"
           disabled={saving}
           onClick={() => fileRef.current?.click()}
         >
@@ -444,11 +444,11 @@ export function HouseForm({
         {errors["photos"] ? <p className="text-xs text-destructive">{errors["photos"]}</p> : null}
 
         {existing.length || pending.length ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
             {existing.map((img) => (
               <div
                 key={img.id}
-                className="group relative overflow-hidden rounded-lg border border-border"
+                className="group relative overflow-hidden rounded-xl border border-border bg-secondary"
               >
                 <StorageImage
                   image={img}
@@ -461,7 +461,7 @@ export function HouseForm({
                   className="aspect-[4/3] w-full object-cover"
                 />
                 {img.is_cover ? (
-                  <span className="absolute left-1.5 top-1.5 rounded bg-highlight px-1.5 py-0.5 text-[10px] font-semibold text-highlight-foreground">
+                  <span className="absolute left-1.5 top-1.5 rounded-full bg-highlight px-1.5 py-0.5 text-[10px] font-semibold text-highlight-foreground">
                     Main
                   </span>
                 ) : (
@@ -491,7 +491,7 @@ export function HouseForm({
             {pending.map((p) => (
               <div
                 key={p.id}
-                className="relative overflow-hidden rounded-lg border border-dashed border-primary/50"
+                className="relative overflow-hidden rounded-xl border border-dashed border-primary/50 bg-secondary"
               >
                 <img src={p.url} alt="" className="aspect-[4/3] w-full object-cover" />
                 <Button
@@ -512,8 +512,8 @@ export function HouseForm({
         {saving && pending.length ? <Progress value={progress} className="h-2" /> : null}
       </Card>
 
-      <div className="flex flex-wrap gap-3">
-        <Button type="submit" size="lg" className="h-12" disabled={saving}>
+      <div className="grid gap-3 sm:flex sm:flex-wrap">
+        <Button type="submit" size="lg" className="h-12 w-full sm:w-auto" disabled={saving}>
           {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
           {saving ? "Saving…" : house ? "Save changes" : "Publish house"}
         </Button>
@@ -521,7 +521,7 @@ export function HouseForm({
           type="button"
           size="lg"
           variant="outline"
-          className="h-12"
+          className="h-12 w-full sm:w-auto"
           onClick={() => navigate({ to: "/landlord/listings" })}
         >
           Cancel

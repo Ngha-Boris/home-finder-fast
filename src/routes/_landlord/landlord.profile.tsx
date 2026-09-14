@@ -15,10 +15,10 @@ import { formatPhoneDisplay } from "@/lib/phone";
 export const Route = createFileRoute("/_landlord/landlord/profile")({
   head: () => ({
     meta: [
-      { title: "My profile — Nyumba" },
+      { title: "My profile — Easy Rent" },
       { name: "description", content: "Update the name tenants see next to your listings." },
-      { property: "og:title", content: "My profile — Nyumba" },
-      { property: "og:description", content: "Manage your landlord profile on Nyumba." },
+      { property: "og:title", content: "My profile — Easy Rent" },
+      { property: "og:description", content: "Manage your landlord profile on Easy Rent." },
     ],
   }),
   component: ProfilePage,

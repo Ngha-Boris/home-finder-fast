@@ -13,10 +13,10 @@ import { fetchMyHouses } from "@/lib/houses-api";
 export const Route = createFileRoute("/_landlord/landlord/dashboard")({
   head: () => ({
     meta: [
-      { title: "Landlord dashboard — Nyumba" },
+      { title: "Landlord dashboard — Easy Rent" },
       { name: "description", content: "Manage your rental listings, photos and availability." },
-      { property: "og:title", content: "Landlord dashboard — Nyumba" },
-      { property: "og:description", content: "Manage your rental listings on Nyumba." },
+      { property: "og:title", content: "Landlord dashboard — Easy Rent" },
+      { property: "og:description", content: "Manage your rental listings on Easy Rent." },
     ],
   }),
   component: DashboardPage,
@@ -36,17 +36,21 @@ function DashboardPage() {
 
   return (
     <LandlordShell>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="font-display text-3xl font-bold">Dashboard</h1>
-          <p className="mt-1 text-sm text-muted-foreground">An overview of your properties.</p>
+      <div className="stage-surface overflow-hidden rounded-2xl border border-white/15 p-5 text-primary-foreground shadow-card sm:p-7">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="font-display text-2xl font-extrabold sm:text-3xl">Dashboard</h1>
+            <p className="mt-1 text-sm text-primary-foreground/78">
+              An overview of your properties.
+            </p>
+          </div>
+          <Button asChild size="lg" variant="heroOutline" className="w-full sm:w-auto">
+            <Link to="/landlord/listings/new">
+              <PlusCircle className="h-5 w-5" />
+              Add House
+            </Link>
+          </Button>
         </div>
-        <Button asChild size="lg">
-          <Link to="/landlord/listings/new">
-            <PlusCircle className="h-5 w-5" />
-            Add House
-          </Link>
-        </Button>
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -59,7 +63,7 @@ function DashboardPage() {
         />
       </div>
 
-      <h2 className="mt-10 font-display text-xl font-bold">Recent listings</h2>
+      <h2 className="mt-8 font-display text-xl font-bold sm:mt-10">Recent listings</h2>
       <div className="mt-4 space-y-3">
         {isPending ? (
           Array.from({ length: 3 }).map((_, i) => (
@@ -99,8 +103,8 @@ function StatCard({
   value: number | null;
 }) {
   return (
-    <Card className="flex items-center gap-4 p-5 shadow-card">
-      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+    <Card className="flex items-center gap-4 border-white/70 p-5 shadow-card">
+      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
         <Icon className="h-6 w-6" />
       </span>
       <div>

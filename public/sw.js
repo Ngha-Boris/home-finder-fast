@@ -1,4 +1,4 @@
-const VERSION = "nyumba-v2";
+const VERSION = "easy-rent-v1";
 const SHELL_CACHE = `${VERSION}-shell`;
 const ASSET_CACHE = `${VERSION}-assets`;
 const IMAGE_CACHE = `${VERSION}-images`;

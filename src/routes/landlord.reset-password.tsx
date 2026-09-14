@@ -12,8 +12,11 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/landlord/reset-password")({
   head: () => ({
     meta: [
-      { title: "Reset password — Nyumba" },
-      { name: "description", content: "Choose a new password for your Nyumba landlord account." },
+      { title: "Reset password — Easy Rent" },
+      {
+        name: "description",
+        content: "Choose a new password for your Easy Rent landlord account.",
+      },
     ],
   }),
   component: ResetPasswordPage,
@@ -52,12 +55,17 @@ function ResetPasswordPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="app-surface flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="container-page flex flex-1 items-center justify-center py-12">
-        <Card className="w-full max-w-md space-y-6 p-6 shadow-card sm:p-8">
+      <main className="container-page flex flex-1 items-center justify-center py-6 sm:py-12">
+        <Card className="w-full max-w-md space-y-6 border-white/70 p-4 shadow-card sm:p-8">
           <div>
-            <h1 className="font-display text-2xl font-bold">Choose a new password</h1>
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <Lock className="h-5 w-5" />
+            </div>
+            <h1 className="font-display text-xl font-extrabold sm:text-2xl">
+              Choose a new password
+            </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Enter the new password for your landlord account.
             </p>

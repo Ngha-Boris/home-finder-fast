@@ -122,8 +122,8 @@ export function ListingRow({
   };
 
   return (
-    <Card className="grid gap-4 p-4 shadow-card md:grid-cols-[9rem_1fr_auto] md:items-center">
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-muted md:w-36">
+    <Card className="grid min-w-0 gap-4 p-3 transition-shadow hover:shadow-card-hover sm:p-4 md:grid-cols-[9rem_1fr_auto] md:items-center">
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-secondary sm:max-h-56 md:w-36">
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
           <Home className="h-5 w-5" />
           <span>No photo</span>
@@ -149,7 +149,7 @@ export function ListingRow({
           <Badge
             className={
               house.availability === "available"
-                ? "bg-success text-success-foreground"
+                ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground"
             }
           >
@@ -157,10 +157,10 @@ export function ListingRow({
           </Badge>
         </div>
         <div>
-          <h3 className="line-clamp-2 font-display text-lg font-bold">
+          <h3 className="line-clamp-2 break-words font-display text-base font-bold sm:text-lg">
             {houseTypeLabel(house.house_type)} in {house.location}
           </h3>
-          <p className="font-display text-xl font-extrabold text-primary">
+          <p className="break-words font-display text-lg font-extrabold text-foreground sm:text-xl">
             {formatPrice(house.rent_price)}
           </p>
         </div>
@@ -169,8 +169,8 @@ export function ListingRow({
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 md:justify-end">
-        <label className="flex h-10 items-center gap-2 rounded-md border border-border px-3 text-sm">
+      <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap md:items-center md:justify-end">
+        <label className="col-span-2 flex h-10 items-center justify-center gap-2 rounded-full border border-border bg-secondary/50 px-3 text-sm md:col-span-1">
           <Switch
             checked={house.availability === "available"}
             disabled={toggle.isPending}
@@ -180,7 +180,7 @@ export function ListingRow({
           <span>Available</span>
         </label>
 
-        <Button asChild variant="outline" size="sm">
+        <Button asChild variant="outline" size="sm" className="w-full md:w-auto">
           <Link to="/houses/$id" params={{ id: house.id }}>
             <Eye className="h-4 w-4" />
             View
@@ -188,7 +188,7 @@ export function ListingRow({
         </Button>
 
         {!adminMode ? (
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="w-full md:w-auto">
             <Link to="/landlord/listings/$id/edit" params={{ id: house.id }}>
               <Pencil className="h-4 w-4" />
               Edit
@@ -198,12 +198,17 @@ export function ListingRow({
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm" disabled={remove.isPending}>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="w-full md:w-auto"
+              disabled={remove.isPending}
+            >
               <Trash2 className="h-4 w-4" />
               Delete
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-lg">
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure you want to delete this listing?</AlertDialogTitle>
               <AlertDialogDescription>

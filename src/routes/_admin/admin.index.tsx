@@ -21,10 +21,10 @@ import { formatPhoneDisplay } from "@/lib/phone";
 export const Route = createFileRoute("/_admin/admin/")({
   head: () => ({
     meta: [
-      { title: "Admin — Nyumba" },
+      { title: "Admin — Easy Rent" },
       { name: "description", content: "Review landlords and every listing on the platform." },
-      { property: "og:title", content: "Admin — Nyumba" },
-      { property: "og:description", content: "Platform administration for Nyumba." },
+      { property: "og:title", content: "Admin — Easy Rent" },
+      { property: "og:description", content: "Platform administration for Easy Rent." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -126,7 +126,7 @@ function AdminPage() {
         ) : allHouses.length === 0 ? (
           <EmptyState
             title="No listings yet"
-            description="Every listing added to Nyumba will appear here for review."
+            description="Every listing added to Easy Rent will appear here for review."
           />
         ) : (
           allHouses.map((house) => <ListingRow key={house.id} house={house} adminMode />)

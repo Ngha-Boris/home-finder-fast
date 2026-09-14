@@ -42,7 +42,10 @@ if (!loginPage.includes("phone: `+${normalizePhone(phone)!}`")) {
 }
 
 const registerPage = readFileSync("src/routes/landlord.register.tsx", "utf8");
-if (!registerPage.includes("phone: `+${normalized}`") || registerPage.includes("phoneToAuthEmail")) {
+if (
+  !registerPage.includes("phone: `+${normalized}`") ||
+  registerPage.includes("phoneToAuthEmail")
+) {
   throw new Error("Registration must use phone auth without synthetic identities.");
 }
 if (!registerPage.includes("/api/landlord/register")) {

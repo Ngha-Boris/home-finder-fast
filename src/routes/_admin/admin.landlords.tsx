@@ -20,9 +20,9 @@ import { formatPhoneDisplay } from "@/lib/phone";
 export const Route = createFileRoute("/_admin/admin/landlords")({
   head: () => ({
     meta: [
-      { title: "Admin landlords - Nyumba" },
-      { name: "description", content: "Review landlord profiles on Nyumba." },
-      { property: "og:title", content: "Admin landlords - Nyumba" },
+      { title: "Admin landlords - Easy Rent" },
+      { name: "description", content: "Review landlord profiles on Easy Rent." },
+      { property: "og:title", content: "Admin landlords - Easy Rent" },
       { property: "og:description", content: "Review landlord profiles." },
       { name: "robots", content: "noindex" },
     ],

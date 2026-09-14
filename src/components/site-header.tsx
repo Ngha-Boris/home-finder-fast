@@ -17,13 +17,15 @@ export function SiteHeader() {
   ] as const;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md">
-      <div className="container-page flex h-16 items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="gradient-brand flex h-9 w-9 items-center justify-center rounded-xl text-primary-foreground">
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-card/82 shadow-sm backdrop-blur-xl">
+      <div className="container-page flex h-14 items-center justify-between gap-3 sm:h-16">
+        <Link to="/" className="flex min-w-0 items-center gap-2">
+          <span className="gradient-brand flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-primary-foreground shadow-card">
             <Home className="h-5 w-5" />
           </span>
-          <span className="font-display text-lg font-bold tracking-tight">Nyumba</span>
+          <span className="truncate font-display text-lg font-extrabold tracking-normal">
+            Easy Rent
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-1 sm:flex">
@@ -41,8 +43,8 @@ export function SiteHeader() {
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-72">
-            <SheetTitle className="mb-6 font-display text-lg">Nyumba</SheetTitle>
+          <SheetContent side="right" className="w-[min(18rem,calc(100vw-2rem))]">
+            <SheetTitle className="mb-6 font-display text-lg">Easy Rent</SheetTitle>
             <div className="flex flex-col gap-2">
               {links.map((l) => (
                 <Button
