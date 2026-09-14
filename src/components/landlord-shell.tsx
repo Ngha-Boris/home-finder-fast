@@ -12,8 +12,10 @@ import {
   Users,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { fetchIsAdmin, useSession, useSignOut } from "@/hooks/use-auth";
+import { ensureLandlordAccount } from "@/lib/houses-api";
 import { useOnline } from "@/hooks/use-online";
 
 const NAV = [
@@ -33,6 +35,14 @@ export function LandlordShell({ children }: { children: ReactNode }) {
     queryFn: () => fetchIsAdmin(user),
     enabled: !!user,
   });
+
+  useEffect(() => {
+    if (!user) return;
+    ensureLandlordAccount(user).catch((error) => {
+      console.warn("[auth] Landlord account preparation failed", error);
+    });
+  }, [user]);
+
   const nav = admin.data
     ? [
         ...NAV,

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Phone, Search, Eye } from "lucide-react";
+import { Phone, Home, Eye } from "lucide-react";
 import heroImage from "@/assets/hero.jpg";
 import { HouseCard, HouseCardSkeleton } from "@/components/house-card";
 import { CachedNotice } from "@/components/offline-banner";
@@ -117,9 +117,9 @@ function LandingPage() {
             <div className="mt-10 grid gap-8 sm:grid-cols-3">
               {[
                 {
-                  icon: Search,
-                  title: "Search for a house",
-                  text: "Filter by region, house type and the rent you can afford.",
+                  icon: Home,
+                  title: "Browse available homes",
+                  text: "Open the latest listings and compare the homes that are available now.",
                 },
                 {
                   icon: Eye,

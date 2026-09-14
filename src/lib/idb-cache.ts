@@ -59,5 +59,6 @@ export async function cacheDelete(key: string): Promise<void> {
 
 export const CACHE_KEYS = {
   feed: "houses:feed",
+  feedSearch: (key: string) => `houses:feed:${key}`,
   house: (id: string) => `houses:detail:${id}`,
 };

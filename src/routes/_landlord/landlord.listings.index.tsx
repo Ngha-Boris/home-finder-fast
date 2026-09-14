@@ -8,6 +8,7 @@ import { EmptyState, ErrorState } from "@/components/states";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useSession } from "@/hooks/use-auth";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchMyHouses } from "@/lib/houses-api";
@@ -26,13 +27,16 @@ export const Route = createFileRoute("/_landlord/landlord/listings/")({
 });
 
 function MyListingsPage() {
+  const { user } = useSession();
+  const myHousesQueryKey = ["my-houses", user?.id] as const;
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"all" | "available" | "unavailable">("all");
   const [type, setType] = useState<"all" | HouseType>("all");
 
   const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ["my-houses"],
+    queryKey: myHousesQueryKey,
     queryFn: fetchMyHouses,
+    enabled: !!user,
   });
 
   const houses = useMemo(() => data ?? [], [data]);
@@ -164,7 +168,7 @@ function MyListingsPage() {
               <Badge variant="secondary">Newest first</Badge>
             </div>
             {filtered.map((house) => (
-              <ListingRow key={house.id} house={house} />
+              <ListingRow key={house.id} house={house} listQueryKey={myHousesQueryKey} />
             ))}
           </>
         )}

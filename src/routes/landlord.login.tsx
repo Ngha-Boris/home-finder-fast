@@ -11,6 +11,25 @@ import { useSession } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { isValidLocalPhone, normalizePhone, phoneToAuthEmail } from "@/lib/phone";
 
+const LANDLORD_AUTH_DRAFT_KEY = "nyumba:landlord-auth-draft";
+
+function readAuthDraft() {
+  if (typeof window === "undefined") return null;
+  try {
+    return JSON.parse(window.sessionStorage.getItem(LANDLORD_AUTH_DRAFT_KEY) ?? "null") as {
+      phone?: string;
+      password?: string;
+    } | null;
+  } catch {
+    return null;
+  }
+}
+
+function saveAuthDraft(phone: string, password: string) {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.setItem(LANDLORD_AUTH_DRAFT_KEY, JSON.stringify({ phone, password }));
+}
+
 export const Route = createFileRoute("/landlord/login")({
   head: () => ({
     meta: [
@@ -35,6 +54,13 @@ function LoginPage() {
   useEffect(() => {
     if (!loading && user) navigate({ to: "/landlord/dashboard", replace: true });
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    const draft = readAuthDraft();
+    if (!draft) return;
+    setPhone((current) => current || draft.phone || "");
+    setPassword((current) => current || draft.password || "");
+  }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +98,7 @@ function LoginPage() {
     setResetting(true);
     const { error } = await supabase.auth.resetPasswordForEmail(
       phoneToAuthEmail(normalizePhone(phone)!),
-      { redirectTo: `${window.location.origin}/landlord/login` },
+      { redirectTo: `${window.location.origin}/landlord/reset-password` },
     );
     setResetting(false);
 
@@ -154,7 +180,11 @@ function LoginPage() {
 
           <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link to="/landlord/register" className="font-medium text-primary hover:underline">
+            <Link
+              to="/landlord/register"
+              className="font-medium text-primary hover:underline"
+              onClick={() => saveAuthDraft(phone, password)}
+            >
               Register
             </Link>
           </p>

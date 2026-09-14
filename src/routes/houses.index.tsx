@@ -40,13 +40,12 @@ export const Route = createFileRoute("/houses/")({
       { title: "Browse rental houses — Nyumba" },
       {
         name: "description",
-        content:
-          "Search available studio apartments and single rooms across Cameroon. Filter by region, house type and monthly rent.",
+        content: "Browse available studio apartments, rooms and houses across Cameroon.",
       },
       { property: "og:title", content: "Browse rental houses — Nyumba" },
       {
         property: "og:description",
-        content: "Search available rental houses and filter by region, type and monthly rent.",
+        content: "Browse available rental houses and contact landlords directly.",
       },
     ],
   }),
@@ -59,7 +58,7 @@ function HousesPage() {
 
   const { data, isLoading, isError, isFromCache, refetch } = useCachedQuery({
     queryKey: ["houses", "feed", search],
-    cacheKey: CACHE_KEYS.feed,
+    cacheKey: CACHE_KEYS.feedSearch(JSON.stringify(search)),
     queryFn: () =>
       fetchAvailableHouses({
         q: search.q,
@@ -106,7 +105,7 @@ function HousesPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           {isLoading
             ? "Loading listings…"
-            : `${filtered.length} house${filtered.length === 1 ? "" : "s"} match your search`}
+            : `${filtered.length} available house${filtered.length === 1 ? "" : "s"}`}
         </p>
 
         <div className="mt-6">
@@ -122,8 +121,8 @@ function HousesPage() {
             <ErrorState onRetry={() => refetch()} />
           ) : filtered.length === 0 ? (
             <EmptyState
-              title="No houses match your search."
-              description="Try a different region, house type or rent range."
+              title="No houses available yet."
+              description="Listings will appear here as soon as landlords add them."
             />
           ) : (
             <>

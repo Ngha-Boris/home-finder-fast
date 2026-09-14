@@ -6,6 +6,7 @@ import { ErrorState, EmptyState } from "@/components/states";
 import { ListingRow } from "@/components/listing-row";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useSession } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchMyHouses } from "@/lib/houses-api";
 
@@ -22,9 +23,12 @@ export const Route = createFileRoute("/_landlord/landlord/dashboard")({
 });
 
 function DashboardPage() {
+  const { user } = useSession();
+  const myHousesQueryKey = ["my-houses", user?.id] as const;
   const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ["my-houses"],
+    queryKey: myHousesQueryKey,
     queryFn: fetchMyHouses,
+    enabled: !!user,
   });
 
   const houses = data ?? [];
@@ -74,7 +78,11 @@ function DashboardPage() {
             }
           />
         ) : (
-          houses.slice(0, 5).map((house) => <ListingRow key={house.id} house={house} />)
+          houses
+            .slice(0, 5)
+            .map((house) => (
+              <ListingRow key={house.id} house={house} listQueryKey={myHousesQueryKey} />
+            ))
         )}
       </div>
     </LandlordShell>

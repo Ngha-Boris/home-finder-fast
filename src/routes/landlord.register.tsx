@@ -9,8 +9,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSession } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
-import { assignLandlordRole } from "@/lib/houses-api";
+import { ensureLandlordAccount } from "@/lib/houses-api";
 import { isValidLocalPhone, normalizePhone, phoneToAuthEmail } from "@/lib/phone";
+
+const LANDLORD_AUTH_DRAFT_KEY = "nyumba:landlord-auth-draft";
+
+function readAuthDraft() {
+  if (typeof window === "undefined") return null;
+  try {
+    return JSON.parse(window.sessionStorage.getItem(LANDLORD_AUTH_DRAFT_KEY) ?? "null") as {
+      phone?: string;
+      password?: string;
+    } | null;
+  } catch {
+    return null;
+  }
+}
+
+function saveAuthDraft(phone: string, password: string) {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.setItem(LANDLORD_AUTH_DRAFT_KEY, JSON.stringify({ phone, password }));
+}
+
+function clearAuthDraft() {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.removeItem(LANDLORD_AUTH_DRAFT_KEY);
+}
 
 export const Route = createFileRoute("/landlord/register")({
   head: () => ({
@@ -44,6 +68,14 @@ function RegisterPage() {
     if (!loading && user) navigate({ to: "/landlord/dashboard", replace: true });
   }, [user, loading, navigate]);
 
+  useEffect(() => {
+    const draft = readAuthDraft();
+    if (!draft) return;
+    setPhone((current) => current || draft.phone || "");
+    setPassword((current) => current || draft.password || "");
+    setConfirm((current) => current || draft.password || "");
+  }, []);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const next: Record<string, string> = {};
@@ -75,27 +107,25 @@ function RegisterPage() {
       return;
     }
 
-    if (data.user) {
-      const roleError = await assignLandlordRole(data.user.id).catch((e) => e as Error);
-      if (roleError instanceof Error) {
-        toast.error("Account created, but assigning your landlord role failed.");
-      }
-
-      const { error: profileError } = await supabase.from("profiles").insert({
-        id: data.user.id,
-        phone_number: normalized,
-        display_name: name.trim() || null,
-      });
-      if (profileError && !profileError.message.includes("duplicate")) {
-        toast.error(
-          "Account created, but saving your details failed. You can fix this in Profile.",
-        );
+    const hasSession = !!data.session;
+    if (data.user && hasSession) {
+      const accountError = await ensureLandlordAccount(data.user).catch((e) => e as Error);
+      if (accountError instanceof Error) {
+        toast.error("Account created, but preparing your landlord dashboard failed.");
       }
     }
 
     setSubmitting(false);
-    toast.success("Account created — welcome!");
-    navigate({ to: "/landlord/dashboard" });
+    if (hasSession) {
+      clearAuthDraft();
+      toast.success("Account created — welcome!");
+      navigate({ to: "/landlord/dashboard" });
+      return;
+    }
+
+    clearAuthDraft();
+    toast.success("Account created. Confirm your account, then log in.");
+    navigate({ to: "/landlord/login" });
   };
 
   return (
@@ -194,7 +224,11 @@ function RegisterPage() {
 
           <p className="text-center text-sm text-muted-foreground">
             Already registered?{" "}
-            <Link to="/landlord/login" className="font-medium text-primary hover:underline">
+            <Link
+              to="/landlord/login"
+              className="font-medium text-primary hover:underline"
+              onClick={() => saveAuthDraft(phone, password)}
+            >
               Log in
             </Link>
           </p>

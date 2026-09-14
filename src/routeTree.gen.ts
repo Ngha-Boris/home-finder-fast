@@ -16,6 +16,7 @@ import { Route as HousesIndexRouteImport } from './routes/houses.index'
 import { Route as HousesIdRouteImport } from './routes/houses.$id'
 import { Route as LandlordLoginRouteImport } from './routes/landlord.login'
 import { Route as LandlordRegisterRouteImport } from './routes/landlord.register'
+import { Route as LandlordResetPasswordRouteImport } from './routes/landlord.reset-password'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
 import { Route as AdminAdminLandlordsRouteImport } from './routes/_admin/admin.landlords'
 import { Route as AdminAdminListingsRouteImport } from './routes/_admin/admin.listings'
@@ -57,6 +58,11 @@ const LandlordLoginRoute = LandlordLoginRouteImport.update({
 const LandlordRegisterRoute = LandlordRegisterRouteImport.update({
   id: '/landlord/register',
   path: '/landlord/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LandlordResetPasswordRoute = LandlordResetPasswordRouteImport.update({
+  id: '/landlord/reset-password',
+  path: '/landlord/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/houses/$id': typeof HousesIdRoute
   '/landlord/login': typeof LandlordLoginRoute
   '/landlord/register': typeof LandlordRegisterRoute
+  '/landlord/reset-password': typeof LandlordResetPasswordRoute
   '/houses/': typeof HousesIndexRoute
   '/admin/landlords': typeof AdminAdminLandlordsRoute
   '/admin/listings': typeof AdminAdminListingsRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/houses/$id': typeof HousesIdRoute
   '/landlord/login': typeof LandlordLoginRoute
   '/landlord/register': typeof LandlordRegisterRoute
+  '/landlord/reset-password': typeof LandlordResetPasswordRoute
   '/houses': typeof HousesIndexRoute
   '/admin/landlords': typeof AdminAdminLandlordsRoute
   '/admin/listings': typeof AdminAdminListingsRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/houses/$id': typeof HousesIdRoute
   '/landlord/login': typeof LandlordLoginRoute
   '/landlord/register': typeof LandlordRegisterRoute
+  '/landlord/reset-password': typeof LandlordResetPasswordRoute
   '/houses/': typeof HousesIndexRoute
   '/_admin/admin/landlords': typeof AdminAdminLandlordsRoute
   '/_admin/admin/listings': typeof AdminAdminListingsRoute
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/houses/$id'
     | '/landlord/login'
     | '/landlord/register'
+    | '/landlord/reset-password'
     | '/houses/'
     | '/admin/landlords'
     | '/admin/listings'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/houses/$id'
     | '/landlord/login'
     | '/landlord/register'
+    | '/landlord/reset-password'
     | '/houses'
     | '/admin/landlords'
     | '/admin/listings'
@@ -201,6 +212,7 @@ export interface FileRouteTypes {
     | '/houses/$id'
     | '/landlord/login'
     | '/landlord/register'
+    | '/landlord/reset-password'
     | '/houses/'
     | '/_admin/admin/landlords'
     | '/_admin/admin/listings'
@@ -220,6 +232,7 @@ export interface RootRouteChildren {
   HousesIdRoute: typeof HousesIdRoute
   LandlordLoginRoute: typeof LandlordLoginRoute
   LandlordRegisterRoute: typeof LandlordRegisterRoute
+  LandlordResetPasswordRoute: typeof LandlordResetPasswordRoute
   HousesIndexRoute: typeof HousesIndexRoute
   ApiPublicImgSplatRoute: typeof ApiPublicImgSplatRoute
 }
@@ -273,6 +286,13 @@ declare module '@tanstack/react-router' {
       path: '/landlord/register'
       fullPath: '/landlord/register'
       preLoaderRoute: typeof LandlordRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/landlord/reset-password': {
+      id: '/landlord/reset-password'
+      path: '/landlord/reset-password'
+      fullPath: '/landlord/reset-password'
+      preLoaderRoute: typeof LandlordResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_admin/admin/': {
@@ -382,6 +402,7 @@ const rootRouteChildren: RootRouteChildren = {
   HousesIdRoute: HousesIdRoute,
   LandlordLoginRoute: LandlordLoginRoute,
   LandlordRegisterRoute: LandlordRegisterRoute,
+  LandlordResetPasswordRoute: LandlordResetPasswordRoute,
   HousesIndexRoute: HousesIndexRoute,
   ApiPublicImgSplatRoute: ApiPublicImgSplatRoute,
 }

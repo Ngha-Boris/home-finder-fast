@@ -1,13 +1,13 @@
 # Home Finder Fast
 
-A mobile-first house-finding platform for tenants and landlords. Public visitors can browse available rentals, filter listings, view photo galleries, and contact landlords directly. Landlords can create an account, upload photos, and manage their own listings from a private dashboard.
+A mobile-first house-finding platform for tenants and landlords. Public visitors can browse available rentals, view photo galleries, and contact landlords directly. Landlords can create an account, upload photos, and manage their own listings from a private dashboard.
 
 This project is built as a working MVP, not a static prototype.
 
 ## What Is Included
 
-- Public landing page with search and recent listings
-- Browse page with search, filters, pagination, and empty states
+- Public landing page with recent listings
+- Browse page with pagination and empty states
 - House detail page with responsive gallery, lightbox, call, and WhatsApp links
 - Landlord registration and login with 9-digit Cameroon phone validation
 - Private landlord dashboard, profile, listing creation, editing, deletion, and availability controls
@@ -145,21 +145,21 @@ Formats the project with Prettier.
 
 ## Main Routes
 
-| Route                         | Purpose                                      |
-| ----------------------------- | -------------------------------------------- |
-| `/`                           | Landing page with search and recent listings |
-| `/houses`                     | Public house browsing and filters            |
-| `/houses/:id`                 | Public house detail page                     |
-| `/landlord/login`             | Landlord login                               |
-| `/landlord/register`          | Landlord registration                        |
-| `/landlord/dashboard`         | Private landlord dashboard                   |
-| `/landlord/listings`          | Landlord listing manager                     |
-| `/landlord/listings/new`      | Create a listing                             |
-| `/landlord/listings/:id/edit` | Edit a listing                               |
-| `/landlord/profile`           | Landlord profile                             |
-| `/admin`                      | Admin overview                               |
-| `/admin/listings`             | Admin listing management                     |
-| `/admin/landlords`            | Admin landlord management                    |
+| Route                         | Purpose                           |
+| ----------------------------- | --------------------------------- |
+| `/`                           | Landing page with recent listings |
+| `/houses`                     | Public house browsing             |
+| `/houses/:id`                 | Public house detail page          |
+| `/landlord/login`             | Landlord login                    |
+| `/landlord/register`          | Landlord registration             |
+| `/landlord/dashboard`         | Private landlord dashboard        |
+| `/landlord/listings`          | Landlord listing manager          |
+| `/landlord/listings/new`      | Create a listing                  |
+| `/landlord/listings/:id/edit` | Edit a listing                    |
+| `/landlord/profile`           | Landlord profile                  |
+| `/admin`                      | Admin overview                    |
+| `/admin/listings`             | Admin listing management          |
+| `/admin/landlords`            | Admin landlord management         |
 
 ## Data And Security Model
 
@@ -169,7 +169,7 @@ Ownership is enforced with Supabase RLS, not only frontend checks. Image files a
 
 ## Offline And Caching
 
-The public browsing experience uses IndexedDB to cache listing data. On repeat visits, cached houses render immediately while the app refreshes from Supabase in the background. When the browser comes back online, cached queries refetch automatically.
+The public browsing experience uses IndexedDB to cache listing data. On repeat visits, cached houses render immediately while the app refreshes from Supabase in the background. Filtered URLs use separate cache keys, and when the browser comes back online, cached queries refetch automatically.
 
 Landlord create, update, and delete actions require an active connection. The MVP intentionally does not include an offline mutation queue.
 

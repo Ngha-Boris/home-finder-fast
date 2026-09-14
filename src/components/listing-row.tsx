@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { useMutation, useQueryClient, type QueryKey } from "@tanstack/react-query";
+import { Eye, Home, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { StorageImage } from "@/components/storage-image";
 import {
@@ -30,11 +31,20 @@ function removeHouseFromList(houses: House[] | undefined, id: string) {
   return houses?.filter((item) => item.id !== id);
 }
 
-export function ListingRow({ house, adminMode = false }: { house: House; adminMode?: boolean }) {
+export function ListingRow({
+  house,
+  adminMode = false,
+  listQueryKey,
+}: {
+  house: House;
+  adminMode?: boolean;
+  listQueryKey?: QueryKey;
+}) {
   const qc = useQueryClient();
   const online = useOnline();
   const cover = coverImage(house);
-  const queryKey = adminMode ? ["admin-houses"] : ["my-houses"];
+  const [imageFailed, setImageFailed] = useState(false);
+  const queryKey = listQueryKey ?? (adminMode ? ["admin-houses"] : ["my-houses"]);
 
   const toggle = useMutation({
     mutationFn: (available: boolean) =>
@@ -112,9 +122,13 @@ export function ListingRow({ house, adminMode = false }: { house: House; adminMo
   };
 
   return (
-    <Card className="flex flex-col gap-4 p-4 shadow-card sm:flex-row sm:items-center">
-      <div className="h-24 w-full shrink-0 overflow-hidden rounded-lg bg-muted sm:w-36">
-        {cover ? (
+    <Card className="grid gap-4 p-4 shadow-card md:grid-cols-[9rem_1fr_auto] md:items-center">
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-muted md:w-36">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
+          <Home className="h-5 w-5" />
+          <span>No photo</span>
+        </div>
+        {cover && !imageFailed ? (
           <StorageImage
             image={cover}
             alt={`${houseTypeLabel(house.house_type)} in ${house.location}`}
@@ -123,12 +137,13 @@ export function ListingRow({ house, adminMode = false }: { house: House; adminMo
             height={192}
             sizes="(max-width: 640px) 100vw, 9rem"
             responsiveWidths={[192, 288, 384]}
-            className="h-full w-full object-cover"
+            className="relative h-full w-full object-cover"
+            onError={() => setImageFailed(true)}
           />
         ) : null}
       </div>
 
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{houseTypeLabel(house.house_type)}</Badge>
           <Badge
@@ -141,23 +156,28 @@ export function ListingRow({ house, adminMode = false }: { house: House; adminMo
             {house.availability === "available" ? "Available" : "Unavailable"}
           </Badge>
         </div>
-        <p className="mt-1 font-display text-lg font-bold text-primary">
-          {formatPrice(house.rent_price)}
-        </p>
+        <div>
+          <h3 className="line-clamp-2 font-display text-lg font-bold">
+            {houseTypeLabel(house.house_type)} in {house.location}
+          </h3>
+          <p className="font-display text-xl font-extrabold text-primary">
+            {formatPrice(house.rent_price)}
+          </p>
+        </div>
         <p className="truncate text-sm text-muted-foreground">
           {house.location} · {house.region}
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <label className="mr-2 flex items-center gap-2 text-sm">
+      <div className="flex flex-wrap items-center gap-2 md:justify-end">
+        <label className="flex h-10 items-center gap-2 rounded-md border border-border px-3 text-sm">
           <Switch
             checked={house.availability === "available"}
             disabled={toggle.isPending}
             onCheckedChange={(v) => guard(() => toggle.mutate(v))()}
             aria-label="Toggle availability"
           />
-          <span className="hidden sm:inline">Available</span>
+          <span>Available</span>
         </label>
 
         <Button asChild variant="outline" size="sm">

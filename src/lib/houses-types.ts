@@ -8,7 +8,7 @@ export type Availability = Database["public"]["Enums"]["availability_status"];
 export type House = HouseRow & { house_images: HouseImageRow[] };
 
 export const HOUSE_TYPES: { value: HouseType; label: string }[] = [
-  { value: "studio_apartment", label: "Studio Apartment" },
+  { value: "studio_apartment", label: "Studio" },
   { value: "single_room", label: "Single Room" },
   { value: "apartment", label: "Apartment" },
   { value: "room_and_parlor", label: "Room and Parlor" },

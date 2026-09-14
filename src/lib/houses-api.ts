@@ -14,6 +14,22 @@ export type HouseSearchFilters = {
   limit?: number;
 };
 
+const CONTACT_EVENT_WINDOW_MS = 60_000;
+const LISTING_REPORT_WINDOW_MS = 10 * 60_000;
+
+function clientWindowAllows(key: string, windowMs: number): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    const now = Date.now();
+    const previous = Number(window.localStorage.getItem(key) ?? 0);
+    if (Number.isFinite(previous) && now - previous < windowMs) return false;
+    window.localStorage.setItem(key, String(now));
+    return true;
+  } catch {
+    return true;
+  }
+}
+
 /** Public feed: all available houses, newest first. Cached offline. */
 export async function fetchAvailableHouses(filters: HouseSearchFilters = {}): Promise<House[]> {
   let query = supabase
@@ -51,9 +67,14 @@ export async function fetchHouse(id: string): Promise<House | null> {
 
 /** Landlord: own listings (RLS scopes to the signed-in user). */
 export async function fetchMyHouses(): Promise<House[]> {
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError) throw authError;
+  if (!auth.user) return [];
+
   const { data, error } = await supabase
     .from("houses")
     .select(HOUSE_SELECT)
+    .eq("landlord_id", auth.user.id)
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data as House[];
@@ -133,6 +154,43 @@ export async function assignLandlordRole(userId: string) {
   if (error) throw error;
 }
 
+function isRoleAssignmentBlocked(error: unknown) {
+  return (
+    error instanceof Error &&
+    (error.message.includes("row-level security") || error.message.includes("user_roles"))
+  );
+}
+
+export async function ensureLandlordAccount(user: {
+  id: string;
+  email?: string | null;
+  user_metadata?: { phone_number?: unknown; display_name?: unknown };
+}) {
+  const phone =
+    typeof user.user_metadata?.phone_number === "string"
+      ? user.user_metadata.phone_number
+      : (user.email?.split("@")[0] ?? user.id);
+  const displayName =
+    typeof user.user_metadata?.display_name === "string" ? user.user_metadata.display_name : null;
+
+  try {
+    await assignLandlordRole(user.id);
+  } catch (error) {
+    if (!isRoleAssignmentBlocked(error)) throw error;
+    console.warn("[auth] Landlord role assignment is not available in this environment", error);
+  }
+
+  const { error } = await supabase.from("profiles").upsert(
+    {
+      id: user.id,
+      phone_number: phone,
+      display_name: displayName,
+    },
+    { onConflict: "id", ignoreDuplicates: true },
+  );
+  if (error) throw error;
+}
+
 export async function fetchFavoriteIds(userId: string): Promise<string[]> {
   const { data, error } = await supabase
     .from("favorite_houses")
@@ -173,6 +231,11 @@ export async function reportListing(input: {
   reason: ListingReportReason;
   details?: string | null;
 }) {
+  const throttleKey = `nyumba:report:${input.houseId}:${input.reporterUserId ?? "anon"}`;
+  if (!clientWindowAllows(throttleKey, LISTING_REPORT_WINDOW_MS)) {
+    throw new Error("You already reported this listing recently. Thank you.");
+  }
+
   const { error } = await supabase.from("listing_reports").insert({
     house_id: input.houseId,
     reporter_user_id: input.reporterUserId ?? null,
@@ -183,6 +246,9 @@ export async function reportListing(input: {
 }
 
 export async function logContactEvent(houseId: string, contactMethod: "call" | "whatsapp") {
+  const throttleKey = `nyumba:contact:${houseId}:${contactMethod}`;
+  if (!clientWindowAllows(throttleKey, CONTACT_EVENT_WINDOW_MS)) return;
+
   const { error } = await supabase
     .from("contact_events")
     .insert({ house_id: houseId, contact_method: contactMethod });
