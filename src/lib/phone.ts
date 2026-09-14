@@ -24,6 +24,19 @@ export function normalizePhone(value: string): string | null {
   return local ? COUNTRY_CODE + local : null;
 }
 
+export function phoneInputValue(value?: string | null) {
+  return value ? (toLocal9(value) ?? "") : "";
+}
+
+export function phoneFromAuthIdentity(user: {
+  phone?: string | null;
+  user_metadata?: { phone_number?: unknown };
+}) {
+  const metadataPhone =
+    typeof user.user_metadata?.phone_number === "string" ? user.user_metadata.phone_number : "";
+  return phoneInputValue(metadataPhone) || phoneInputValue(user.phone);
+}
+
 export function formatPhoneDisplay(normalized: string) {
   const local = normalized.startsWith(COUNTRY_CODE)
     ? normalized.slice(COUNTRY_CODE.length)

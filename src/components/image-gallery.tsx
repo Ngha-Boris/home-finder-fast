@@ -31,6 +31,19 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lightbox, count]);
 
+  useEffect(() => {
+    if (count < 2) return;
+    const preload = (target: HouseImageRow | undefined) => {
+      if (!target?.image_url) return;
+      const img = new Image();
+      img.src = target.image_url.startsWith("/api/public/img/")
+        ? `${target.image_url}${target.image_url.includes("?") ? "&" : "?"}w=1024`
+        : target.image_url;
+    };
+    preload(images[(index + 1) % count]);
+    preload(images[(index - 1 + count) % count]);
+  }, [count, images, index]);
+
   if (!count) {
     return (
       <div className="flex aspect-[4/3] items-center justify-center rounded-xl bg-muted text-muted-foreground">
@@ -53,6 +66,8 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
           <StorageImage
             image={images[index]!}
             alt={`${alt} — photo ${index + 1}`}
+            loading="eager"
+            fetchPriority="high"
             width={1024}
             height={768}
             sizes="(max-width: 1024px) 100vw, 56rem"

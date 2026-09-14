@@ -37,7 +37,7 @@ import {
   type HouseType,
 } from "@/lib/houses-types";
 import { ACCEPTED_IMAGE_TYPES, MAX_IMAGE_BYTES, compressImage } from "@/lib/image-compress";
-import { isValidLocalPhone, normalizePhone } from "@/lib/phone";
+import { isValidLocalPhone, normalizePhone, phoneInputValue } from "@/lib/phone";
 
 type Pending = { id: string; file: File; url: string };
 
@@ -70,7 +70,7 @@ export function HouseForm({
   const [location, setLocation] = useState(house?.location ?? "");
   const [description, setDescription] = useState(house?.description ?? "");
   const [phone, setPhone] = useState(
-    house?.contact_phone?.replace(/^237/, "") ?? defaultPhone.replace(/^237/, ""),
+    phoneInputValue(house?.contact_phone) || phoneInputValue(defaultPhone),
   );
   const [rooms, setRooms] = useState(house?.rooms ? String(house.rooms) : "");
   const [bathrooms, setBathrooms] = useState(house?.bathrooms ? String(house.bathrooms) : "");
