@@ -4,7 +4,7 @@ project_id = "cicpdglmwdsdlgnoywsm"
 enable_signup = true
 
 [auth.sms]
-enable_signup = false
+enable_signup = true
 enable_confirmations = false
 template = "Your code is {{ .Code }}"
 max_frequency = "5s"
