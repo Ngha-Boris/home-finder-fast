@@ -37,13 +37,23 @@ for (const needle of ["Save house", "Report listing", "logContactEvent"]) {
 }
 
 const loginPage = readFileSync("src/routes/landlord.login.tsx", "utf8");
-if (!loginPage.includes("/landlord/reset-password")) {
-  throw new Error("Password reset email must redirect to the password reset form.");
+if (!loginPage.includes("phone: `+${normalizePhone(phone)!}`")) {
+  throw new Error("Login must authenticate landlords with phone numbers.");
 }
 
 const registerPage = readFileSync("src/routes/landlord.register.tsx", "utf8");
-if (!registerPage.includes("ensureLandlordAccount") || !registerPage.includes("data.session")) {
-  throw new Error("Registration must handle confirmed and email-confirmation account states.");
+if (!registerPage.includes("phone: `+${normalized}`") || registerPage.includes("phoneToAuthEmail")) {
+  throw new Error("Registration must use phone auth without synthetic identities.");
+}
+if (!registerPage.includes("/api/landlord/register")) {
+  throw new Error("Registration must create phone/password accounts through the server route.");
+}
+
+const registerApi = readFileSync("src/routes/api/landlord/register.ts", "utf8");
+for (const needle of ["admin.auth.admin.createUser", "phone_confirm: true", "user_roles"]) {
+  if (!registerApi.includes(needle)) {
+    throw new Error(`Missing server registration behavior: ${needle}`);
+  }
 }
 
 const cache = readFileSync("src/lib/idb-cache.ts", "utf8");

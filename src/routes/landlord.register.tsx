@@ -9,8 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSession } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
-import { ensureLandlordAccount } from "@/lib/houses-api";
-import { isValidLocalPhone, normalizePhone, phoneToAuthEmail } from "@/lib/phone";
+import { isValidLocalPhone, normalizePhone } from "@/lib/phone";
 
 const LANDLORD_AUTH_DRAFT_KEY = "nyumba:landlord-auth-draft";
 
@@ -88,44 +87,34 @@ function RegisterPage() {
     const normalized = normalizePhone(phone)!;
     setSubmitting(true);
 
-    const { data, error } = await supabase.auth.signUp({
-      email: phoneToAuthEmail(normalized),
+    const response = await fetch("/api/landlord/register", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name, phone: normalized, password }),
+    });
+    const result = (await response.json().catch(() => ({}))) as { error?: string };
+
+    if (!response.ok) {
+      setSubmitting(false);
+      toast.error(result.error ?? "Unable to create landlord account right now.");
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      phone: `+${normalized}`,
       password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: { phone_number: normalized, display_name: name.trim() || null },
-      },
     });
 
-    if (error) {
-      setSubmitting(false);
-      toast.error(
-        error.message.toLowerCase().includes("already")
-          ? "That phone number is already registered. Try logging in."
-          : error.message,
-      );
-      return;
-    }
-
-    const hasSession = !!data.session;
-    if (data.user && hasSession) {
-      const accountError = await ensureLandlordAccount(data.user).catch((e) => e as Error);
-      if (accountError instanceof Error) {
-        toast.error("Account created, but preparing your landlord dashboard failed.");
-      }
-    }
-
     setSubmitting(false);
-    if (hasSession) {
-      clearAuthDraft();
-      toast.success("Account created — welcome!");
-      navigate({ to: "/landlord/dashboard" });
+    clearAuthDraft();
+    if (error) {
+      toast.success("Account created. Log in with your phone number and password.");
+      navigate({ to: "/landlord/login" });
       return;
     }
 
-    clearAuthDraft();
-    toast.success("Account created. Confirm your account, then log in.");
-    navigate({ to: "/landlord/login" });
+    toast.success("Account created — welcome!");
+    navigate({ to: "/landlord/dashboard" });
   };
 
   return (

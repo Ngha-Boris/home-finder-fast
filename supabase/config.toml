@@ -1,1 +1,10 @@
-project_id = "gkhoyqapdomvlxbxlcll"
+project_id = "cicpdglmwdsdlgnoywsm"
+
+[auth]
+enable_signup = true
+
+[auth.sms]
+enable_signup = false
+enable_confirmations = false
+template = "Your code is {{ .Code }}"
+max_frequency = "5s"

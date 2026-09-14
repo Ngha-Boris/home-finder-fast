@@ -1,6 +1,5 @@
 /** Cameroon country code used for normalisation. */
 export const COUNTRY_CODE = "237";
-export const AUTH_EMAIL_DOMAIN = "landlord.nyumba.app";
 
 /** Strip everything except digits. */
 export function digitsOnly(value: string) {
@@ -42,9 +41,4 @@ export function telLink(normalized: string) {
 export function whatsappLink(normalized: string, message?: string) {
   const text = message ? `?text=${encodeURIComponent(message)}` : "";
   return `https://wa.me/${normalized}${text}`;
-}
-
-/** Auth identity derived from the landlord's phone number. */
-export function phoneToAuthEmail(normalized: string) {
-  return `${normalized}@${AUTH_EMAIL_DOMAIN}`;
 }

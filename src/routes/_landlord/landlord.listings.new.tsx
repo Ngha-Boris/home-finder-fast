@@ -6,12 +6,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 
 function phoneFromAuthUser(user: {
-  email?: string | null;
+  phone?: string | null;
   user_metadata?: { phone_number?: unknown };
 }) {
   if (typeof user.user_metadata?.phone_number === "string") return user.user_metadata.phone_number;
-  const emailLocalPart = user.email?.split("@")[0];
-  return emailLocalPart && /^\d{9,12}$/.test(emailLocalPart) ? emailLocalPart : "";
+  return user.phone?.replace(/^\+/, "") ?? "";
 }
 
 export const Route = createFileRoute("/_landlord/landlord/listings/new")({

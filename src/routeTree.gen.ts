@@ -22,6 +22,7 @@ import { Route as AdminAdminLandlordsRouteImport } from './routes/_admin/admin.l
 import { Route as AdminAdminListingsRouteImport } from './routes/_admin/admin.listings'
 import { Route as LandlordLandlordDashboardRouteImport } from './routes/_landlord/landlord.dashboard'
 import { Route as LandlordLandlordProfileRouteImport } from './routes/_landlord/landlord.profile'
+import { Route as ApiLandlordRegisterRouteImport } from './routes/api/landlord/register'
 import { Route as LandlordLandlordListingsIndexRouteImport } from './routes/_landlord/landlord.listings.index'
 import { Route as LandlordLandlordListingsNewRouteImport } from './routes/_landlord/landlord.listings.new'
 import { Route as ApiPublicImgSplatRouteImport } from './routes/api/public/img/$'
@@ -91,6 +92,11 @@ const LandlordLandlordProfileRoute = LandlordLandlordProfileRouteImport.update({
   path: '/landlord/profile',
   getParentRoute: () => LandlordRoute,
 } as any)
+const ApiLandlordRegisterRoute = ApiLandlordRegisterRouteImport.update({
+  id: '/api/landlord/register',
+  path: '/api/landlord/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LandlordLandlordListingsIndexRoute =
   LandlordLandlordListingsIndexRouteImport.update({
     id: '/landlord/listings/',
@@ -126,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/admin/listings': typeof AdminAdminListingsRoute
   '/landlord/dashboard': typeof LandlordLandlordDashboardRoute
   '/landlord/profile': typeof LandlordLandlordProfileRoute
+  '/api/landlord/register': typeof ApiLandlordRegisterRoute
   '/admin/': typeof AdminAdminIndexRoute
   '/landlord/listings/new': typeof LandlordLandlordListingsNewRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/admin/listings': typeof AdminAdminListingsRoute
   '/landlord/dashboard': typeof LandlordLandlordDashboardRoute
   '/landlord/profile': typeof LandlordLandlordProfileRoute
+  '/api/landlord/register': typeof ApiLandlordRegisterRoute
   '/admin': typeof AdminAdminIndexRoute
   '/landlord/listings/new': typeof LandlordLandlordListingsNewRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/_admin/admin/listings': typeof AdminAdminListingsRoute
   '/_landlord/landlord/dashboard': typeof LandlordLandlordDashboardRoute
   '/_landlord/landlord/profile': typeof LandlordLandlordProfileRoute
+  '/api/landlord/register': typeof ApiLandlordRegisterRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
   '/_landlord/landlord/listings/new': typeof LandlordLandlordListingsNewRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/admin/listings'
     | '/landlord/dashboard'
     | '/landlord/profile'
+    | '/api/landlord/register'
     | '/admin/'
     | '/landlord/listings/new'
     | '/api/public/img/$'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/admin/listings'
     | '/landlord/dashboard'
     | '/landlord/profile'
+    | '/api/landlord/register'
     | '/admin'
     | '/landlord/listings/new'
     | '/api/public/img/$'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/listings'
     | '/_landlord/landlord/dashboard'
     | '/_landlord/landlord/profile'
+    | '/api/landlord/register'
     | '/_admin/admin/'
     | '/_landlord/landlord/listings/new'
     | '/api/public/img/$'
@@ -234,6 +246,7 @@ export interface RootRouteChildren {
   LandlordRegisterRoute: typeof LandlordRegisterRoute
   LandlordResetPasswordRoute: typeof LandlordResetPasswordRoute
   HousesIndexRoute: typeof HousesIndexRoute
+  ApiLandlordRegisterRoute: typeof ApiLandlordRegisterRoute
   ApiPublicImgSplatRoute: typeof ApiPublicImgSplatRoute
 }
 
@@ -330,6 +343,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LandlordLandlordProfileRouteImport
       parentRoute: typeof LandlordRoute
     }
+    '/api/landlord/register': {
+      id: '/api/landlord/register'
+      path: '/api/landlord/register'
+      fullPath: '/api/landlord/register'
+      preLoaderRoute: typeof ApiLandlordRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_landlord/landlord/listings/': {
       id: '/_landlord/landlord/listings/'
       path: '/landlord/listings'
@@ -404,6 +424,7 @@ const rootRouteChildren: RootRouteChildren = {
   LandlordRegisterRoute: LandlordRegisterRoute,
   LandlordResetPasswordRoute: LandlordResetPasswordRoute,
   HousesIndexRoute: HousesIndexRoute,
+  ApiLandlordRegisterRoute: ApiLandlordRegisterRoute,
   ApiPublicImgSplatRoute: ApiPublicImgSplatRoute,
 }
 export const routeTree = rootRouteImport

@@ -17,6 +17,3 @@ WHERE id::text IN (
   '22222222-2222-4222-8222-222222222222',
   '33333333-3333-4333-8333-333333333333'
 );
-
-DELETE FROM storage.objects
-WHERE bucket_id = 'house-images' AND name LIKE 'seed/%';

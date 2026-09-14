@@ -163,13 +163,13 @@ function isRoleAssignmentBlocked(error: unknown) {
 
 export async function ensureLandlordAccount(user: {
   id: string;
-  email?: string | null;
+  phone?: string | null;
   user_metadata?: { phone_number?: unknown; display_name?: unknown };
 }) {
   const phone =
     typeof user.user_metadata?.phone_number === "string"
       ? user.user_metadata.phone_number
-      : (user.email?.split("@")[0] ?? user.id);
+      : (user.phone?.replace(/^\+/, "") ?? user.id);
   const displayName =
     typeof user.user_metadata?.display_name === "string" ? user.user_metadata.display_name : null;
 

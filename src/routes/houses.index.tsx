@@ -59,14 +59,15 @@ function HousesPage() {
   const { data, isLoading, isError, isFromCache, refetch } = useCachedQuery({
     queryKey: ["houses", "feed", search],
     cacheKey: CACHE_KEYS.feedSearch(JSON.stringify(search)),
-    queryFn: () =>
-      fetchAvailableHouses({
-        q: search.q,
-        type: search.type as HouseType | undefined,
-        region: search.region,
-        min: search.min,
-        max: search.max,
-      }),
+    queryFn: () => {
+      const filters: Parameters<typeof fetchAvailableHouses>[0] = {};
+      if (search.q !== undefined) filters.q = search.q;
+      if (search.type !== undefined) filters.type = search.type as HouseType;
+      if (search.region !== undefined) filters.region = search.region;
+      if (search.min !== undefined) filters.min = search.min;
+      if (search.max !== undefined) filters.max = search.max;
+      return fetchAvailableHouses(filters);
+    },
   });
 
   const filtered = useMemo(() => {
