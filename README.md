@@ -50,9 +50,11 @@ rm -rf node_modules package-lock.json
 npm install
 ```
 
-### 2. Create Your Environment File
+### 2. Configure Environment Variables
 
-Create `.env` in the project root:
+Production environment variables are managed in Vercel. The GitHub Actions workflow pulls the production values from Vercel during the build, so no `.env` file is used by CI or deployment.
+
+For local development only, you may create `.env` in the project root:
 
 ```bash
 SUPABASE_URL=https://your-project-ref.supabase.co
@@ -68,7 +70,7 @@ Notes:
 - `VITE_SUPABASE_*` values are exposed to the browser and must use the publishable key only.
 - `SUPABASE_SECRET_KEY` or `SUPABASE_SERVICE_ROLE_KEY` is server-only. Never expose it in client code.
 - If a secret key was ever pasted into chat, commits, logs, or screenshots, rotate it in Supabase before deploying.
-- `.env` is ignored by git. If it was already tracked, untrack it with:
+- `.env` is ignored by git and must never be committed. If it was already tracked, untrack it with:
 
 ```bash
 git rm --cached .env
@@ -88,6 +90,18 @@ Apply migrations to your Supabase project using the Supabase CLI or the Supabase
 
 ```bash
 supabase db push
+
+## CI/CD
+
+GitHub Actions runs smoke checks, TypeScript validation, and linting on pull requests targeting `main` and on pushes to `main`. Production is built and deployed to Vercel only after a successful push to `main` (including a merged pull request). In-progress runs for the same branch are cancelled so newer commits finish faster.
+
+Add these GitHub repository secrets before enabling the workflow:
+
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+
+The `production` GitHub environment can be configured with required reviewers if production deployments need approval. Branch protection should require the `Quality checks` status check before merging into `main`.
 ```
 
 If you are not using the CLI, run the migration SQL files in order from `supabase/migrations`.
