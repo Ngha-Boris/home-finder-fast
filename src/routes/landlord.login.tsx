@@ -30,6 +30,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ phone?: string; password?: string }>({});
   const [submitting, setSubmitting] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     if (!loading && user) navigate({ to: "/landlord/dashboard", replace: true });
@@ -60,6 +61,26 @@ function LoginPage() {
     }
     toast.success("Welcome back!");
     navigate({ to: "/landlord/dashboard" });
+  };
+
+  const sendPasswordReset = async () => {
+    const next: typeof errors = {};
+    if (!isValidLocalPhone(phone)) next.phone = "Enter your 9-digit phone number first.";
+    setErrors(next);
+    if (Object.keys(next).length) return;
+
+    setResetting(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      phoneToAuthEmail(normalizePhone(phone)!),
+      { redirectTo: `${window.location.origin}/landlord/login` },
+    );
+    setResetting(false);
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Password reset instructions sent if the account exists.");
   };
 
   return (
@@ -120,6 +141,16 @@ function LoginPage() {
               {submitting ? "Signing in…" : "Login"}
             </Button>
           </form>
+
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-full"
+            disabled={resetting}
+            onClick={() => void sendPasswordReset()}
+          >
+            {resetting ? "Sending reset…" : "Forgot password?"}
+          </Button>
 
           <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}

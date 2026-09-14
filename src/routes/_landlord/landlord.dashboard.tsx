@@ -58,7 +58,9 @@ function DashboardPage() {
       <h2 className="mt-10 font-display text-xl font-bold">Recent listings</h2>
       <div className="mt-4 space-y-3">
         {isPending ? (
-          Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28 w-full rounded-xl" />)
+          Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 w-full rounded-xl" />
+          ))
         ) : isError ? (
           <ErrorState onRetry={() => refetch()} />
         ) : houses.length === 0 ? (

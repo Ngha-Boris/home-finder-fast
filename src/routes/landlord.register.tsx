@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSession } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { assignLandlordRole } from "@/lib/houses-api";
 import { isValidLocalPhone, normalizePhone, phoneToAuthEmail } from "@/lib/phone";
 
 export const Route = createFileRoute("/landlord/register")({
@@ -75,6 +76,11 @@ function RegisterPage() {
     }
 
     if (data.user) {
+      const roleError = await assignLandlordRole(data.user.id).catch((e) => e as Error);
+      if (roleError instanceof Error) {
+        toast.error("Account created, but assigning your landlord role failed.");
+      }
+
       const { error: profileError } = await supabase.from("profiles").insert({
         id: data.user.id,
         phone_number: normalized,

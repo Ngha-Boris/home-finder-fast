@@ -10,8 +10,10 @@ export function SiteHeader() {
   const { user } = useSession();
 
   const links = [
-    { to: "/houses", label: "Houses" },
-    { to: user ? "/landlord/dashboard" : "/landlord/login", label: user ? "Dashboard" : "Add House" },
+    {
+      to: user ? "/landlord/dashboard" : "/landlord/login",
+      label: user ? "Dashboard" : "Add House",
+    },
   ] as const;
 
   return (
@@ -25,9 +27,6 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-1 sm:flex">
-          <Button asChild variant="ghost">
-            <Link to="/houses">Houses</Link>
-          </Button>
           <Button asChild>
             <Link to={user ? "/landlord/dashboard" : "/landlord/login"}>
               <PlusCircle className="h-4 w-4" />

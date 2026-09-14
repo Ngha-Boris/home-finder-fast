@@ -41,6 +41,15 @@ import { isValidLocalPhone, normalizePhone } from "@/lib/phone";
 
 type Pending = { id: string; file: File; url: string };
 
+function looksLikeQualityDescription(value: string) {
+  const words = value.trim().split(/\s+/).filter(Boolean);
+  const letters = value.replace(/[^a-z]/gi, "");
+  const uniqueLetters = new Set(letters.toLowerCase()).size;
+  const longestRun = value.match(/(.)\1{4,}/);
+
+  return words.length >= 8 && uniqueLetters >= 8 && !longestRun;
+}
+
 export function HouseForm({
   userId,
   defaultPhone,
@@ -146,7 +155,10 @@ export function HouseForm({
       next["rent"] = "Enter a valid monthly rent.";
     if (!region) next["region"] = "Choose a region.";
     if (location.trim().length < 3) next["location"] = "Enter the neighbourhood or town.";
-    if (description.trim().length < 20) next["description"] = "Write at least 20 characters.";
+    if (!looksLikeQualityDescription(description)) {
+      next["description"] =
+        "Write at least 8 clear words describing the property, not placeholder text.";
+    }
     if (!isValidLocalPhone(phone)) next["phone"] = "Enter a valid 9-digit phone number.";
     if (rooms && (!Number.isInteger(Number(rooms)) || Number(rooms) < 0)) {
       next["rooms"] = "Enter a whole number.";

@@ -81,7 +81,12 @@ function ProfilePage() {
             </div>
             <div className="space-y-1.5">
               <Label>Phone number</Label>
-              <Input className="h-11" value={formatPhoneDisplay(data?.phone_number ?? "")} readOnly disabled />
+              <Input
+                className="h-11"
+                value={formatPhoneDisplay(data?.phone_number ?? "")}
+                readOnly
+                disabled
+              />
               <p className="text-xs text-muted-foreground">
                 Your phone number is your login and can't be changed here.
               </p>

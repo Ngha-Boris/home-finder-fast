@@ -1,17 +1,40 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import type { House, HouseImageRow } from "./houses-types";
+import type { House, HouseImageRow, HouseType } from "./houses-types";
 
 const HOUSE_SELECT = "*, house_images(*)";
+const PAGE_LIMIT = 60;
+
+export type HouseSearchFilters = {
+  q?: string;
+  type?: HouseType;
+  region?: string;
+  min?: number;
+  max?: number;
+  limit?: number;
+};
 
 /** Public feed: all available houses, newest first. Cached offline. */
-export async function fetchAvailableHouses(): Promise<House[]> {
-  const { data, error } = await supabase
+export async function fetchAvailableHouses(filters: HouseSearchFilters = {}): Promise<House[]> {
+  let query = supabase
     .from("houses")
     .select(HOUSE_SELECT)
     .eq("availability", "available")
     .order("created_at", { ascending: false })
-    .limit(200);
+    .limit(filters.limit ?? PAGE_LIMIT);
+
+  if (filters.type) query = query.eq("house_type", filters.type);
+  if (filters.region) query = query.eq("region", filters.region);
+  if (filters.min !== undefined) query = query.gte("rent_price", filters.min);
+  if (filters.max !== undefined) query = query.lte("rent_price", filters.max);
+  if (filters.q?.trim()) {
+    const term = filters.q.trim().replaceAll("%", "\\%").replaceAll("_", "\\_");
+    query = query.or(
+      `location.ilike.%${term}%,region.ilike.%${term}%,description.ilike.%${term}%,location_details.ilike.%${term}%`,
+    );
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
   return data as House[];
 }
@@ -101,6 +124,71 @@ export async function setCoverImage(houseId: string, imageId: string) {
     .update({ is_cover: true })
     .eq("id", imageId);
   if (e2) throw e2;
+}
+
+export async function assignLandlordRole(userId: string) {
+  const { error } = await supabase
+    .from("user_roles")
+    .upsert({ user_id: userId, role: "landlord" }, { onConflict: "user_id,role" });
+  if (error) throw error;
+}
+
+export async function fetchFavoriteIds(userId: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("favorite_houses")
+    .select("house_id")
+    .eq("user_id", userId);
+  if (error) throw error;
+  return (data ?? []).map((row) => row.house_id);
+}
+
+export async function setFavoriteHouse(userId: string, houseId: string, favorite: boolean) {
+  if (favorite) {
+    const { error } = await supabase
+      .from("favorite_houses")
+      .upsert({ user_id: userId, house_id: houseId }, { onConflict: "user_id,house_id" });
+    if (error) throw error;
+    return;
+  }
+
+  const { error } = await supabase
+    .from("favorite_houses")
+    .delete()
+    .eq("user_id", userId)
+    .eq("house_id", houseId);
+  if (error) throw error;
+}
+
+export type ListingReportReason =
+  | "spam"
+  | "wrong_information"
+  | "unreachable_landlord"
+  | "fraud_or_scam"
+  | "already_rented"
+  | "other";
+
+export async function reportListing(input: {
+  houseId: string;
+  reporterUserId?: string | null;
+  reason: ListingReportReason;
+  details?: string | null;
+}) {
+  const { error } = await supabase.from("listing_reports").insert({
+    house_id: input.houseId,
+    reporter_user_id: input.reporterUserId ?? null,
+    reason: input.reason,
+    details: input.details?.trim() || null,
+  });
+  if (error) throw error;
+}
+
+export async function logContactEvent(houseId: string, contactMethod: "call" | "whatsapp") {
+  const { error } = await supabase
+    .from("contact_events")
+    .insert({ house_id: houseId, contact_method: contactMethod });
+  if (error) {
+    console.warn("[analytics] Failed to record contact event", error);
+  }
 }
 
 /** Upload a compressed image to the landlord's private folder; returns storage path + public URL. */

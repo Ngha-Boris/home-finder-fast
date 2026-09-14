@@ -1,5 +1,11 @@
 export const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // accepted input size before compression
-export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"];
+export const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+];
 
 /** Resize to max 1600px and re-encode as JPEG (~85%). Returns original if canvas fails. */
 export async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<Blob> {

@@ -14,6 +14,9 @@ This project is built as a working MVP, not a static prototype.
 - Admin dashboard with listings and landlord management views
 - Supabase Auth, PostgreSQL tables, Row Level Security, and Storage integration
 - Private storage bucket with app-served public image endpoint
+- Saved houses for signed-in tenants
+- Listing reports for trust and safety review
+- Contact click analytics for call and WhatsApp actions
 - IndexedDB-backed cached browsing for faster repeat visits and offline reads
 - PWA service worker for static shell and navigation caching
 - No seeded/mock listings in the application data model
@@ -54,7 +57,7 @@ Create `.env` in the project root:
 ```bash
 SUPABASE_URL=https://your-project-ref.supabase.co
 SUPABASE_PUBLISHABLE_KEY=your_publishable_key
-SUPABASE_SECRET_KEY=your_secret_key
+SUPABASE_SERVICE_ROLE_KEY=your_server_only_service_role_or_secret_key
 
 VITE_SUPABASE_URL=https://your-project-ref.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
@@ -75,7 +78,7 @@ git rm --cached .env
 
 The app expects these Supabase resources:
 
-- Tables: `profiles`, `user_roles`, `houses`, `house_images`
+- Tables: `profiles`, `user_roles`, `houses`, `house_images`, `favorite_houses`, `listing_reports`, `contact_events`
 - Enums: `app_role`, `house_type`, `availability_status`
 - Storage bucket: `house-images`
 - RLS policies from the migrations in `supabase/migrations`
@@ -88,6 +91,7 @@ supabase db push
 ```
 
 If you are not using the CLI, run the migration SQL files in order from `supabase/migrations`.
+The migrations create and harden the private `house-images` bucket. They intentionally do not create a first admin user.
 
 ### 4. Run The App
 
@@ -126,6 +130,12 @@ npm run lint
 ```
 
 Runs ESLint across the project.
+
+```bash
+npm run test:smoke
+```
+
+Runs a small repository smoke check for the core setup, trust, and tracking pieces.
 
 ```bash
 npm run format

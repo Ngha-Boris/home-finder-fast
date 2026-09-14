@@ -10,6 +10,11 @@ export type House = HouseRow & { house_images: HouseImageRow[] };
 export const HOUSE_TYPES: { value: HouseType; label: string }[] = [
   { value: "studio_apartment", label: "Studio Apartment" },
   { value: "single_room", label: "Single Room" },
+  { value: "apartment", label: "Apartment" },
+  { value: "room_and_parlor", label: "Room and Parlor" },
+  { value: "duplex", label: "Duplex" },
+  { value: "shared_room", label: "Shared Room" },
+  { value: "commercial_space", label: "Commercial Space" },
 ];
 
 export const REGIONS = [

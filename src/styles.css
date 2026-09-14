@@ -56,7 +56,8 @@
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Sora", "Manrope", ui-sans-serif, system-ui, sans-serif;
   --shadow-card: 0 1px 2px oklch(0.2 0.02 60 / 6%), 0 8px 24px -12px oklch(0.2 0.02 60 / 18%);
-  --shadow-card-hover: 0 2px 4px oklch(0.2 0.02 60 / 8%), 0 16px 32px -12px oklch(0.2 0.02 60 / 26%);
+  --shadow-card-hover:
+    0 2px 4px oklch(0.2 0.02 60 / 8%), 0 16px 32px -12px oklch(0.2 0.02 60 / 26%);
   --animate-fade-up: fade-up 0.5s ease-out both;
   @keyframes fade-up {
     from {
