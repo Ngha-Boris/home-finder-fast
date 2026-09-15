@@ -161,7 +161,7 @@ function HousesPage() {
       <SiteHeader />
       <OfflineBanner />
 
-      <main className="container-page flex-1 py-5 sm:py-8">
+      <main className="container-page flex-1 pb-24 pt-5 sm:py-8">
         <div className="stage-surface overflow-hidden rounded-2xl border border-white/15 p-4 text-primary-foreground shadow-card min-[375px]:p-5 sm:p-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">

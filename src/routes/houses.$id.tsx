@@ -125,7 +125,7 @@ function HouseDetailsPage() {
       <SiteHeader />
       <OfflineBanner />
 
-      <main className="container-page flex-1 py-4 sm:py-6">
+      <main className="container-page flex-1 pb-24 pt-4 sm:py-6">
         <Button asChild variant="ghost" className="-ml-2 mb-3 sm:mb-4">
           <Link to="/houses">
             <ArrowLeft className="h-4 w-4" />
