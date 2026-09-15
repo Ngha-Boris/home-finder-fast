@@ -12,7 +12,8 @@ import { useSession } from "@/hooks/use-auth";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchMyHouses } from "@/lib/houses-api";
-import { HOUSE_TYPES, houseTypeLabel, type House, type HouseType } from "@/lib/houses-types";
+import { HOUSE_TYPES, type House, type HouseType } from "@/lib/houses-types";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_landlord/landlord/listings/")({
   head: () => ({
@@ -32,6 +33,7 @@ function MyListingsPage() {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"all" | "available" | "unavailable">("all");
   const [type, setType] = useState<"all" | HouseType>("all");
+  const { t, houseType } = useI18n();
 
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: myHousesQueryKey,
@@ -53,14 +55,14 @@ function MyListingsPage() {
         house.region,
         house.description,
         house.location_details ?? "",
-        houseTypeLabel(house.house_type),
+        houseType(house.house_type),
         house.amenities.join(" "),
       ]
         .join(" ")
         .toLowerCase()
         .includes(q);
     });
-  }, [houses, query, status, type]);
+  }, [houseType, houses, query, status, type]);
 
   const hasFilters = !!query.trim() || status !== "all" || type !== "all";
   const clearFilters = () => {
@@ -74,24 +76,38 @@ function MyListingsPage() {
       <div className="stage-surface overflow-hidden rounded-2xl border border-white/15 p-4 text-primary-foreground shadow-card min-[375px]:p-5 sm:p-7">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <h1 className="font-display text-2xl font-extrabold sm:text-3xl">My listings</h1>
+            <h1 className="font-display text-2xl font-extrabold sm:text-3xl">
+              {t("landlord.myListingsTitle")}
+            </h1>
             <p className="mt-1 text-sm text-primary-foreground/78">
-              Review, update, and publish the properties tenants can contact you about.
+              {t("landlord.myListingsSubtitle")}
             </p>
           </div>
           <Button asChild variant="heroOutline" className="w-full sm:w-auto">
             <Link to="/landlord/listings/new">
               <PlusCircle className="h-4 w-4" />
-              Add House
+              {t("common.addHouse")}
             </Link>
           </Button>
         </div>
       </div>
 
       <div className="mt-5 grid gap-3 min-[420px]:grid-cols-3 sm:mt-6">
-        <SummaryCard icon={Home} label="Total" value={isPending ? null : houses.length} />
-        <SummaryCard icon={CheckCircle2} label="Available" value={isPending ? null : available} />
-        <SummaryCard icon={EyeOff} label="Unavailable" value={isPending ? null : unavailable} />
+        <SummaryCard
+          icon={Home}
+          label={t("landlord.total")}
+          value={isPending ? null : houses.length}
+        />
+        <SummaryCard
+          icon={CheckCircle2}
+          label={t("common.available")}
+          value={isPending ? null : available}
+        />
+        <SummaryCard
+          icon={EyeOff}
+          label={t("common.unavailable")}
+          value={isPending ? null : unavailable}
+        />
       </div>
 
       <Card className="mt-6 space-y-4 border-white/70 p-3 shadow-card sm:p-4">
@@ -100,8 +116,8 @@ function MyListingsPage() {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search your listings..."
-            aria-label="Search your listings"
+            placeholder={t("landlord.searchListings")}
+            aria-label={t("landlord.searchListingsAria")}
             className="h-11 pl-9"
           />
         </div>
@@ -116,7 +132,11 @@ function MyListingsPage() {
               className="justify-center"
               onClick={() => setStatus(value)}
             >
-              {value === "all" ? "All status" : value === "available" ? "Available" : "Unavailable"}
+              {value === "all"
+                ? t("landlord.allStatus")
+                : value === "available"
+                  ? t("common.available")
+                  : t("common.unavailable")}
             </Button>
           ))}
           {HOUSE_TYPES.map((option) => (
@@ -128,7 +148,7 @@ function MyListingsPage() {
               className="justify-center"
               onClick={() => setType(type === option.value ? "all" : option.value)}
             >
-              {option.label}
+              {houseType(option.value)}
             </Button>
           ))}
           {hasFilters ? (
@@ -140,7 +160,7 @@ function MyListingsPage() {
               onClick={clearFilters}
             >
               <X className="h-4 w-4" />
-              Clear
+              {t("landlord.clear")}
             </Button>
           ) : null}
         </div>
@@ -155,27 +175,35 @@ function MyListingsPage() {
           <ErrorState onRetry={() => refetch()} />
         ) : houses.length === 0 ? (
           <EmptyState
-            title="You have no listings"
-            description="Add a house to start receiving calls from tenants."
+            title={t("landlord.emptyMine")}
+            description={t("landlord.emptyMineDescription")}
             action={
               <Button asChild>
-                <Link to="/landlord/listings/new">Add a house</Link>
+                <Link to="/landlord/listings/new">{t("landlord.addAHouse")}</Link>
               </Button>
             }
           />
         ) : filtered.length === 0 ? (
           <EmptyState
-            title="No listings match your filters"
-            description="Try another search term, status, or house type."
-            action={<Button onClick={clearFilters}>Clear filters</Button>}
+            title={t("landlord.noFilterMatches")}
+            description={t("landlord.noFilterMatchesDescription")}
+            action={<Button onClick={clearFilters}>{t("houses.clearFilters")}</Button>}
           />
         ) : (
           <>
             <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-3">
               <span>
-                Showing {filtered.length} of {houses.length} listing{houses.length === 1 ? "" : "s"}
+                {t("landlord.showingListings", {
+                  shown: filtered.length,
+                  total: houses.length,
+                  noun:
+                    houses.length === 1
+                      ? t("landlord.listingSingular")
+                      : t("landlord.listingPlural"),
+                  plural: filtered.length === 1 ? "" : "s",
+                })}
               </span>
-              <Badge variant="secondary">Newest first</Badge>
+              <Badge variant="secondary">{t("landlord.newestFirst")}</Badge>
             </div>
             {filtered.map((house) => (
               <ListingRow key={house.id} house={house} listQueryKey={myHousesQueryKey} />

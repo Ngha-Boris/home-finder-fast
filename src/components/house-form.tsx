@@ -38,6 +38,7 @@ import {
   type HouseType,
 } from "@/lib/houses-types";
 import { ACCEPTED_IMAGE_TYPES, MAX_IMAGE_BYTES, compressImage } from "@/lib/image-compress";
+import { useI18n } from "@/lib/i18n";
 import { isValidLocalPhone, normalizePhone, phoneInputValue } from "@/lib/phone";
 
 type Pending = { id: string; file: File; url: string };
@@ -67,6 +68,7 @@ export function HouseForm({
   const navigate = useNavigate();
   const qc = useQueryClient();
   const online = useOnline();
+  const { t, houseType: houseTypeLabel } = useI18n();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [houseType, setHouseType] = useState<HouseType>(house?.house_type ?? "studio_apartment");
@@ -102,20 +104,26 @@ export function HouseForm({
     const next: Pending[] = [];
     const remainingSlots = MAX_PHOTOS - existing.length - pending.length;
     if (remainingSlots <= 0) {
-      toast.error(`You can add up to ${MAX_PHOTOS} photos per listing.`);
+      toast.error(t("form.maxPhotos", { max: MAX_PHOTOS }));
       return;
     }
     for (const file of Array.from(files)) {
       if (next.length >= remainingSlots) {
-        toast.error(`Only ${remainingSlots} more photo${remainingSlots === 1 ? "" : "s"} allowed.`);
+        toast.error(
+          t("form.remainingPhotos", {
+            count: remainingSlots,
+            noun: remainingSlots === 1 ? t("form.photoSingular") : t("form.photoPlural"),
+            plural: remainingSlots === 1 ? "" : "s",
+          }),
+        );
         break;
       }
       if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-        toast.error(`${file.name}: only JPG, PNG or WebP photos are allowed.`);
+        toast.error(t("form.invalidType", { name: file.name }));
         continue;
       }
       if (file.size > MAX_IMAGE_BYTES) {
-        toast.error(`${file.name}: photo is larger than 8 MB.`);
+        toast.error(t("form.tooLarge", { name: file.name }));
         continue;
       }
       next.push({ id: crypto.randomUUID(), file, url: URL.createObjectURL(file) });
@@ -142,7 +150,7 @@ export function HouseForm({
     if (!house || !nextExisting.length) return;
     if (!online) {
       setExisting(previousExisting);
-      toast.error("This action requires an internet connection.");
+      toast.error(t("common.offlineAction"));
       return;
     }
 
@@ -178,7 +186,7 @@ export function HouseForm({
 
   const removeExisting = async (image: HouseImageRow) => {
     if (!online) {
-      toast.error("This action requires an internet connection.");
+      toast.error(t("common.offlineAction"));
       return;
     }
     try {
@@ -189,7 +197,7 @@ export function HouseForm({
         remaining[0] = { ...remaining[0]!, is_cover: true };
       }
       setExisting(remaining);
-      toast.success("Photo removed");
+      toast.success(t("form.photoRemoved"));
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -198,13 +206,13 @@ export function HouseForm({
   const makeCover = async (image: HouseImageRow) => {
     if (!house) return;
     if (!online) {
-      toast.error("This action requires an internet connection.");
+      toast.error(t("common.offlineAction"));
       return;
     }
     try {
       await setCoverImage(house.id, image.id);
       setExisting((imgs) => imgs.map((i) => ({ ...i, is_cover: i.id === image.id })));
-      toast.success("Main photo updated");
+      toast.success(t("form.mainUpdated"));
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -213,22 +221,20 @@ export function HouseForm({
   const validate = () => {
     const next: Record<string, string> = {};
     const rentNumber = Number(rent);
-    if (!Number.isFinite(rentNumber) || rentNumber <= 0)
-      next["rent"] = "Enter a valid monthly rent.";
-    if (!region) next["region"] = "Choose a region.";
-    if (location.trim().length < 3) next["location"] = "Enter the neighbourhood or town.";
+    if (!Number.isFinite(rentNumber) || rentNumber <= 0) next["rent"] = t("form.validation.rent");
+    if (!region) next["region"] = t("form.validation.region");
+    if (location.trim().length < 3) next["location"] = t("form.validation.location");
     if (!looksLikeQualityDescription(description)) {
-      next["description"] =
-        "Write at least 8 clear words describing the property, not placeholder text.";
+      next["description"] = t("form.validation.description");
     }
-    if (!isValidLocalPhone(phone)) next["phone"] = "Enter a valid 9-digit phone number.";
+    if (!isValidLocalPhone(phone)) next["phone"] = t("form.validation.phone");
     if (rooms && (!Number.isInteger(Number(rooms)) || Number(rooms) < 0)) {
-      next["rooms"] = "Enter a whole number.";
+      next["rooms"] = t("form.validation.wholeNumber");
     }
     if (bathrooms && (!Number.isInteger(Number(bathrooms)) || Number(bathrooms) < 0)) {
-      next["bathrooms"] = "Enter a whole number.";
+      next["bathrooms"] = t("form.validation.wholeNumber");
     }
-    if (existing.length + pending.length === 0) next["photos"] = "Add at least one photo.";
+    if (existing.length + pending.length === 0) next["photos"] = t("form.validation.photos");
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -236,7 +242,7 @@ export function HouseForm({
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!online) {
-      toast.error("This action requires an internet connection.");
+      toast.error(t("common.offlineAction"));
       return;
     }
     if (!validate()) return;
@@ -306,7 +312,7 @@ export function HouseForm({
       setProgress(100);
       qc.invalidateQueries({ queryKey: ["my-houses"] });
       qc.invalidateQueries({ queryKey: ["houses"] });
-      toast.success(house ? "Listing updated" : "House added");
+      toast.success(house ? t("form.listingUpdated") : t("form.houseAdded"));
       navigate({ to: "/landlord/listings" });
     } catch (err) {
       toast.error((err as Error).message);
@@ -318,11 +324,11 @@ export function HouseForm({
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5 sm:space-y-6">
       <Card className="space-y-5 border-white/70 p-3 shadow-card min-[375px]:p-4 sm:p-6">
-        <h2 className="font-display text-lg font-semibold">Property details</h2>
+        <h2 className="font-display text-lg font-semibold">{t("form.propertyDetails")}</h2>
 
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
           <div className="space-y-1.5">
-            <Label>House type *</Label>
+            <Label>{t("houses.houseType")} *</Label>
             <Select value={houseType} onValueChange={(v) => setHouseType(v as HouseType)}>
               <SelectTrigger className="h-11">
                 <SelectValue />
@@ -330,7 +336,7 @@ export function HouseForm({
               <SelectContent>
                 {HOUSE_TYPES.map((t) => (
                   <SelectItem key={t.value} value={t.value}>
-                    {t.label}
+                    {houseTypeLabel(t.value)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -338,7 +344,7 @@ export function HouseForm({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="rent">Monthly rent (FCFA) *</Label>
+            <Label htmlFor="rent">{t("form.monthlyRent")}</Label>
             <Input
               id="rent"
               type="number"
@@ -353,10 +359,10 @@ export function HouseForm({
           </div>
 
           <div className="space-y-1.5">
-            <Label>Region *</Label>
+            <Label>{t("common.region")} *</Label>
             <Select value={region} onValueChange={setRegion}>
               <SelectTrigger className="h-11" aria-invalid={!!errors["region"]}>
-                <SelectValue placeholder="Select a region" />
+                <SelectValue placeholder={t("form.selectRegion")} />
               </SelectTrigger>
               <SelectContent>
                 {REGIONS.map((r) => (
@@ -372,11 +378,11 @@ export function HouseForm({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="location">Neighbourhood / town *</Label>
+            <Label htmlFor="location">{t("form.location")}</Label>
             <Input
               id="location"
               className="h-11"
-              placeholder="Neighbourhood and city"
+              placeholder={t("form.locationPlaceholder")}
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               aria-invalid={!!errors["location"]}
@@ -388,11 +394,11 @@ export function HouseForm({
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="description">Description *</Label>
+          <Label htmlFor="description">{t("form.description")}</Label>
           <Textarea
             id="description"
             rows={5}
-            placeholder="Describe the house, the compound and what makes it a good place to live."
+            placeholder={t("form.descriptionPlaceholder")}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             aria-invalid={!!errors["description"]}
@@ -403,7 +409,7 @@ export function HouseForm({
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="contact">Contact phone *</Label>
+          <Label htmlFor="contact">{t("form.contactPhone")}</Label>
           <div className="relative">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
               +237
@@ -423,16 +429,16 @@ export function HouseForm({
         <label className="flex items-center gap-3">
           <Switch checked={available} onCheckedChange={setAvailable} />
           <span className="text-sm font-medium">
-            {available ? "Available to rent" : "Not currently available"}
+            {available ? t("form.availableToRent") : t("form.notCurrentlyAvailable")}
           </span>
         </label>
       </Card>
 
       <Card className="space-y-5 border-white/70 p-3 shadow-card min-[375px]:p-4 sm:p-6">
-        <h2 className="font-display text-lg font-semibold">Extra details (optional)</h2>
+        <h2 className="font-display text-lg font-semibold">{t("form.extraDetails")}</h2>
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
           <div className="space-y-1.5">
-            <Label htmlFor="rooms">Number of rooms</Label>
+            <Label htmlFor="rooms">{t("form.numberOfRooms")}</Label>
             <Input
               id="rooms"
               type="number"
@@ -445,7 +451,7 @@ export function HouseForm({
             {errors["rooms"] ? <p className="text-xs text-destructive">{errors["rooms"]}</p> : null}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="baths">Bathrooms</Label>
+            <Label htmlFor="baths">{t("common.bathrooms")}</Label>
             <Input
               id="baths"
               type="number"
@@ -463,29 +469,29 @@ export function HouseForm({
         <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-6">
           <label className="flex min-h-10 items-center gap-2 text-sm">
             <Checkbox checked={hasWater} onCheckedChange={(v) => setHasWater(!!v)} />
-            Water available
+            {t("form.waterAvailable")}
           </label>
           <label className="flex min-h-10 items-center gap-2 text-sm">
             <Checkbox checked={hasElectricity} onCheckedChange={(v) => setHasElectricity(!!v)} />
-            Electricity available
+            {t("form.electricityAvailable")}
           </label>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="amenities">Amenities (comma separated)</Label>
+          <Label htmlFor="amenities">{t("form.amenities")}</Label>
           <Input
             id="amenities"
             className="h-11"
-            placeholder="Separate amenities with commas"
+            placeholder={t("form.amenitiesPlaceholder")}
             value={amenities}
             onChange={(e) => setAmenities(e.target.value)}
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="loc-details">Additional location details</Label>
+          <Label htmlFor="loc-details">{t("form.locationDetails")}</Label>
           <Textarea
             id="loc-details"
             rows={3}
-            placeholder="Landmarks that help tenants find the house."
+            placeholder={t("form.locationDetailsPlaceholder")}
             value={locationDetails}
             onChange={(e) => setLocationDetails(e.target.value)}
           />
@@ -494,10 +500,9 @@ export function HouseForm({
 
       <Card className="space-y-4 border-white/70 p-3 shadow-card min-[375px]:p-4 sm:p-6">
         <div>
-          <h2 className="font-display text-lg font-semibold">Photos *</h2>
+          <h2 className="font-display text-lg font-semibold">{t("form.photos")}</h2>
           <p className="text-sm text-muted-foreground">
-            Add 1-{MAX_PHOTOS} JPG, PNG or WebP photos. The first photo is the main image; photos
-            are compressed automatically.
+            {t("form.photosHelp", { max: MAX_PHOTOS })}
           </p>
         </div>
 
@@ -517,7 +522,7 @@ export function HouseForm({
           onClick={() => fileRef.current?.click()}
         >
           <ImagePlus className="h-4 w-4" />
-          Choose photos
+          {t("form.choosePhotos")}
         </Button>
         {errors["photos"] ? <p className="text-xs text-destructive">{errors["photos"]}</p> : null}
 
@@ -531,7 +536,7 @@ export function HouseForm({
                 >
                   <StorageImage
                     image={photo.image}
-                    alt="Listing photo"
+                    alt={t("gallery.show", { number: index + 1 })}
                     loading="lazy"
                     width={320}
                     height={240}
@@ -541,7 +546,7 @@ export function HouseForm({
                   />
                   {photo.image.is_cover ? (
                     <span className="absolute left-1.5 top-1.5 rounded-full bg-highlight px-1.5 py-0.5 text-[10px] font-semibold text-highlight-foreground">
-                      Main
+                      {t("form.main")}
                     </span>
                   ) : (
                     <Button
@@ -550,7 +555,7 @@ export function HouseForm({
                       variant="secondary"
                       className="absolute left-1.5 top-1.5 h-7 w-7"
                       onClick={() => void makeCover(photo.image)}
-                      aria-label="Set as main photo"
+                      aria-label={t("form.setMain")}
                     >
                       <Star className="h-3.5 w-3.5" />
                     </Button>
@@ -561,7 +566,7 @@ export function HouseForm({
                     variant="destructive"
                     className="absolute right-1.5 top-1.5 h-7 w-7"
                     onClick={() => void removeExisting(photo.image)}
-                    aria-label="Remove photo"
+                    aria-label={t("form.removePhoto")}
                   >
                     <X className="h-3.5 w-3.5" />
                   </Button>
@@ -573,7 +578,7 @@ export function HouseForm({
                       className="h-7 w-7"
                       disabled={saving || index === 0}
                       onClick={() => movePhoto(photo.id, -1)}
-                      aria-label="Move photo left"
+                      aria-label={t("form.moveLeft")}
                     >
                       <ArrowLeft className="h-3.5 w-3.5" />
                     </Button>
@@ -584,7 +589,7 @@ export function HouseForm({
                       className="h-7 w-7"
                       disabled={saving || index === photos.length - 1}
                       onClick={() => movePhoto(photo.id, 1)}
-                      aria-label="Move photo right"
+                      aria-label={t("form.moveRight")}
                     >
                       <ArrowRight className="h-3.5 w-3.5" />
                     </Button>
@@ -606,7 +611,7 @@ export function HouseForm({
                     variant="destructive"
                     className="absolute right-1.5 top-1.5 h-7 w-7"
                     onClick={() => removePending(photo.id)}
-                    aria-label="Remove photo"
+                    aria-label={t("form.removePhoto")}
                   >
                     <X className="h-3.5 w-3.5" />
                   </Button>
@@ -618,7 +623,7 @@ export function HouseForm({
                       className="h-7 w-7"
                       disabled={saving || index === 0}
                       onClick={() => movePhoto(photo.id, -1)}
-                      aria-label="Move photo left"
+                      aria-label={t("form.moveLeft")}
                     >
                       <ArrowLeft className="h-3.5 w-3.5" />
                     </Button>
@@ -629,7 +634,7 @@ export function HouseForm({
                       className="h-7 w-7"
                       disabled={saving || index === photos.length - 1}
                       onClick={() => movePhoto(photo.id, 1)}
-                      aria-label="Move photo right"
+                      aria-label={t("form.moveRight")}
                     >
                       <ArrowRight className="h-3.5 w-3.5" />
                     </Button>
@@ -646,7 +651,7 @@ export function HouseForm({
       <div className="grid gap-3 sm:flex sm:flex-wrap">
         <Button type="submit" size="lg" className="h-12 w-full sm:w-auto" disabled={saving}>
           {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
-          {saving ? "Saving…" : house ? "Save changes" : "Publish house"}
+          {saving ? t("form.saving") : house ? t("form.saveChanges") : t("form.publishHouse")}
         </Button>
         <Button
           type="button"
@@ -655,7 +660,7 @@ export function HouseForm({
           className="h-12 w-full sm:w-auto"
           onClick={() => navigate({ to: "/landlord/listings" })}
         >
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </form>

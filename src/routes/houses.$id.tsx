@@ -51,8 +51,9 @@ import {
   setFavoriteHouse,
   type ListingReportReason,
 } from "@/lib/houses-api";
-import { formatDate, formatPrice, houseTypeLabel, sortedImages } from "@/lib/houses-types";
+import { formatPrice, sortedImages } from "@/lib/houses-types";
 import { CACHE_KEYS } from "@/lib/idb-cache";
+import { useI18n } from "@/lib/i18n";
 import { formatPhoneDisplay, telLink, whatsappLink } from "@/lib/phone";
 
 export const Route = createFileRoute("/houses/$id")({
@@ -81,6 +82,7 @@ function HouseDetailsPage() {
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState<ListingReportReason>("wrong_information");
   const [reportDetails, setReportDetails] = useState("");
+  const { t, houseType, formatDate } = useI18n();
   const { data, isLoading, isError, isFromCache, refetch } = useCachedQuery({
     queryKey: ["houses", "detail", id],
     cacheKey: CACHE_KEYS.house(id),
@@ -99,7 +101,7 @@ function HouseDetailsPage() {
     mutationFn: () => setFavoriteHouse(user!.id, id, !isFavorite),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["favorites", user?.id] });
-      toast.success(isFavorite ? "Removed from saved houses" : "Saved house");
+      toast.success(isFavorite ? t("detail.removedSavedToast") : t("detail.savedToast"));
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -115,7 +117,7 @@ function HouseDetailsPage() {
     onSuccess: () => {
       setReportOpen(false);
       setReportDetails("");
-      toast.success("Thanks. The listing was reported for review.");
+      toast.success(t("detail.reportedToast"));
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -129,7 +131,7 @@ function HouseDetailsPage() {
         <Button asChild variant="ghost" className="-ml-2 mb-3 sm:mb-4">
           <Link to="/houses">
             <ArrowLeft className="h-4 w-4" />
-            Back to houses
+            {t("detail.back")}
           </Link>
         </Button>
 
@@ -147,18 +149,21 @@ function HouseDetailsPage() {
         ) : isError ? (
           <ErrorState onRetry={() => refetch()} />
         ) : !house ? (
-          <ErrorState message="This listing is no longer available." />
+          <ErrorState message={t("detail.gone")} />
         ) : (
           <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(20rem,1fr)] lg:gap-8">
             <div>
               <ImageGallery
                 images={sortedImages(house)}
-                alt={`${houseTypeLabel(house.house_type)} in ${house.location}`}
+                alt={t("listing.title", {
+                  type: houseType(house.house_type),
+                  location: house.location,
+                })}
               />
 
               <div className="mt-6 space-y-6 sm:mt-8">
                 <div>
-                  <h2 className="font-display text-xl font-bold">About this property</h2>
+                  <h2 className="font-display text-xl font-bold">{t("detail.about")}</h2>
                   <p className="mt-2 whitespace-pre-line break-words text-sm leading-6 text-muted-foreground sm:text-base">
                     {house.description}
                   </p>
@@ -166,27 +171,35 @@ function HouseDetailsPage() {
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   {house.rooms ? (
-                    <Fact icon={BedDouble} label="Rooms" value={String(house.rooms)} />
+                    <Fact icon={BedDouble} label={t("common.rooms")} value={String(house.rooms)} />
                   ) : null}
                   {house.bathrooms ? (
-                    <Fact icon={Bath} label="Bathrooms" value={String(house.bathrooms)} />
+                    <Fact
+                      icon={Bath}
+                      label={t("common.bathrooms")}
+                      value={String(house.bathrooms)}
+                    />
                   ) : null}
                   <Fact
                     icon={Droplets}
-                    label="Water"
-                    value={house.has_water ? "Available" : "Not available"}
+                    label={t("common.water")}
+                    value={house.has_water ? t("common.available") : t("common.notAvailable")}
                   />
                   <Fact
                     icon={Zap}
-                    label="Electricity"
-                    value={house.has_electricity ? "Available" : "Not available"}
+                    label={t("common.electricity")}
+                    value={house.has_electricity ? t("common.available") : t("common.notAvailable")}
                   />
-                  <Fact icon={CalendarDays} label="Listed" value={formatDate(house.created_at)} />
+                  <Fact
+                    icon={CalendarDays}
+                    label={t("common.listed")}
+                    value={formatDate(house.created_at)}
+                  />
                 </div>
 
                 {house.amenities.length ? (
                   <div>
-                    <h3 className="font-display text-lg font-semibold">Amenities</h3>
+                    <h3 className="font-display text-lg font-semibold">{t("detail.amenities")}</h3>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {house.amenities.map((a) => (
                         <Badge key={a} variant="secondary" className="px-3 py-1 text-sm">
@@ -199,7 +212,9 @@ function HouseDetailsPage() {
 
                 {house.location_details ? (
                   <div>
-                    <h3 className="font-display text-lg font-semibold">Getting there</h3>
+                    <h3 className="font-display text-lg font-semibold">
+                      {t("detail.gettingThere")}
+                    </h3>
                     <p className="mt-1 break-words text-sm leading-6 text-muted-foreground sm:text-base">
                       {house.location_details}
                     </p>
@@ -211,7 +226,7 @@ function HouseDetailsPage() {
             <aside className="lg:sticky lg:top-24 lg:self-start">
               <Card className="space-y-5 border-white/70 p-4 shadow-card sm:p-6">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="secondary">{houseTypeLabel(house.house_type)}</Badge>
+                  <Badge variant="secondary">{houseType(house.house_type)}</Badge>
                   <Badge
                     className={
                       house.availability === "available"
@@ -219,7 +234,9 @@ function HouseDetailsPage() {
                         : "bg-muted text-muted-foreground"
                     }
                   >
-                    {house.availability === "available" ? "Available" : "Unavailable"}
+                    {house.availability === "available"
+                      ? t("common.available")
+                      : t("common.unavailable")}
                   </Badge>
                 </div>
 
@@ -227,7 +244,7 @@ function HouseDetailsPage() {
                   <p className="break-words font-display text-2xl font-extrabold text-foreground sm:text-3xl">
                     {formatPrice(house.rent_price)}
                   </p>
-                  <p className="text-sm text-muted-foreground">per month</p>
+                  <p className="text-sm text-muted-foreground">{t("common.perMonth")}</p>
                 </div>
 
                 <p className="flex items-start gap-2 text-sm">
@@ -235,12 +252,14 @@ function HouseDetailsPage() {
                   <span>
                     <span className="font-medium">{house.location}</span>
                     <br />
-                    <span className="text-muted-foreground">{house.region} Region</span>
+                    <span className="text-muted-foreground">
+                      {house.region} {t("common.region")}
+                    </span>
                   </span>
                 </p>
 
                 <div className="space-y-2 border-t border-border pt-5">
-                  <p className="text-sm font-medium">Contact the landlord</p>
+                  <p className="text-sm font-medium">{t("detail.contactLandlord")}</p>
                   <p className="break-words text-sm text-muted-foreground">
                     {formatPhoneDisplay(house.contact_phone)}
                   </p>
@@ -250,21 +269,24 @@ function HouseDetailsPage() {
                       onClick={() => void logContactEvent(house.id, "call")}
                     >
                       <Phone className="h-5 w-5" />
-                      Call Landlord
+                      {t("detail.call")}
                     </a>
                   </Button>
                   <Button asChild size="lg" variant="whatsapp" className="h-12 w-full">
                     <a
                       href={whatsappLink(
                         house.contact_phone,
-                        `Hello, I saw your ${houseTypeLabel(house.house_type).toLowerCase()} in ${house.location} on Easy Rent. Is it still available?`,
+                        t("detail.whatsappMessage", {
+                          type: houseType(house.house_type).toLowerCase(),
+                          location: house.location,
+                        }),
                       )}
                       target="_blank"
                       rel="noreferrer"
                       onClick={() => void logContactEvent(house.id, "whatsapp")}
                     >
                       <MessageCircle className="h-5 w-5" />
-                      Chat on WhatsApp
+                      {t("detail.whatsapp")}
                     </a>
                   </Button>
                 </div>
@@ -279,7 +301,7 @@ function HouseDetailsPage() {
                       onClick={() => favoriteMutation.mutate()}
                     >
                       <Star className="h-4 w-4" />
-                      {isFavorite ? "Saved" : "Save house"}
+                      {isFavorite ? t("common.saved") : t("detail.saveHouse")}
                     </Button>
                   ) : null}
 
@@ -287,16 +309,16 @@ function HouseDetailsPage() {
                     <DialogTrigger asChild>
                       <Button type="button" variant="ghost" className="h-11 w-full">
                         <Flag className="h-4 w-4" />
-                        Report listing
+                        {t("detail.reportListing")}
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Report this listing</DialogTitle>
+                        <DialogTitle>{t("detail.reportTitle")}</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4">
                         <div className="space-y-1.5">
-                          <Label>Reason</Label>
+                          <Label>{t("detail.reason")}</Label>
                           <Select
                             value={reportReason}
                             onValueChange={(value) => setReportReason(value as ListingReportReason)}
@@ -305,19 +327,25 @@ function HouseDetailsPage() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="wrong_information">Wrong information</SelectItem>
-                              <SelectItem value="unreachable_landlord">
-                                Landlord unreachable
+                              <SelectItem value="wrong_information">
+                                {t("detail.reasonWrong")}
                               </SelectItem>
-                              <SelectItem value="fraud_or_scam">Fraud or scam</SelectItem>
-                              <SelectItem value="already_rented">Already rented</SelectItem>
-                              <SelectItem value="spam">Spam</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
+                              <SelectItem value="unreachable_landlord">
+                                {t("detail.reasonUnreachable")}
+                              </SelectItem>
+                              <SelectItem value="fraud_or_scam">
+                                {t("detail.reasonFraud")}
+                              </SelectItem>
+                              <SelectItem value="already_rented">
+                                {t("detail.reasonRented")}
+                              </SelectItem>
+                              <SelectItem value="spam">{t("detail.reasonSpam")}</SelectItem>
+                              <SelectItem value="other">{t("detail.reasonOther")}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                         <div className="space-y-1.5">
-                          <Label htmlFor="report-details">Details</Label>
+                          <Label htmlFor="report-details">{t("detail.details")}</Label>
                           <Textarea
                             id="report-details"
                             rows={4}
@@ -332,7 +360,7 @@ function HouseDetailsPage() {
                           disabled={reportMutation.isPending}
                           onClick={() => reportMutation.mutate()}
                         >
-                          Submit report
+                          {t("detail.submitReport")}
                         </Button>
                       </DialogFooter>
                     </DialogContent>

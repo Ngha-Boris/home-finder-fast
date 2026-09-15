@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/landlord/reset-password")({
   head: () => ({
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/landlord/reset-password")({
 
 function ResetPasswordPage() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
@@ -32,11 +34,11 @@ function ResetPasswordPage() {
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (password.length < 6) {
-      setError("Use at least 6 characters.");
+      setError(t("auth.validation.shortPassword"));
       return;
     }
     if (password !== confirm) {
-      setError("Passwords do not match.");
+      setError(t("auth.validation.passwordMismatch"));
       return;
     }
 
@@ -50,7 +52,7 @@ function ResetPasswordPage() {
       return;
     }
 
-    toast.success("Password updated. You can now manage your listings.");
+    toast.success(t("reset.updated"));
     navigate({ to: "/landlord/dashboard", replace: true });
   };
 
@@ -63,17 +65,13 @@ function ResetPasswordPage() {
             <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
               <Lock className="h-5 w-5" />
             </div>
-            <h1 className="font-display text-xl font-extrabold sm:text-2xl">
-              Choose a new password
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Enter the new password for your landlord account.
-            </p>
+            <h1 className="font-display text-xl font-extrabold sm:text-2xl">{t("reset.title")}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t("reset.subtitle")}</p>
           </div>
 
           <form onSubmit={onSubmit} noValidate className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="password">New password</Label>
+              <Label htmlFor="password">{t("reset.newPassword")}</Label>
               <div className="relative">
                 <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -89,7 +87,7 @@ function ResetPasswordPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="confirm">Confirm password</Label>
+              <Label htmlFor="confirm">{t("auth.confirmPassword")}</Label>
               <div className="relative">
                 <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -107,14 +105,14 @@ function ResetPasswordPage() {
 
             <Button type="submit" size="lg" className="h-12 w-full" disabled={submitting}>
               {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
-              {submitting ? "Updating…" : "Update password"}
+              {submitting ? t("reset.updating") : t("reset.updatePassword")}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground">
-            Remembered it?{" "}
+            {t("reset.remembered")}{" "}
             <Link to="/landlord/login" className="font-medium text-primary hover:underline">
-              Log in
+              {t("auth.logIn")}
             </Link>
           </p>
         </Card>

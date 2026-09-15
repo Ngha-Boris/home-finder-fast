@@ -1,20 +1,20 @@
 import { AlertTriangle, SearchX } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/lib/i18n";
 
 export function ErrorState({ message, onRetry }: { message?: string; onRetry?: () => void }) {
+  const { t } = useI18n();
   return (
     <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed border-border bg-card px-6 py-16 text-center">
       <AlertTriangle className="h-10 w-10 text-warning" />
       <div>
-        <h3 className="font-display text-lg font-semibold">Something went wrong</h3>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {message ?? "We couldn't load this right now."}
-        </p>
+        <h3 className="font-display text-lg font-semibold">{t("state.errorTitle")}</h3>
+        <p className="mt-1 text-sm text-muted-foreground">{message ?? t("state.errorMessage")}</p>
       </div>
       {onRetry ? (
         <Button variant="outline" onClick={onRetry}>
-          Try again
+          {t("state.retry")}
         </Button>
       ) : null}
     </div>

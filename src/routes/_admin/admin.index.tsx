@@ -24,7 +24,7 @@ import {
   updateListingReportStatus,
   type ListingReport,
 } from "@/lib/houses-api";
-import { formatDate, houseTypeLabel } from "@/lib/houses-types";
+import { useI18n } from "@/lib/i18n";
 import { formatPhoneDisplay } from "@/lib/phone";
 
 export const Route = createFileRoute("/_admin/admin/")({
@@ -42,6 +42,7 @@ export const Route = createFileRoute("/_admin/admin/")({
 
 function AdminPage() {
   const qc = useQueryClient();
+  const { t } = useI18n();
   const [reportStatus, setReportStatus] = useState<"open" | "reviewed" | "dismissed">("open");
   const houses = useQuery({ queryKey: ["admin-houses"], queryFn: fetchAllHousesAdmin });
   const landlords = useQuery({ queryKey: ["admin-landlords"], queryFn: fetchLandlordsAdmin });
@@ -70,51 +71,47 @@ function AdminPage() {
     <LandlordShell>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl font-bold">Admin</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Monitor landlords and keep platform listings accurate.
-          </p>
+          <h1 className="font-display text-3xl font-bold">{t("admin.title")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("admin.subtitle")}</p>
         </div>
         <Button variant="outline" onClick={refresh} disabled={refreshing}>
           <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-          Refresh
+          {t("admin.refresh")}
         </Button>
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <AdminStat
           icon={Building2}
-          label="Listings"
+          label={t("nav.listings")}
           value={houses.isPending ? null : allHouses.length}
         />
         <AdminStat
           icon={CheckCircle2}
-          label="Available"
+          label={t("common.available")}
           value={houses.isPending ? null : available}
         />
         <AdminStat
           icon={EyeOff}
-          label="Unavailable"
+          label={t("common.unavailable")}
           value={houses.isPending ? null : unavailable}
         />
         <AdminStat
           icon={Users}
-          label="Landlords"
+          label={t("nav.landlords")}
           value={landlords.isPending ? null : (landlords.data?.length ?? 0)}
         />
         <AdminStat
           icon={Flag}
-          label="Open reports"
+          label={t("admin.openReports")}
           value={reports.isPending ? null : openReports}
         />
       </div>
 
       <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-display text-xl font-bold">Listing reports</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Review tenant reports and mark each one reviewed or dismissed.
-          </p>
+          <h2 className="font-display text-xl font-bold">{t("admin.reportSection")}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t("admin.reportSubtitle")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {(["open", "reviewed", "dismissed"] as const).map((status) => (
@@ -125,7 +122,11 @@ function AdminPage() {
               variant={reportStatus === status ? "default" : "secondary"}
               onClick={() => setReportStatus(status)}
             >
-              {status[0]!.toUpperCase() + status.slice(1)}
+              {status === "open"
+                ? t("admin.open")
+                : status === "reviewed"
+                  ? t("admin.reviewed")
+                  : t("admin.dismissed")}
             </Button>
           ))}
         </div>
@@ -137,18 +138,25 @@ function AdminPage() {
           <ErrorState onRetry={() => reports.refetch()} />
         ) : (reports.data ?? []).length === 0 ? (
           <EmptyState
-            title={`No ${reportStatus} reports`}
-            description="Reports submitted by tenants will appear here."
+            title={t("admin.noReports", {
+              status:
+                reportStatus === "open"
+                  ? t("admin.open").toLowerCase()
+                  : reportStatus === "reviewed"
+                    ? t("admin.reviewed").toLowerCase()
+                    : t("admin.dismissed").toLowerCase(),
+            })}
+            description={t("admin.reportsEmpty")}
           />
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Listing</TableHead>
-                <TableHead>Reason</TableHead>
-                <TableHead>Details</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("admin.listing")}</TableHead>
+                <TableHead>{t("admin.reason")}</TableHead>
+                <TableHead>{t("detail.details")}</TableHead>
+                <TableHead>{t("admin.status")}</TableHead>
+                <TableHead className="text-right">{t("admin.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -165,7 +173,7 @@ function AdminPage() {
         )}
       </Card>
 
-      <h2 className="mt-10 font-display text-xl font-bold">Landlords</h2>
+      <h2 className="mt-10 font-display text-xl font-bold">{t("admin.landlordsTitle")}</h2>
       <Card className="mt-4 overflow-x-auto shadow-card">
         {landlords.isPending ? (
           <Skeleton className="m-4 h-32" />
@@ -173,16 +181,16 @@ function AdminPage() {
           <ErrorState onRetry={() => landlords.refetch()} />
         ) : (landlords.data ?? []).length === 0 ? (
           <EmptyState
-            title="No landlords yet"
-            description="Registered landlord profiles will appear here."
+            title={t("admin.noLandlords")}
+            description={t("admin.noLandlordsDescription")}
           />
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead className="text-right">Listings</TableHead>
+                <TableHead>{t("admin.name")}</TableHead>
+                <TableHead>{t("admin.phone")}</TableHead>
+                <TableHead className="text-right">{t("nav.listings")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -198,7 +206,7 @@ function AdminPage() {
         )}
       </Card>
 
-      <h2 className="mt-10 font-display text-xl font-bold">All listings</h2>
+      <h2 className="mt-10 font-display text-xl font-bold">{t("admin.allListings")}</h2>
       <div className="mt-4 space-y-3">
         {houses.isPending ? (
           Array.from({ length: 3 }).map((_, i) => (
@@ -208,8 +216,8 @@ function AdminPage() {
           <ErrorState onRetry={() => houses.refetch()} />
         ) : allHouses.length === 0 ? (
           <EmptyState
-            title="No listings yet"
-            description="Every listing added to Easy Rent will appear here for review."
+            title={t("admin.noListings")}
+            description={t("admin.noListingsDescription")}
           />
         ) : (
           allHouses.map((house) => <ListingRow key={house.id} house={house} adminMode />)
@@ -229,26 +237,29 @@ function ReportRow({
   onStatus: (status: "open" | "reviewed" | "dismissed") => void;
 }) {
   const house = report.houses;
+  const { t, houseType, formatDate } = useI18n();
   return (
     <TableRow>
       <TableCell className="min-w-52">
         {house ? (
           <div>
             <p className="font-medium">
-              {houseTypeLabel(house.house_type)} in {house.location}
+              {t("listing.title", { type: houseType(house.house_type), location: house.location })}
             </p>
             <p className="text-xs text-muted-foreground">
-              {house.region} · {house.availability} · {formatDate(report.created_at)}
+              {house.region} -{" "}
+              {house.availability === "available" ? t("common.available") : t("common.unavailable")}{" "}
+              - {formatDate(report.created_at)}
             </p>
           </div>
         ) : (
-          <span className="text-muted-foreground">Deleted listing</span>
+          <span className="text-muted-foreground">{t("admin.deletedListing")}</span>
         )}
       </TableCell>
       <TableCell className="min-w-36 capitalize">{report.reason.replaceAll("_", " ")}</TableCell>
       <TableCell className="max-w-sm">
         <p className="line-clamp-3 break-words text-sm text-muted-foreground">
-          {report.details || "No details provided."}
+          {report.details || t("admin.noDetails")}
         </p>
       </TableCell>
       <TableCell>
@@ -266,7 +277,7 @@ function ReportRow({
               disabled={pending}
               onClick={() => onStatus("reviewed")}
             >
-              Reviewed
+              {t("admin.reviewed")}
             </Button>
           ) : null}
           {report.status !== "dismissed" ? (
@@ -277,7 +288,7 @@ function ReportRow({
               disabled={pending}
               onClick={() => onStatus("dismissed")}
             >
-              Dismiss
+              {t("admin.dismiss")}
             </Button>
           ) : null}
         </div>

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useCachedQuery } from "@/hooks/use-cached-query";
 import { fetchAvailableHouses } from "@/lib/houses-api";
 import { CACHE_KEYS } from "@/lib/idb-cache";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
+  const { t } = useI18n();
   const { data, isLoading, isError, isFromCache, refetch } = useCachedQuery({
     queryKey: ["houses", "feed"],
     cacheKey: CACHE_KEYS.feed,
@@ -48,7 +50,7 @@ function LandingPage() {
         <section className="stage-surface relative isolate overflow-hidden">
           <img
             src={heroImage}
-            alt="Residential street with apartment buildings in Douala, Cameroon"
+            alt={t("landing.heroAlt")}
             width={1600}
             height={1008}
             className="absolute inset-0 -z-10 h-full w-full object-cover opacity-40 mix-blend-screen"
@@ -58,11 +60,10 @@ function LandingPage() {
             <div className="max-w-2xl">
               <div className="max-w-2xl animate-fade-up">
                 <h1 className="font-display text-3xl font-extrabold leading-tight sm:text-6xl">
-                  Find your next home, faster.
+                  {t("landing.title")}
                 </h1>
                 <p className="mt-4 max-w-xl text-sm leading-6 text-primary-foreground/82 sm:text-lg sm:leading-8">
-                  Discover available rental houses near you and reach the landlord straight away by
-                  phone or WhatsApp.
+                  {t("landing.subtitle")}
                 </p>
               </div>
             </div>
@@ -72,13 +73,11 @@ function LandingPage() {
         <section className="container-page py-10 sm:py-14">
           <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
             <div className="min-w-0">
-              <h2 className="font-display text-2xl font-bold sm:text-3xl">Recent listings</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Freshly added houses, newest first.
-              </p>
+              <h2 className="font-display text-2xl font-bold sm:text-3xl">{t("landing.recent")}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">{t("landing.recentSubtitle")}</p>
             </div>
             <Button asChild variant="outline" className="w-full sm:w-auto">
-              <Link to="/houses">See all</Link>
+              <Link to="/houses">{t("landing.seeAll")}</Link>
             </Button>
           </div>
 
@@ -94,11 +93,11 @@ function LandingPage() {
             <ErrorState onRetry={() => refetch()} />
           ) : recent.length === 0 ? (
             <EmptyState
-              title="No houses yet"
-              description="Listings will appear here as soon as landlords add them."
+              title={t("landing.noHouses")}
+              description={t("landing.noHousesDescription")}
               action={
                 <Button asChild>
-                  <Link to="/landlord/register">Add the first house</Link>
+                  <Link to="/landlord/register">{t("landing.addFirst")}</Link>
                 </Button>
               }
             />
@@ -114,24 +113,24 @@ function LandingPage() {
         <section className="border-y border-border bg-card/70 py-10 backdrop-blur-sm sm:py-14">
           <div className="container-page">
             <h2 className="text-center font-display text-2xl font-bold sm:text-3xl">
-              How it works
+              {t("landing.howItWorks")}
             </h2>
             <div className="mt-8 grid gap-8 sm:mt-10 sm:grid-cols-3">
               {[
                 {
                   icon: Home,
-                  title: "Browse available homes",
-                  text: "Open the latest listings and compare the homes that are available now.",
+                  title: t("landing.stepBrowse"),
+                  text: t("landing.stepBrowseText"),
                 },
                 {
                   icon: Eye,
-                  title: "View the property",
-                  text: "See every photo, the rooms, water and electricity details.",
+                  title: t("landing.stepView"),
+                  text: t("landing.stepViewText"),
                 },
                 {
                   icon: Phone,
-                  title: "Contact the landlord",
-                  text: "Call or message on WhatsApp in one tap — no middleman.",
+                  title: t("landing.stepContact"),
+                  text: t("landing.stepContactText"),
                 },
               ].map((step, i) => (
                 <div key={step.title} className="text-center">

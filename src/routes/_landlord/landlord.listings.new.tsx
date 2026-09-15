@@ -4,6 +4,7 @@ import { HouseForm } from "@/components/house-form";
 import { LandlordShell } from "@/components/landlord-shell";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/lib/i18n";
 import { phoneFromAuthIdentity, phoneInputValue } from "@/lib/phone";
 
 export const Route = createFileRoute("/_landlord/landlord/listings/new")({
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/_landlord/landlord/listings/new")({
 });
 
 function NewListingPage() {
+  const { t } = useI18n();
   const { data, isPending } = useQuery({
     queryKey: ["me"],
     queryFn: async () => {
@@ -42,8 +44,8 @@ function NewListingPage() {
 
   return (
     <LandlordShell>
-      <h1 className="font-display text-3xl font-bold">Add a house</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Fields marked with * are required.</p>
+      <h1 className="font-display text-3xl font-bold">{t("landlord.addTitle")}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{t("landlord.requiredHint")}</p>
       <div className="mt-6">
         {isPending || !data ? (
           <Skeleton className="h-96 w-full rounded-xl" />

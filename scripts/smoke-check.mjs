@@ -36,7 +36,7 @@ for (const needle of requiredSql) {
 }
 
 const detailPage = readFileSync("src/routes/houses.$id.tsx", "utf8");
-for (const needle of ["Save house", "Report listing", "logContactEvent"]) {
+for (const needle of ['t("detail.saveHouse")', 't("detail.reportListing")', "logContactEvent"]) {
   if (!detailPage.includes(needle)) {
     throw new Error(`Missing detail-page feature: ${needle}`);
   }
@@ -76,14 +76,23 @@ if (!imageProxy.includes("Image service is not configured")) {
 }
 
 const housesIndex = readFileSync("src/routes/houses.index.tsx", "utf8");
-for (const needle of ["Search houses", "House type", "PRICE_PRESETS", "Clear filters"]) {
+for (const needle of [
+  't("houses.searchAria")',
+  't("houses.houseType")',
+  "PRICE_PRESETS",
+  't("houses.clearFilters")',
+]) {
   if (!housesIndex.includes(needle)) {
     throw new Error(`Missing browse filter UI: ${needle}`);
   }
 }
 
 const adminIndex = readFileSync("src/routes/_admin/admin.index.tsx", "utf8");
-for (const needle of ["Listing reports", "fetchListingReportsAdmin", "updateListingReportStatus"]) {
+for (const needle of [
+  't("admin.reportSection")',
+  "fetchListingReportsAdmin",
+  "updateListingReportStatus",
+]) {
   if (!adminIndex.includes(needle)) {
     throw new Error(`Missing admin report workflow: ${needle}`);
   }

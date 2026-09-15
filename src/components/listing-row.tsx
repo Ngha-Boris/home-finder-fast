@@ -21,7 +21,8 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { useOnline } from "@/hooks/use-online";
 import { deleteHouse, updateHouse } from "@/lib/houses-api";
-import { coverImage, formatPrice, houseTypeLabel, type House } from "@/lib/houses-types";
+import { coverImage, formatPrice, type House } from "@/lib/houses-types";
+import { useI18n } from "@/lib/i18n";
 
 function updateHouseInList(houses: House[] | undefined, next: House) {
   return houses?.map((item) => (item.id === next.id ? next : item));
@@ -43,6 +44,8 @@ export function ListingRow({
   const qc = useQueryClient();
   const online = useOnline();
   const cover = coverImage(house);
+  const { t, houseType } = useI18n();
+  const typeLabel = houseType(house.house_type);
   const [imageFailed, setImageFailed] = useState(false);
   const queryKey = listQueryKey ?? (adminMode ? ["admin-houses"] : ["my-houses"]);
 
@@ -75,7 +78,7 @@ export function ListingRow({
     onSuccess: () => {
       qc.invalidateQueries({ queryKey });
       qc.invalidateQueries({ queryKey: ["houses"] });
-      toast.success("Availability updated");
+      toast.success(t("listing.availabilityUpdated"));
     },
     onError: (e: Error, _available, context) => {
       qc.setQueryData(queryKey, context?.previousList);
@@ -104,7 +107,7 @@ export function ListingRow({
     onSuccess: () => {
       qc.invalidateQueries({ queryKey });
       qc.invalidateQueries({ queryKey: ["houses"] });
-      toast.success("Listing deleted");
+      toast.success(t("listing.deleted"));
     },
     onError: (e: Error, _variables, context) => {
       qc.setQueryData(queryKey, context?.previousList);
@@ -115,7 +118,7 @@ export function ListingRow({
 
   const guard = (fn: () => void) => () => {
     if (!online) {
-      toast.error("This action requires an internet connection.");
+      toast.error(t("common.offlineAction"));
       return;
     }
     fn();
@@ -126,12 +129,12 @@ export function ListingRow({
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-secondary sm:max-h-56 md:w-36">
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
           <Home className="h-5 w-5" />
-          <span>No photo</span>
+          <span>{t("common.noPhoto")}</span>
         </div>
         {cover && !imageFailed ? (
           <StorageImage
             image={cover}
-            alt={`${houseTypeLabel(house.house_type)} in ${house.location}`}
+            alt={t("listing.title", { type: typeLabel, location: house.location })}
             loading="lazy"
             width={288}
             height={192}
@@ -145,7 +148,7 @@ export function ListingRow({
 
       <div className="min-w-0 space-y-2">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary">{houseTypeLabel(house.house_type)}</Badge>
+          <Badge variant="secondary">{typeLabel}</Badge>
           <Badge
             className={
               house.availability === "available"
@@ -153,12 +156,12 @@ export function ListingRow({
                 : "bg-muted text-muted-foreground"
             }
           >
-            {house.availability === "available" ? "Available" : "Unavailable"}
+            {house.availability === "available" ? t("common.available") : t("common.unavailable")}
           </Badge>
         </div>
         <div>
           <h3 className="line-clamp-2 break-words font-display text-base font-bold sm:text-lg">
-            {houseTypeLabel(house.house_type)} in {house.location}
+            {t("listing.title", { type: typeLabel, location: house.location })}
           </h3>
           <p className="break-words font-display text-lg font-extrabold text-foreground sm:text-xl">
             {formatPrice(house.rent_price)}
@@ -175,15 +178,15 @@ export function ListingRow({
             checked={house.availability === "available"}
             disabled={toggle.isPending}
             onCheckedChange={(v) => guard(() => toggle.mutate(v))()}
-            aria-label="Toggle availability"
+            aria-label={t("listing.toggleAvailability")}
           />
-          <span>Available</span>
+          <span>{t("common.available")}</span>
         </label>
 
         <Button asChild variant="outline" size="sm" className="min-h-10 w-full md:w-auto">
           <Link to="/houses/$id" params={{ id: house.id }}>
             <Eye className="h-4 w-4" />
-            View
+            {t("common.view")}
           </Link>
         </Button>
 
@@ -191,7 +194,7 @@ export function ListingRow({
           <Button asChild variant="outline" size="sm" className="min-h-10 w-full md:w-auto">
             <Link to="/landlord/listings/$id/edit" params={{ id: house.id }}>
               <Pencil className="h-4 w-4" />
-              Edit
+              {t("common.edit")}
             </Link>
           </Button>
         ) : null}
@@ -205,19 +208,21 @@ export function ListingRow({
               disabled={remove.isPending}
             >
               <Trash2 className="h-4 w-4" />
-              Delete
+              {t("common.delete")}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure you want to delete this listing?</AlertDialogTitle>
+              <AlertDialogTitle>{t("listing.confirmDeleteTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                The listing and all of its photos will be permanently removed.
+                {t("listing.confirmDeleteDescription")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={guard(() => remove.mutate())}>Delete</AlertDialogAction>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+              <AlertDialogAction onClick={guard(() => remove.mutate())}>
+                {t("common.delete")}
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

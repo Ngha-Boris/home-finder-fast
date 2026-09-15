@@ -23,11 +23,11 @@ import {
   HOUSE_TYPES,
   PRICE_PRESETS,
   REGIONS,
-  houseTypeLabel,
   type House,
   type HouseType,
 } from "@/lib/houses-types";
 import { CACHE_KEYS } from "@/lib/idb-cache";
+import { pricePresetLabel, useI18n } from "@/lib/i18n";
 
 type Search = {
   q?: string | undefined;
@@ -77,6 +77,7 @@ function HousesPage() {
   const [q, setQ] = useState(search.q ?? "");
   const [min, setMin] = useState(search.min?.toString() ?? "");
   const [max, setMax] = useState(search.max?.toString() ?? "");
+  const { t, houseType, language } = useI18n();
 
   const { data, isLoading, isError, isFromCache, refetch } = useCachedQuery({
     queryKey: ["houses", "feed", search],
@@ -105,13 +106,13 @@ function HousesPage() {
         h.region,
         h.description,
         h.location_details ?? "",
-        houseTypeLabel(h.house_type),
+        houseType(h.house_type),
       ]
         .join(" ")
         .toLowerCase();
       return haystack.includes(q);
     });
-  }, [data, search]);
+  }, [data, houseType, search]);
 
   useEffect(
     () => setVisible(PAGE_SIZE),
@@ -167,15 +168,20 @@ function HousesPage() {
             <div className="min-w-0">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1 text-xs font-semibold">
                 <Home className="h-3.5 w-3.5" />
-                Live rental feed
+                {t("houses.liveFeed")}
               </div>
               <h1 className="font-display text-2xl font-extrabold min-[375px]:text-3xl sm:text-4xl">
-                Available houses
+                {t("houses.availableHouses")}
               </h1>
               <p className="mt-2 text-sm text-primary-foreground/78">
                 {isLoading
-                  ? "Loading listings..."
-                  : `${filtered.length} available house${filtered.length === 1 ? "" : "s"}`}
+                  ? t("common.loadingListings")
+                  : t("houses.availableCount", {
+                      count: filtered.length,
+                      noun:
+                        filtered.length === 1 ? t("houses.houseSingular") : t("houses.housePlural"),
+                      plural: filtered.length === 1 ? "" : "s",
+                    })}
               </p>
             </div>
           </div>
@@ -191,8 +197,8 @@ function HousesPage() {
                 onKeyDown={(event) => {
                   if (event.key === "Enter") updateSearch({ q });
                 }}
-                placeholder="Search location, region or description..."
-                aria-label="Search houses"
+                placeholder={t("houses.searchPlaceholder")}
+                aria-label={t("houses.searchAria")}
                 className="h-11 pl-9"
               />
             </div>
@@ -202,13 +208,13 @@ function HousesPage() {
               onClick={() => updateSearch({ q })}
             >
               <SlidersHorizontal className="h-4 w-4" />
-              Search
+              {t("common.search")}
             </Button>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-1.5">
-              <Label>House type</Label>
+              <Label>{t("houses.houseType")}</Label>
               <Select
                 value={search.type ?? "all"}
                 onValueChange={(value) =>
@@ -219,17 +225,17 @@ function HousesPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All types</SelectItem>
+                  <SelectItem value="all">{t("houses.allTypes")}</SelectItem>
                   {HOUSE_TYPES.map((type) => (
                     <SelectItem key={type.value} value={type.value}>
-                      {type.label}
+                      {houseType(type.value)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Region</Label>
+              <Label>{t("common.region")}</Label>
               <Select
                 value={search.region ?? "all"}
                 onValueChange={(value) =>
@@ -240,7 +246,7 @@ function HousesPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All regions</SelectItem>
+                  <SelectItem value="all">{t("houses.allRegions")}</SelectItem>
                   {REGIONS.map((region) => (
                     <SelectItem key={region} value={region}>
                       {region}
@@ -250,7 +256,7 @@ function HousesPage() {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="min-rent">Min rent</Label>
+              <Label htmlFor="min-rent">{t("houses.minRent")}</Label>
               <Input
                 id="min-rent"
                 type="number"
@@ -263,7 +269,7 @@ function HousesPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="max-rent">Max rent</Label>
+              <Label htmlFor="max-rent">{t("houses.maxRent")}</Label>
               <Input
                 id="max-rent"
                 type="number"
@@ -280,7 +286,7 @@ function HousesPage() {
           <div className="grid grid-cols-2 gap-2 min-[440px]:flex min-[440px]:flex-wrap">
             {PRICE_PRESETS.map((preset) => (
               <Button
-                key={preset.label}
+                key={`${preset.min ?? "none"}-${preset.max ?? "none"}`}
                 type="button"
                 size="sm"
                 variant={
@@ -293,7 +299,7 @@ function HousesPage() {
                   updateSearch({ min: preset.min, max: preset.max });
                 }}
               >
-                {preset.label}
+                {pricePresetLabel(preset, language)}
               </Button>
             ))}
             {hasFilters ? (
@@ -305,7 +311,7 @@ function HousesPage() {
                 onClick={clearFilters}
               >
                 <X className="h-4 w-4" />
-                Clear filters
+                {t("houses.clearFilters")}
               </Button>
             ) : null}
           </div>
@@ -323,10 +329,7 @@ function HousesPage() {
           ) : isError ? (
             <ErrorState onRetry={() => refetch()} />
           ) : filtered.length === 0 ? (
-            <EmptyState
-              title="No houses available yet."
-              description="Listings will appear here as soon as landlords add them."
-            />
+            <EmptyState title={t("houses.emptyTitle")} description={t("houses.emptyDescription")} />
           ) : (
             <>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -341,7 +344,7 @@ function HousesPage() {
                     size="lg"
                     onClick={() => setVisible((v) => v + PAGE_SIZE)}
                   >
-                    Load more houses
+                    {t("houses.loadMore")}
                   </Button>
                 </div>
               ) : null}

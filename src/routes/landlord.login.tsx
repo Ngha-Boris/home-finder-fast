@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSession } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/lib/i18n";
 import { isValidLocalPhone, normalizePhone } from "@/lib/phone";
 
 const LANDLORD_AUTH_DRAFT_KEY = "easy-rent:landlord-auth-draft";
@@ -52,6 +53,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ phone?: string; password?: string }>({});
   const [submitting, setSubmitting] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     if (!loading && user) navigate({ to: "/landlord/dashboard", replace: true });
@@ -67,8 +69,8 @@ function LoginPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const next: typeof errors = {};
-    if (!isValidLocalPhone(phone)) next.phone = "Enter your 9-digit phone number.";
-    if (password.length < 6) next.password = "Password must be at least 6 characters.";
+    if (!isValidLocalPhone(phone)) next.phone = t("auth.validation.phone");
+    if (password.length < 6) next.password = t("auth.validation.password");
     setErrors(next);
     if (Object.keys(next).length) return;
 
@@ -82,12 +84,12 @@ function LoginPage() {
     if (error) {
       toast.error(
         error.message.toLowerCase().includes("invalid")
-          ? "Wrong phone number or password."
+          ? t("auth.wrongCredentials")
           : error.message,
       );
       return;
     }
-    toast.success("Welcome back!");
+    toast.success(t("auth.welcomeBack"));
     navigate({ to: "/landlord/dashboard" });
   };
 
@@ -100,15 +102,15 @@ function LoginPage() {
             <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
               <Phone className="h-5 w-5" />
             </div>
-            <h1 className="font-display text-xl font-extrabold sm:text-2xl">Landlord login</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Sign in with the phone number you registered with.
-            </p>
+            <h1 className="font-display text-xl font-extrabold sm:text-2xl">
+              {t("auth.loginTitle")}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t("auth.loginSubtitle")}</p>
           </div>
 
           <form onSubmit={onSubmit} noValidate className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="phone">Phone number</Label>
+              <Label htmlFor="phone">{t("auth.phone")}</Label>
               <div className="relative">
                 <span className="pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 items-center gap-1 text-sm text-muted-foreground">
                   <Phone className="h-4 w-4" />
@@ -118,7 +120,7 @@ function LoginPage() {
                   id="phone"
                   inputMode="numeric"
                   autoComplete="tel-national"
-                  placeholder="9-digit phone number"
+                  placeholder={t("auth.phonePlaceholder")}
                   className="h-12 pl-20"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -129,7 +131,7 @@ function LoginPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("auth.password")}</Label>
               <div className="relative">
                 <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -149,18 +151,18 @@ function LoginPage() {
 
             <Button type="submit" size="lg" className="h-12 w-full" disabled={submitting}>
               {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
-              {submitting ? "Signing in…" : "Login"}
+              {submitting ? t("auth.signingIn") : t("auth.login")}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
+            {t("auth.noAccount")}{" "}
             <Link
               to="/landlord/register"
               className="font-medium text-primary hover:underline"
               onClick={() => saveAuthDraft(phone, password)}
             >
-              Register
+              {t("auth.register")}
             </Link>
           </p>
         </Card>

@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { useSession } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchMyHouses } from "@/lib/houses-api";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_landlord/landlord/dashboard")({
   head: () => ({
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/_landlord/landlord/dashboard")({
 
 function DashboardPage() {
   const { user } = useSession();
+  const { t } = useI18n();
   const myHousesQueryKey = ["my-houses", user?.id] as const;
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: myHousesQueryKey,
@@ -39,31 +41,43 @@ function DashboardPage() {
       <div className="stage-surface overflow-hidden rounded-2xl border border-white/15 p-4 text-primary-foreground shadow-card min-[375px]:p-5 sm:p-7">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <h1 className="font-display text-2xl font-extrabold sm:text-3xl">Dashboard</h1>
+            <h1 className="font-display text-2xl font-extrabold sm:text-3xl">
+              {t("landlord.dashboardTitle")}
+            </h1>
             <p className="mt-1 text-sm text-primary-foreground/78">
-              An overview of your properties.
+              {t("landlord.dashboardSubtitle")}
             </p>
           </div>
           <Button asChild size="lg" variant="heroOutline" className="w-full sm:w-auto">
             <Link to="/landlord/listings/new">
               <PlusCircle className="h-5 w-5" />
-              Add House
+              {t("common.addHouse")}
             </Link>
           </Button>
         </div>
       </div>
 
       <div className="mt-5 grid gap-3 min-[420px]:grid-cols-3 sm:mt-6 sm:gap-4">
-        <StatCard icon={Home} label="Total listings" value={isPending ? null : houses.length} />
-        <StatCard icon={CheckCircle2} label="Available" value={isPending ? null : available} />
+        <StatCard
+          icon={Home}
+          label={t("landlord.totalListings")}
+          value={isPending ? null : houses.length}
+        />
+        <StatCard
+          icon={CheckCircle2}
+          label={t("common.available")}
+          value={isPending ? null : available}
+        />
         <StatCard
           icon={EyeOff}
-          label="Unavailable"
+          label={t("common.unavailable")}
           value={isPending ? null : houses.length - available}
         />
       </div>
 
-      <h2 className="mt-8 font-display text-xl font-bold sm:mt-10">Recent listings</h2>
+      <h2 className="mt-8 font-display text-xl font-bold sm:mt-10">
+        {t("landlord.recentListings")}
+      </h2>
       <div className="mt-4 space-y-3">
         {isPending ? (
           Array.from({ length: 3 }).map((_, i) => (
@@ -73,11 +87,11 @@ function DashboardPage() {
           <ErrorState onRetry={() => refetch()} />
         ) : houses.length === 0 ? (
           <EmptyState
-            title="No listings yet"
-            description="Add your first house and tenants will be able to call you right away."
+            title={t("landlord.noListingsYet")}
+            description={t("landlord.noListingsYetDescription")}
             action={
               <Button asChild>
-                <Link to="/landlord/listings/new">Add a house</Link>
+                <Link to="/landlord/listings/new">{t("landlord.addAHouse")}</Link>
               </Button>
             }
           />

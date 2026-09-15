@@ -7,6 +7,7 @@ import { EmptyState, ErrorState } from "@/components/states";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchAllHousesAdmin } from "@/lib/houses-api";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_admin/admin/listings")({
   head: () => ({
@@ -23,19 +24,18 @@ export const Route = createFileRoute("/_admin/admin/listings")({
 
 function AdminListingsPage() {
   const houses = useQuery({ queryKey: ["admin-houses"], queryFn: fetchAllHousesAdmin });
+  const { t } = useI18n();
 
   return (
     <LandlordShell>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl font-bold">Admin listings</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            View, disable, or remove listings across the platform.
-          </p>
+          <h1 className="font-display text-3xl font-bold">{t("admin.listingsTitle")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("admin.listingsSubtitle")}</p>
         </div>
         <Button variant="outline" onClick={() => houses.refetch()} disabled={houses.isFetching}>
           <RefreshCw className={`h-4 w-4 ${houses.isFetching ? "animate-spin" : ""}`} />
-          Refresh
+          {t("admin.refresh")}
         </Button>
       </div>
 
@@ -48,8 +48,8 @@ function AdminListingsPage() {
           <ErrorState onRetry={() => houses.refetch()} />
         ) : (houses.data ?? []).length === 0 ? (
           <EmptyState
-            title="No listings yet"
-            description="Every listing added to Easy Rent will appear here."
+            title={t("admin.noListings")}
+            description={t("admin.noListingsDescription")}
           />
         ) : (
           houses.data!.map((house) => <ListingRow key={house.id} house={house} adminMode />)

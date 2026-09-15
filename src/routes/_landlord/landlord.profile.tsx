@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/lib/i18n";
 import { formatPhoneDisplay } from "@/lib/phone";
 
 export const Route = createFileRoute("/_landlord/landlord/profile")({
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/_landlord/landlord/profile")({
 function ProfilePage() {
   const qc = useQueryClient();
   const [fullName, setFullName] = useState("");
+  const { t } = useI18n();
 
   const { data, isPending } = useQuery({
     queryKey: ["profile"],
@@ -56,40 +58,38 @@ function ProfilePage() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["profile"] });
-      toast.success("Profile saved");
+      toast.success(t("profile.saved"));
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   return (
     <LandlordShell>
-      <h1 className="font-display text-3xl font-bold">My profile</h1>
+      <h1 className="font-display text-3xl font-bold">{t("profile.title")}</h1>
       <Card className="mt-6 max-w-lg space-y-5 p-5 shadow-card sm:p-6">
         {isPending ? (
           <Skeleton className="h-40 w-full" />
         ) : (
           <>
             <div className="space-y-1.5">
-              <Label htmlFor="name">Full name</Label>
+              <Label htmlFor="name">{t("profile.fullName")}</Label>
               <Input
                 id="name"
                 className="h-11"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Your name"
+                placeholder={t("profile.namePlaceholder")}
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Phone number</Label>
+              <Label>{t("auth.phone")}</Label>
               <Input
                 className="h-11"
                 value={formatPhoneDisplay(data?.phone_number ?? "")}
                 readOnly
                 disabled
               />
-              <p className="text-xs text-muted-foreground">
-                Your phone number is your login and can't be changed here.
-              </p>
+              <p className="text-xs text-muted-foreground">{t("profile.phoneHelp")}</p>
             </div>
             <Button
               className="h-11"
@@ -97,7 +97,7 @@ function ProfilePage() {
               onClick={() => save.mutate()}
             >
               {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Save changes
+              {t("profile.saveChanges")}
             </Button>
           </>
         )}
