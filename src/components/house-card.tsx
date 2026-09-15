@@ -29,7 +29,7 @@ export function HouseCard({ house }: { house: House }) {
             loading="lazy"
             width={800}
             height={600}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 24rem"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 24rem"
             responsiveWidths={[320, 480, 640, 800]}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
