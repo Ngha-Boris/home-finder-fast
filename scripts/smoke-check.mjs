@@ -100,10 +100,12 @@ for (const needle of ["prevent_listing_report_spam", "prevent_contact_event_spam
 }
 
 const workflow = readFileSync(".github/workflows/ci-cd.yml", "utf8");
-if (!workflow.includes(".vercel/project.json") || workflow.includes("vercel link --yes")) {
-  throw new Error(
-    "CI should write Vercel project metadata directly instead of running vercel link.",
-  );
+if (
+  workflow.includes("VERCEL_TOKEN") ||
+  workflow.includes("vercel pull") ||
+  workflow.includes("vercel deploy")
+) {
+  throw new Error("CI should leave Vercel deployment to the connected Git integration.");
 }
 if (
   !workflow.includes("SUPABASE_PROJECT_REF") ||
