@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import type { House, HouseImageRow, HouseType } from "./houses-types";
+import type { House, HouseImageRow, HouseRow, HouseType } from "./houses-types";
 
 const HOUSE_SELECT = "*, house_images(*)";
 const PAGE_LIMIT = 60;
@@ -147,6 +147,20 @@ export async function setCoverImage(houseId: string, imageId: string) {
   if (e2) throw e2;
 }
 
+export async function updateHouseImageOrder(
+  imageId: string,
+  sortOrder: number,
+  isCover: boolean,
+  houseId: string,
+) {
+  const { error } = await supabase
+    .from("house_images")
+    .update({ sort_order: sortOrder, is_cover: isCover })
+    .eq("id", imageId)
+    .eq("house_id", houseId);
+  if (error) throw error;
+}
+
 export async function assignLandlordRole(userId: string) {
   const { error } = await supabase
     .from("user_roles")
@@ -281,4 +295,27 @@ export async function fetchLandlordsAdmin() {
   const { data, error } = await supabase.rpc("admin_landlords");
   if (error) throw error;
   return data;
+}
+
+export type ListingReport = Database["public"]["Tables"]["listing_reports"]["Row"] & {
+  houses?: Pick<HouseRow, "id" | "house_type" | "location" | "region" | "availability"> | null;
+};
+
+export async function fetchListingReportsAdmin(status?: "open" | "reviewed" | "dismissed") {
+  let query = supabase
+    .from("listing_reports")
+    .select("*, houses(id, house_type, location, region, availability)")
+    .order("created_at", { ascending: false });
+  if (status) query = query.eq("status", status);
+  const { data, error } = await query;
+  if (error) throw error;
+  return data as ListingReport[];
+}
+
+export async function updateListingReportStatus(
+  id: string,
+  status: "open" | "reviewed" | "dismissed",
+) {
+  const { error } = await supabase.from("listing_reports").update({ status }).eq("id", id);
+  if (error) throw error;
 }

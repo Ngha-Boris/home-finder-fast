@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { ImagePlus, Loader2, Star, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, ImagePlus, Loader2, Star, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { StorageImage } from "@/components/storage-image";
@@ -26,6 +26,7 @@ import {
   insertImages,
   setCoverImage,
   updateHouse,
+  updateHouseImageOrder,
   uploadHouseImage,
 } from "@/lib/houses-api";
 import {
@@ -40,6 +41,7 @@ import { ACCEPTED_IMAGE_TYPES, MAX_IMAGE_BYTES, compressImage } from "@/lib/imag
 import { isValidLocalPhone, normalizePhone, phoneInputValue } from "@/lib/phone";
 
 type Pending = { id: string; file: File; url: string };
+const MAX_PHOTOS = 10;
 
 function looksLikeQualityDescription(value: string) {
   const words = value.trim().split(/\s+/).filter(Boolean);
@@ -91,7 +93,16 @@ export function HouseForm({
   const addFiles = (files: FileList | null) => {
     if (!files) return;
     const next: Pending[] = [];
+    const remainingSlots = MAX_PHOTOS - existing.length - pending.length;
+    if (remainingSlots <= 0) {
+      toast.error(`You can add up to ${MAX_PHOTOS} photos per listing.`);
+      return;
+    }
     for (const file of Array.from(files)) {
+      if (next.length >= remainingSlots) {
+        toast.error(`Only ${remainingSlots} more photo${remainingSlots === 1 ? "" : "s"} allowed.`);
+        break;
+      }
       if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
         toast.error(`${file.name}: only JPG, PNG or WebP photos are allowed.`);
         continue;
@@ -104,6 +115,41 @@ export function HouseForm({
     }
     setPending((p) => [...p, ...next]);
     if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const movePending = (id: string, delta: -1 | 1) => {
+    setPending((items) => {
+      const index = items.findIndex((item) => item.id === id);
+      const target = index + delta;
+      if (index < 0 || target < 0 || target >= items.length) return items;
+      const next = [...items];
+      [next[index], next[target]] = [next[target]!, next[index]!];
+      return next;
+    });
+  };
+
+  const moveExisting = async (imageId: string, delta: -1 | 1) => {
+    const index = existing.findIndex((image) => image.id === imageId);
+    const target = index + delta;
+    if (!house || index < 0 || target < 0 || target >= existing.length) return;
+    const next = [...existing];
+    [next[index], next[target]] = [next[target]!, next[index]!];
+    const reordered = next.map((image, sort_order) => ({
+      ...image,
+      sort_order,
+      is_cover: sort_order === 0,
+    }));
+    setExisting(reordered);
+    try {
+      await Promise.all(
+        reordered.map((image) =>
+          updateHouseImageOrder(image.id, image.sort_order, image.is_cover, house.id),
+        ),
+      );
+    } catch (error) {
+      setExisting(existing);
+      toast.error((error as Error).message);
+    }
   };
 
   const removePending = (id: string) => {
@@ -418,8 +464,8 @@ export function HouseForm({
         <div>
           <h2 className="font-display text-lg font-semibold">Photos *</h2>
           <p className="text-sm text-muted-foreground">
-            Add at least one photo. The first photo is the main image; photos are compressed
-            automatically.
+            Add 1-{MAX_PHOTOS} JPG, PNG or WebP photos. The first photo is the main image; photos
+            are compressed automatically.
           </p>
         </div>
 
@@ -486,6 +532,30 @@ export function HouseForm({
                 >
                   <X className="h-3.5 w-3.5" />
                 </Button>
+                <div className="absolute bottom-1.5 left-1.5 flex gap-1">
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="secondary"
+                    className="h-7 w-7"
+                    disabled={saving}
+                    onClick={() => void moveExisting(img.id, -1)}
+                    aria-label="Move photo left"
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="secondary"
+                    className="h-7 w-7"
+                    disabled={saving}
+                    onClick={() => void moveExisting(img.id, 1)}
+                    aria-label="Move photo right"
+                  >
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
               </div>
             ))}
             {pending.map((p) => (
@@ -504,6 +574,30 @@ export function HouseForm({
                 >
                   <X className="h-3.5 w-3.5" />
                 </Button>
+                <div className="absolute bottom-1.5 left-1.5 flex gap-1">
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="secondary"
+                    className="h-7 w-7"
+                    disabled={saving}
+                    onClick={() => movePending(p.id, -1)}
+                    aria-label="Move photo left"
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="secondary"
+                    className="h-7 w-7"
+                    disabled={saving}
+                    onClick={() => movePending(p.id, 1)}
+                    aria-label="Move photo right"
+                  >
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
               </div>
             ))}
           </div>

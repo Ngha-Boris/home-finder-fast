@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Building2, CheckCircle2, EyeOff, RefreshCw, Users } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Building2, CheckCircle2, EyeOff, Flag, RefreshCw, Users } from "lucide-react";
+import { useState } from "react";
 import { LandlordShell } from "@/components/landlord-shell";
 import { ListingRow } from "@/components/listing-row";
 import { EmptyState, ErrorState } from "@/components/states";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,7 +17,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fetchAllHousesAdmin, fetchLandlordsAdmin } from "@/lib/houses-api";
+import {
+  fetchAllHousesAdmin,
+  fetchLandlordsAdmin,
+  fetchListingReportsAdmin,
+  updateListingReportStatus,
+  type ListingReport,
+} from "@/lib/houses-api";
+import { formatDate, houseTypeLabel } from "@/lib/houses-types";
 import { formatPhoneDisplay } from "@/lib/phone";
 
 export const Route = createFileRoute("/_admin/admin/")({
@@ -32,16 +41,29 @@ export const Route = createFileRoute("/_admin/admin/")({
 });
 
 function AdminPage() {
+  const qc = useQueryClient();
+  const [reportStatus, setReportStatus] = useState<"open" | "reviewed" | "dismissed">("open");
   const houses = useQuery({ queryKey: ["admin-houses"], queryFn: fetchAllHousesAdmin });
   const landlords = useQuery({ queryKey: ["admin-landlords"], queryFn: fetchLandlordsAdmin });
+  const reports = useQuery({
+    queryKey: ["admin-listing-reports", reportStatus],
+    queryFn: () => fetchListingReportsAdmin(reportStatus),
+  });
   const allHouses = houses.data ?? [];
   const available = allHouses.filter((house) => house.availability === "available").length;
   const unavailable = allHouses.length - available;
-  const refreshing = houses.isFetching || landlords.isFetching;
+  const refreshing = houses.isFetching || landlords.isFetching || reports.isFetching;
+  const openReports = reports.data?.filter((report) => report.status === "open").length ?? 0;
+  const reportStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "open" | "reviewed" | "dismissed" }) =>
+      updateListingReportStatus(id, status),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-listing-reports"] }),
+  });
 
   const refresh = () => {
     void houses.refetch();
     void landlords.refetch();
+    void reports.refetch();
   };
 
   return (
@@ -80,7 +102,68 @@ function AdminPage() {
           label="Landlords"
           value={landlords.isPending ? null : (landlords.data?.length ?? 0)}
         />
+        <AdminStat
+          icon={Flag}
+          label="Open reports"
+          value={reports.isPending ? null : openReports}
+        />
       </div>
+
+      <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="font-display text-xl font-bold">Listing reports</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Review tenant reports and mark each one reviewed or dismissed.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {(["open", "reviewed", "dismissed"] as const).map((status) => (
+            <Button
+              key={status}
+              type="button"
+              size="sm"
+              variant={reportStatus === status ? "default" : "secondary"}
+              onClick={() => setReportStatus(status)}
+            >
+              {status[0]!.toUpperCase() + status.slice(1)}
+            </Button>
+          ))}
+        </div>
+      </div>
+      <Card className="mt-4 overflow-x-auto shadow-card">
+        {reports.isPending ? (
+          <Skeleton className="m-4 h-32" />
+        ) : reports.isError ? (
+          <ErrorState onRetry={() => reports.refetch()} />
+        ) : (reports.data ?? []).length === 0 ? (
+          <EmptyState
+            title={`No ${reportStatus} reports`}
+            description="Reports submitted by tenants will appear here."
+          />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Listing</TableHead>
+                <TableHead>Reason</TableHead>
+                <TableHead>Details</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(reports.data ?? []).map((report) => (
+                <ReportRow
+                  key={report.id}
+                  report={report}
+                  pending={reportStatusMutation.isPending}
+                  onStatus={(status) => reportStatusMutation.mutate({ id: report.id, status })}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </Card>
 
       <h2 className="mt-10 font-display text-xl font-bold">Landlords</h2>
       <Card className="mt-4 overflow-x-auto shadow-card">
@@ -133,6 +216,73 @@ function AdminPage() {
         )}
       </div>
     </LandlordShell>
+  );
+}
+
+function ReportRow({
+  report,
+  pending,
+  onStatus,
+}: {
+  report: ListingReport;
+  pending: boolean;
+  onStatus: (status: "open" | "reviewed" | "dismissed") => void;
+}) {
+  const house = report.houses;
+  return (
+    <TableRow>
+      <TableCell className="min-w-52">
+        {house ? (
+          <div>
+            <p className="font-medium">
+              {houseTypeLabel(house.house_type)} in {house.location}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {house.region} · {house.availability} · {formatDate(report.created_at)}
+            </p>
+          </div>
+        ) : (
+          <span className="text-muted-foreground">Deleted listing</span>
+        )}
+      </TableCell>
+      <TableCell className="min-w-36 capitalize">{report.reason.replaceAll("_", " ")}</TableCell>
+      <TableCell className="max-w-sm">
+        <p className="line-clamp-3 break-words text-sm text-muted-foreground">
+          {report.details || "No details provided."}
+        </p>
+      </TableCell>
+      <TableCell>
+        <Badge variant={report.status === "open" ? "destructive" : "secondary"}>
+          {report.status}
+        </Badge>
+      </TableCell>
+      <TableCell className="text-right">
+        <div className="flex justify-end gap-2">
+          {report.status !== "reviewed" ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={pending}
+              onClick={() => onStatus("reviewed")}
+            >
+              Reviewed
+            </Button>
+          ) : null}
+          {report.status !== "dismissed" ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              disabled={pending}
+              onClick={() => onStatus("dismissed")}
+            >
+              Dismiss
+            </Button>
+          ) : null}
+        </div>
+      </TableCell>
+    </TableRow>
   );
 }
 

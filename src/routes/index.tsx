@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Eye, Home, Phone, Sparkles } from "lucide-react";
+import { Eye, Home, Phone } from "lucide-react";
 import heroImage from "@/assets/hero.jpg";
 import { HouseCard, HouseCardSkeleton } from "@/components/house-card";
 import { CachedNotice } from "@/components/offline-banner";
@@ -57,10 +57,6 @@ function LandingPage() {
           <div className="container-page py-10 text-primary-foreground sm:py-20">
             <div className="max-w-2xl">
               <div className="max-w-2xl animate-fade-up">
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/12 px-3 py-1 text-xs font-semibold backdrop-blur-md">
-                  <Sparkles className="h-3.5 w-3.5 text-highlight" />
-                  Rental homes across Cameroon
-                </div>
                 <h1 className="font-display text-3xl font-extrabold leading-tight sm:text-6xl">
                   Find your next home, faster.
                 </h1>

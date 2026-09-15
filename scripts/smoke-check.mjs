@@ -2,12 +2,17 @@ import { readFileSync } from "node:fs";
 
 const requiredFiles = [
   "supabase/migrations/20260914110917_close_app_gaps_without_admin_bootstrap.sql",
+  "supabase/migrations/20260915073456_harden_report_contact_rate_limits.sql",
   "src/routes/houses.$id.tsx",
+  "src/routes/houses.index.tsx",
+  "src/routes/_admin/admin.index.tsx",
   "src/routes/landlord.login.tsx",
   "src/routes/landlord.register.tsx",
   "src/routes/landlord.reset-password.tsx",
   "src/lib/idb-cache.ts",
   "src/routes/api/public/img/$.ts",
+  ".github/workflows/ci-cd.yml",
+  "public/sw.js",
 ];
 
 for (const file of requiredFiles) {
@@ -67,6 +72,42 @@ if (!cache.includes("feedSearch")) {
 const imageProxy = readFileSync("src/routes/api/public/img/$.ts", "utf8");
 if (!imageProxy.includes("Image service is not configured")) {
   throw new Error("Public image proxy should fail cleanly when server secrets are missing.");
+}
+
+const housesIndex = readFileSync("src/routes/houses.index.tsx", "utf8");
+for (const needle of ["Search houses", "House type", "PRICE_PRESETS", "Clear filters"]) {
+  if (!housesIndex.includes(needle)) {
+    throw new Error(`Missing browse filter UI: ${needle}`);
+  }
+}
+
+const adminIndex = readFileSync("src/routes/_admin/admin.index.tsx", "utf8");
+for (const needle of ["Listing reports", "fetchListingReportsAdmin", "updateListingReportStatus"]) {
+  if (!adminIndex.includes(needle)) {
+    throw new Error(`Missing admin report workflow: ${needle}`);
+  }
+}
+
+const hardeningMigration = readFileSync(
+  "supabase/migrations/20260915073456_harden_report_contact_rate_limits.sql",
+  "utf8",
+);
+for (const needle of ["prevent_listing_report_spam", "prevent_contact_event_spam"]) {
+  if (!hardeningMigration.includes(needle)) {
+    throw new Error(`Missing database spam hardening: ${needle}`);
+  }
+}
+
+const workflow = readFileSync(".github/workflows/ci-cd.yml", "utf8");
+if (!workflow.includes(".vercel/project.json") || workflow.includes("vercel link --yes")) {
+  throw new Error(
+    "CI should write Vercel project metadata directly instead of running vercel link.",
+  );
+}
+
+const serviceWorker = readFileSync("public/sw.js", "utf8");
+if (!serviceWorker.includes("easy-rent-v2-20260915")) {
+  throw new Error("Service worker cache version must be bumped for release cache invalidation.");
 }
 
 console.log("Smoke checks passed.");
