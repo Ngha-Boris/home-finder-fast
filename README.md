@@ -90,6 +90,7 @@ Apply migrations to your Supabase project using the Supabase CLI or the Supabase
 
 ```bash
 supabase db push
+```
 
 ## CI/CD
 
@@ -100,9 +101,9 @@ Add these GitHub repository secrets before enabling the workflow:
 - `VERCEL_TOKEN`
 - `VERCEL_ORG_ID`
 - `VERCEL_PROJECT_ID`
+- `VERCEL_SCOPE` (optional; set this to the Vercel team/user slug when the project belongs to a team and the CLI cannot infer scope from the project metadata)
 
 The `production` GitHub environment can be configured with required reviewers if production deployments need approval. Branch protection should require the `Quality checks` status check before merging into `main`.
-```
 
 If you are not using the CLI, run the migration SQL files in order from `supabase/migrations`.
 The migrations create and harden the private `house-images` bucket. They intentionally do not create a first admin user.

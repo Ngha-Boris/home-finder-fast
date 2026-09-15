@@ -82,10 +82,24 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_SCOPE: ${{ secrets.VERCEL_SCOPE }}
         run: |
           test -n "$VERCEL_TOKEN" || { echo "::error::Missing GitHub secret VERCEL_TOKEN"; exit 1; }
           test -n "$VERCEL_ORG_ID" || { echo "::error::Missing GitHub secret VERCEL_ORG_ID"; exit 1; }
           test -n "$VERCEL_PROJECT_ID" || { echo "::error::Missing GitHub secret VERCEL_PROJECT_ID"; exit 1; }
+          api_url="https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}"
+          if [[ "$VERCEL_ORG_ID" == team_* ]]; then
+            api_url="${api_url}?teamId=${VERCEL_ORG_ID}"
+          fi
+          if ! curl --fail --silent --show-error --output /dev/null \
+            --header "Authorization: Bearer ${VERCEL_TOKEN}" \
+            "$api_url"; then
+            echo "::error::Vercel token cannot access project ${VERCEL_PROJECT_ID}. Confirm VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID, and optional VERCEL_SCOPE."
+            exit 1
+          fi
+          if [ -n "$VERCEL_SCOPE" ]; then
+            echo "Using Vercel scope from VERCEL_SCOPE."
+          fi
 
       - name: Write Vercel project metadata
         run: |
@@ -97,18 +111,30 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Pull production environment
-        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+        run: |
+          args=(--yes --environment=production --token="$VERCEL_TOKEN")
+          if [ -n "$VERCEL_SCOPE" ]; then
+            args+=(--scope="$VERCEL_SCOPE")
+          fi
+          vercel pull "${args[@]}"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_SCOPE: ${{ secrets.VERCEL_SCOPE }}
 
       - name: Build production bundle
-        run: vercel build --prod --token="$VERCEL_TOKEN"
+        run: |
+          args=(--prod --token="$VERCEL_TOKEN")
+          if [ -n "$VERCEL_SCOPE" ]; then
+            args+=(--scope="$VERCEL_SCOPE")
+          fi
+          vercel build "${args[@]}"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_SCOPE: ${{ secrets.VERCEL_SCOPE }}
 
       - name: Upload prebuilt output
         if: github.event_name == 'push'
@@ -146,10 +172,24 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_SCOPE: ${{ secrets.VERCEL_SCOPE }}
         run: |
           test -n "$VERCEL_TOKEN" || { echo "::error::Missing GitHub secret VERCEL_TOKEN"; exit 1; }
           test -n "$VERCEL_ORG_ID" || { echo "::error::Missing GitHub secret VERCEL_ORG_ID"; exit 1; }
           test -n "$VERCEL_PROJECT_ID" || { echo "::error::Missing GitHub secret VERCEL_PROJECT_ID"; exit 1; }
+          api_url="https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}"
+          if [[ "$VERCEL_ORG_ID" == team_* ]]; then
+            api_url="${api_url}?teamId=${VERCEL_ORG_ID}"
+          fi
+          if ! curl --fail --silent --show-error --output /dev/null \
+            --header "Authorization: Bearer ${VERCEL_TOKEN}" \
+            "$api_url"; then
+            echo "::error::Vercel token cannot access project ${VERCEL_PROJECT_ID}. Confirm VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID, and optional VERCEL_SCOPE."
+            exit 1
+          fi
+          if [ -n "$VERCEL_SCOPE" ]; then
+            echo "Using Vercel scope from VERCEL_SCOPE."
+          fi
 
       - name: Write Vercel project metadata
         run: |
@@ -161,11 +201,17 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Pull Vercel project metadata
-        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+        run: |
+          args=(--yes --environment=production --token="$VERCEL_TOKEN")
+          if [ -n "$VERCEL_SCOPE" ]; then
+            args+=(--scope="$VERCEL_SCOPE")
+          fi
+          vercel pull "${args[@]}"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_SCOPE: ${{ secrets.VERCEL_SCOPE }}
 
       - name: Download prebuilt output
         uses: actions/download-artifact@v4
@@ -176,9 +222,14 @@ jobs:
       - name: Deploy to Vercel
         id: deploy
         run: |
-          url="$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")"
+          args=(--prebuilt --prod --token="$VERCEL_TOKEN")
+          if [ -n "$VERCEL_SCOPE" ]; then
+            args+=(--scope="$VERCEL_SCOPE")
+          fi
+          url="$(vercel deploy "${args[@]}")"
           echo "url=$url" >> "$GITHUB_OUTPUT"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_SCOPE: ${{ secrets.VERCEL_SCOPE }}
