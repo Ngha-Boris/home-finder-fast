@@ -162,8 +162,8 @@ function HousesPage() {
       <SiteHeader />
       <OfflineBanner />
 
-      <main className="container-page flex-1 pb-24 pt-5 sm:py-8">
-        <div className="stage-surface overflow-hidden rounded-2xl border border-white/15 p-4 text-primary-foreground shadow-card min-[375px]:p-5 sm:p-8">
+      <main className="container-page flex-1 pb-[calc(5.25rem+env(safe-area-inset-bottom))] pt-4 sm:py-8">
+        <div className="stage-surface overflow-hidden rounded-xl border border-white/15 p-3 text-primary-foreground shadow-card min-[375px]:p-5 sm:rounded-2xl sm:p-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1 text-xs font-semibold">
@@ -187,7 +187,7 @@ function HousesPage() {
           </div>
         </div>
 
-        <Card className="mt-5 space-y-4 border-white/70 p-3 shadow-card min-[375px]:mt-6 min-[375px]:p-4">
+        <Card className="mt-4 space-y-4 border-white/70 p-3 shadow-card min-[375px]:mt-6 min-[375px]:p-4">
           <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -321,7 +321,7 @@ function HousesPage() {
           <CachedNotice show={isFromCache} />
 
           {isLoading ? (
-            <div className="grid grid-cols-2 gap-2 min-[375px]:gap-3 sm:gap-4 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 min-[430px]:grid-cols-2 sm:gap-4 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <HouseCardSkeleton key={i} />
               ))}
@@ -332,7 +332,7 @@ function HousesPage() {
             <EmptyState title={t("houses.emptyTitle")} description={t("houses.emptyDescription")} />
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-2 min-[375px]:gap-3 sm:gap-4 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 min-[430px]:grid-cols-2 sm:gap-4 lg:grid-cols-3">
                 {filtered.slice(0, visible).map((house) => (
                   <HouseCard key={house.id} house={house} />
                 ))}

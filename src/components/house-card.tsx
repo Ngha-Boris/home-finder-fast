@@ -27,7 +27,7 @@ export function HouseCard({ house }: { house: House }) {
               loading="lazy"
               width={800}
               height={600}
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 24rem"
+              sizes="(max-width: 430px) 100vw, (max-width: 1024px) 50vw, 24rem"
               responsiveWidths={[320, 480, 640, 800]}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
@@ -44,24 +44,24 @@ export function HouseCard({ house }: { house: House }) {
           </Badge>
         </div>
 
-        <div className="flex min-w-0 flex-1 flex-col gap-2 p-2 min-[375px]:p-3 sm:gap-3 sm:p-4">
+        <div className="flex min-w-0 flex-1 flex-col gap-2.5 p-3 sm:gap-3 sm:p-4">
           <div>
-            <p className="break-words font-display text-base font-extrabold text-foreground sm:text-xl">
+            <p className="break-words font-display text-lg font-extrabold text-foreground sm:text-xl">
               {formatPrice(house.rent_price)}
             </p>
             <p className="text-xs text-muted-foreground">{t("common.perMonth")}</p>
           </div>
-          <p className="flex min-w-0 items-start gap-1.5 text-xs font-medium sm:text-sm">
+          <p className="flex min-w-0 items-start gap-1.5 text-sm font-medium">
             <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
             <span className="min-w-0 break-words">
               {house.location}
               <span className="text-muted-foreground"> · {house.region}</span>
             </span>
           </p>
-          <p className="line-clamp-1 break-words text-xs text-muted-foreground sm:line-clamp-2 sm:text-sm">
+          <p className="line-clamp-2 break-words text-sm text-muted-foreground">
             {house.description}
           </p>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground sm:gap-x-4 sm:text-xs">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground sm:gap-x-4">
             {house.rooms ? (
               <span className="flex items-center gap-1">
                 <BedDouble className="h-3.5 w-3.5" />
