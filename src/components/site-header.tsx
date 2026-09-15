@@ -43,7 +43,7 @@ export function SiteHeader() {
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[min(18rem,calc(100vw-2rem))]">
+          <SheetContent side="right">
             <SheetTitle className="mb-6 font-display text-lg">Easy Rent</SheetTitle>
             <div className="flex flex-col gap-2">
               {links.map((l) => (

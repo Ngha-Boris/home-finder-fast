@@ -71,7 +71,7 @@ function MyListingsPage() {
 
   return (
     <LandlordShell>
-      <div className="stage-surface overflow-hidden rounded-2xl border border-white/15 p-5 text-primary-foreground shadow-card sm:p-7">
+      <div className="stage-surface overflow-hidden rounded-2xl border border-white/15 p-4 text-primary-foreground shadow-card min-[375px]:p-5 sm:p-7">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <h1 className="font-display text-2xl font-extrabold sm:text-3xl">My listings</h1>
@@ -88,7 +88,7 @@ function MyListingsPage() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+      <div className="mt-5 grid gap-3 min-[420px]:grid-cols-3 sm:mt-6">
         <SummaryCard icon={Home} label="Total" value={isPending ? null : houses.length} />
         <SummaryCard icon={CheckCircle2} label="Available" value={isPending ? null : available} />
         <SummaryCard icon={EyeOff} label="Unavailable" value={isPending ? null : unavailable} />
@@ -106,7 +106,7 @@ function MyListingsPage() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+        <div className="grid grid-cols-1 gap-2 min-[360px]:grid-cols-2 sm:flex sm:flex-wrap">
           {(["all", "available", "unavailable"] as const).map((value) => (
             <Button
               key={value}
@@ -136,7 +136,7 @@ function MyListingsPage() {
               type="button"
               size="sm"
               variant="ghost"
-              className="justify-center"
+              className="min-[360px]:col-span-2 justify-center sm:col-span-1"
               onClick={clearFilters}
             >
               <X className="h-4 w-4" />

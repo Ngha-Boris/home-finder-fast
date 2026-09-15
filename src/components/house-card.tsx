@@ -39,19 +39,14 @@ export function HouseCard({ house }: { house: House }) {
           </div>
         )}
         <Badge
-          className="absolute left-3 top-3 border-white/40 bg-card/90 text-card-foreground shadow-sm backdrop-blur"
+          className="absolute left-2 top-2 max-w-[calc(100%-1rem)] border-white/40 bg-card/90 text-card-foreground shadow-sm backdrop-blur sm:left-3 sm:top-3"
           variant="secondary"
         >
-          {houseTypeLabel(house.house_type)}
-        </Badge>
-        <Badge
-          className={`absolute right-3 top-3 shadow-sm ${house.availability === "available" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
-        >
-          {house.availability === "available" ? "Available" : "Unavailable"}
+          <span className="truncate">{houseTypeLabel(house.house_type)}</span>
         </Badge>
       </Link>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-3 p-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-3 p-3 min-[375px]:p-4">
         <div>
           <p className="break-words font-display text-lg font-extrabold text-foreground sm:text-xl">
             {formatPrice(house.rent_price)}

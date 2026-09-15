@@ -162,14 +162,16 @@ function HousesPage() {
       <OfflineBanner />
 
       <main className="container-page flex-1 py-5 sm:py-8">
-        <div className="stage-surface overflow-hidden rounded-2xl border border-white/15 p-5 text-primary-foreground shadow-card sm:p-8">
+        <div className="stage-surface overflow-hidden rounded-2xl border border-white/15 p-4 text-primary-foreground shadow-card min-[375px]:p-5 sm:p-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1 text-xs font-semibold">
                 <Home className="h-3.5 w-3.5" />
                 Live rental feed
               </div>
-              <h1 className="font-display text-3xl font-extrabold sm:text-4xl">Available houses</h1>
+              <h1 className="font-display text-2xl font-extrabold min-[375px]:text-3xl sm:text-4xl">
+                Available houses
+              </h1>
               <p className="mt-2 text-sm text-primary-foreground/78">
                 {isLoading
                   ? "Loading listings..."
@@ -179,8 +181,8 @@ function HousesPage() {
           </div>
         </div>
 
-        <Card className="mt-6 space-y-4 border-white/70 p-4 shadow-card">
-          <div className="grid gap-3 lg:grid-cols-[1fr_auto]">
+        <Card className="mt-5 space-y-4 border-white/70 p-3 shadow-card min-[375px]:mt-6 min-[375px]:p-4">
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -194,13 +196,17 @@ function HousesPage() {
                 className="h-11 pl-9"
               />
             </div>
-            <Button type="button" className="h-11" onClick={() => updateSearch({ q })}>
+            <Button
+              type="button"
+              className="h-11 w-full sm:w-auto"
+              onClick={() => updateSearch({ q })}
+            >
               <SlidersHorizontal className="h-4 w-4" />
               Search
             </Button>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-1.5">
               <Label>House type</Label>
               <Select
@@ -271,7 +277,7 @@ function HousesPage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 gap-2 min-[440px]:flex min-[440px]:flex-wrap">
             {PRICE_PRESETS.map((preset) => (
               <Button
                 key={preset.label}
@@ -280,6 +286,7 @@ function HousesPage() {
                 variant={
                   search.min === preset.min && search.max === preset.max ? "default" : "secondary"
                 }
+                className="justify-center"
                 onClick={() => {
                   setMin(preset.min?.toString() ?? "");
                   setMax(preset.max?.toString() ?? "");
@@ -290,7 +297,13 @@ function HousesPage() {
               </Button>
             ))}
             {hasFilters ? (
-              <Button type="button" size="sm" variant="ghost" onClick={clearFilters}>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="col-span-2 justify-center min-[440px]:col-span-1"
+                onClick={clearFilters}
+              >
                 <X className="h-4 w-4" />
                 Clear filters
               </Button>
@@ -302,7 +315,7 @@ function HousesPage() {
           <CachedNotice show={isFromCache} />
 
           {isLoading ? (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <HouseCardSkeleton key={i} />
               ))}
@@ -316,7 +329,7 @@ function HousesPage() {
             />
           ) : (
             <>
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {filtered.slice(0, visible).map((house) => (
                   <HouseCard key={house.id} house={house} />
                 ))}

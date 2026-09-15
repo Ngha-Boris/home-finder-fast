@@ -24,9 +24,9 @@ import {
   createHouse,
   deleteImage,
   insertImages,
+  reorderHouseImages,
   setCoverImage,
   updateHouse,
-  updateHouseImageOrder,
   uploadHouseImage,
 } from "@/lib/houses-api";
 import {
@@ -41,6 +41,9 @@ import { ACCEPTED_IMAGE_TYPES, MAX_IMAGE_BYTES, compressImage } from "@/lib/imag
 import { isValidLocalPhone, normalizePhone, phoneInputValue } from "@/lib/phone";
 
 type Pending = { id: string; file: File; url: string };
+type PhotoItem =
+  | { kind: "existing"; id: string; image: HouseImageRow }
+  | { kind: "pending"; id: string; pending: Pending };
 const MAX_PHOTOS = 10;
 
 function looksLikeQualityDescription(value: string) {
@@ -87,6 +90,10 @@ export function HouseForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [progress, setProgress] = useState(0);
+  const photos: PhotoItem[] = [
+    ...existing.map((image) => ({ kind: "existing" as const, id: image.id, image })),
+    ...pending.map((item) => ({ kind: "pending" as const, id: item.id, pending: item })),
+  ];
 
   useEffect(() => () => pending.forEach((p) => URL.revokeObjectURL(p.url)), [pending]);
 
@@ -117,39 +124,48 @@ export function HouseForm({
     if (fileRef.current) fileRef.current.value = "";
   };
 
-  const movePending = (id: string, delta: -1 | 1) => {
-    setPending((items) => {
-      const index = items.findIndex((item) => item.id === id);
-      const target = index + delta;
-      if (index < 0 || target < 0 || target >= items.length) return items;
-      const next = [...items];
-      [next[index], next[target]] = [next[target]!, next[index]!];
-      return next;
-    });
-  };
+  const syncPhotoOrder = async (items: PhotoItem[], previousExisting: HouseImageRow[]) => {
+    const nextExisting = items
+      .filter((item): item is Extract<PhotoItem, { kind: "existing" }> => item.kind === "existing")
+      .map((item) => ({
+        ...item.image,
+        sort_order: items.findIndex((candidate) => candidate.id === item.id),
+        is_cover: items[0]?.id === item.id,
+      }));
+    const nextPending = items
+      .filter((item): item is Extract<PhotoItem, { kind: "pending" }> => item.kind === "pending")
+      .map((item) => item.pending);
 
-  const moveExisting = async (imageId: string, delta: -1 | 1) => {
-    const index = existing.findIndex((image) => image.id === imageId);
-    const target = index + delta;
-    if (!house || index < 0 || target < 0 || target >= existing.length) return;
-    const next = [...existing];
-    [next[index], next[target]] = [next[target]!, next[index]!];
-    const reordered = next.map((image, sort_order) => ({
-      ...image,
-      sort_order,
-      is_cover: sort_order === 0,
-    }));
-    setExisting(reordered);
+    setExisting(nextExisting);
+    setPending(nextPending);
+
+    if (!house || !nextExisting.length) return;
+    if (!online) {
+      setExisting(previousExisting);
+      toast.error("This action requires an internet connection.");
+      return;
+    }
+
     try {
-      await Promise.all(
-        reordered.map((image) =>
-          updateHouseImageOrder(image.id, image.sort_order, image.is_cover, house.id),
-        ),
+      const saved = await reorderHouseImages(
+        house.id,
+        nextExisting.map((image) => image.id),
       );
+      setExisting(sortedImages({ ...house, house_images: saved }));
     } catch (error) {
-      setExisting(existing);
+      setExisting(previousExisting);
       toast.error((error as Error).message);
     }
+  };
+
+  const movePhoto = (id: string, delta: -1 | 1) => {
+    if (saving) return;
+    const index = photos.findIndex((photo) => photo.id === id);
+    const target = index + delta;
+    if (index < 0 || target < 0 || target >= photos.length) return;
+    const next = [...photos];
+    [next[index], next[target]] = [next[target]!, next[index]!];
+    void syncPhotoOrder(next, existing);
   };
 
   const removePending = (id: string) => {
@@ -258,17 +274,33 @@ export function HouseForm({
       if (pending.length && houseId) {
         const rows = [];
         for (let i = 0; i < pending.length; i++) {
+          const pendingId = pending[i]!.id;
+          const pendingIndex = photos.findIndex(
+            (photo) => photo.kind === "pending" && photo.id === pendingId,
+          );
+          const sortOrder = pendingIndex >= 0 ? pendingIndex : existing.length + i;
           const blob = await compressImage(pending[i]!.file);
           const uploaded = await uploadHouseImage(userId, blob);
           rows.push({
             house_id: houseId,
             ...uploaded,
-            is_cover: existing.length === 0 && i === 0,
-            sort_order: existing.length + i,
+            is_cover: existing.length === 0 && sortOrder === 0,
+            sort_order: sortOrder,
           });
           setProgress(10 + Math.round(((i + 1) / pending.length) * 85));
         }
-        await insertImages(rows);
+        const inserted = await insertImages(rows);
+        const insertedByPendingId = new Map(
+          pending.map((item, index) => [item.id, inserted[index]]),
+        );
+        const finalImageIds = photos
+          .map((photo) =>
+            photo.kind === "existing" ? photo.image.id : insertedByPendingId.get(photo.id)?.id,
+          )
+          .filter((id): id is string => Boolean(id));
+        if (finalImageIds.length === existing.length + inserted.length) {
+          await reorderHouseImages(houseId, finalImageIds);
+        }
       }
 
       setProgress(100);
@@ -285,10 +317,10 @@ export function HouseForm({
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5 sm:space-y-6">
-      <Card className="space-y-5 border-white/70 p-4 shadow-card sm:p-6">
+      <Card className="space-y-5 border-white/70 p-3 shadow-card min-[375px]:p-4 sm:p-6">
         <h2 className="font-display text-lg font-semibold">Property details</h2>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
           <div className="space-y-1.5">
             <Label>House type *</Label>
             <Select value={houseType} onValueChange={(v) => setHouseType(v as HouseType)}>
@@ -396,9 +428,9 @@ export function HouseForm({
         </label>
       </Card>
 
-      <Card className="space-y-5 border-white/70 p-4 shadow-card sm:p-6">
+      <Card className="space-y-5 border-white/70 p-3 shadow-card min-[375px]:p-4 sm:p-6">
         <h2 className="font-display text-lg font-semibold">Extra details (optional)</h2>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
           <div className="space-y-1.5">
             <Label htmlFor="rooms">Number of rooms</Label>
             <Input
@@ -460,7 +492,7 @@ export function HouseForm({
         </div>
       </Card>
 
-      <Card className="space-y-4 border-white/70 p-4 shadow-card sm:p-6">
+      <Card className="space-y-4 border-white/70 p-3 shadow-card min-[375px]:p-4 sm:p-6">
         <div>
           <h2 className="font-display text-lg font-semibold">Photos *</h2>
           <p className="text-sm text-muted-foreground">
@@ -489,117 +521,122 @@ export function HouseForm({
         </Button>
         {errors["photos"] ? <p className="text-xs text-destructive">{errors["photos"]}</p> : null}
 
-        {existing.length || pending.length ? (
-          <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
-            {existing.map((img) => (
-              <div
-                key={img.id}
-                className="group relative overflow-hidden rounded-xl border border-border bg-secondary"
-              >
-                <StorageImage
-                  image={img}
-                  alt="Listing photo"
-                  loading="lazy"
-                  width={320}
-                  height={240}
-                  sizes="(max-width: 640px) 50vw, 12rem"
-                  responsiveWidths={[160, 240, 320]}
-                  className="aspect-[4/3] w-full object-cover"
-                />
-                {img.is_cover ? (
-                  <span className="absolute left-1.5 top-1.5 rounded-full bg-highlight px-1.5 py-0.5 text-[10px] font-semibold text-highlight-foreground">
-                    Main
-                  </span>
-                ) : (
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="secondary"
-                    className="absolute left-1.5 top-1.5 h-7 w-7"
-                    onClick={() => void makeCover(img)}
-                    aria-label="Set as main photo"
-                  >
-                    <Star className="h-3.5 w-3.5" />
-                  </Button>
-                )}
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="destructive"
-                  className="absolute right-1.5 top-1.5 h-7 w-7"
-                  onClick={() => void removeExisting(img)}
-                  aria-label="Remove photo"
+        {photos.length ? (
+          <div className="grid grid-cols-1 gap-2 min-[360px]:grid-cols-2 sm:gap-3 md:grid-cols-4">
+            {photos.map((photo, index) =>
+              photo.kind === "existing" ? (
+                <div
+                  key={photo.id}
+                  className="group relative overflow-hidden rounded-xl border border-border bg-secondary"
                 >
-                  <X className="h-3.5 w-3.5" />
-                </Button>
-                <div className="absolute bottom-1.5 left-1.5 flex gap-1">
+                  <StorageImage
+                    image={photo.image}
+                    alt="Listing photo"
+                    loading="lazy"
+                    width={320}
+                    height={240}
+                    sizes="(max-width: 640px) 50vw, 12rem"
+                    responsiveWidths={[160, 240, 320]}
+                    className="aspect-[4/3] w-full object-cover"
+                  />
+                  {photo.image.is_cover ? (
+                    <span className="absolute left-1.5 top-1.5 rounded-full bg-highlight px-1.5 py-0.5 text-[10px] font-semibold text-highlight-foreground">
+                      Main
+                    </span>
+                  ) : (
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="secondary"
+                      className="absolute left-1.5 top-1.5 h-7 w-7"
+                      onClick={() => void makeCover(photo.image)}
+                      aria-label="Set as main photo"
+                    >
+                      <Star className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                   <Button
                     type="button"
                     size="icon"
-                    variant="secondary"
-                    className="h-7 w-7"
-                    disabled={saving}
-                    onClick={() => void moveExisting(img.id, -1)}
-                    aria-label="Move photo left"
+                    variant="destructive"
+                    className="absolute right-1.5 top-1.5 h-7 w-7"
+                    onClick={() => void removeExisting(photo.image)}
+                    aria-label="Remove photo"
                   >
-                    <ArrowLeft className="h-3.5 w-3.5" />
+                    <X className="h-3.5 w-3.5" />
                   </Button>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="secondary"
-                    className="h-7 w-7"
-                    disabled={saving}
-                    onClick={() => void moveExisting(img.id, 1)}
-                    aria-label="Move photo right"
-                  >
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Button>
+                  <div className="absolute bottom-1.5 left-1.5 flex gap-1">
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="secondary"
+                      className="h-7 w-7"
+                      disabled={saving || index === 0}
+                      onClick={() => movePhoto(photo.id, -1)}
+                      aria-label="Move photo left"
+                    >
+                      <ArrowLeft className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="secondary"
+                      className="h-7 w-7"
+                      disabled={saving || index === photos.length - 1}
+                      onClick={() => movePhoto(photo.id, 1)}
+                      aria-label="Move photo right"
+                    >
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
-            {pending.map((p) => (
-              <div
-                key={p.id}
-                className="relative overflow-hidden rounded-xl border border-dashed border-primary/50 bg-secondary"
-              >
-                <img src={p.url} alt="" className="aspect-[4/3] w-full object-cover" />
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="destructive"
-                  className="absolute right-1.5 top-1.5 h-7 w-7"
-                  onClick={() => removePending(p.id)}
-                  aria-label="Remove photo"
+              ) : (
+                <div
+                  key={photo.id}
+                  className="relative overflow-hidden rounded-xl border border-dashed border-primary/50 bg-secondary"
                 >
-                  <X className="h-3.5 w-3.5" />
-                </Button>
-                <div className="absolute bottom-1.5 left-1.5 flex gap-1">
+                  <img
+                    src={photo.pending.url}
+                    alt=""
+                    className="aspect-[4/3] w-full object-cover"
+                  />
                   <Button
                     type="button"
                     size="icon"
-                    variant="secondary"
-                    className="h-7 w-7"
-                    disabled={saving}
-                    onClick={() => movePending(p.id, -1)}
-                    aria-label="Move photo left"
+                    variant="destructive"
+                    className="absolute right-1.5 top-1.5 h-7 w-7"
+                    onClick={() => removePending(photo.id)}
+                    aria-label="Remove photo"
                   >
-                    <ArrowLeft className="h-3.5 w-3.5" />
+                    <X className="h-3.5 w-3.5" />
                   </Button>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="secondary"
-                    className="h-7 w-7"
-                    disabled={saving}
-                    onClick={() => movePending(p.id, 1)}
-                    aria-label="Move photo right"
-                  >
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Button>
+                  <div className="absolute bottom-1.5 left-1.5 flex gap-1">
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="secondary"
+                      className="h-7 w-7"
+                      disabled={saving || index === 0}
+                      onClick={() => movePhoto(photo.id, -1)}
+                      aria-label="Move photo left"
+                    >
+                      <ArrowLeft className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="secondary"
+                      className="h-7 w-7"
+                      disabled={saving || index === photos.length - 1}
+                      onClick={() => movePhoto(photo.id, 1)}
+                      aria-label="Move photo right"
+                    >
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ),
+            )}
           </div>
         ) : null}
 

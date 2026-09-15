@@ -90,9 +90,9 @@ export function InstallPwaPrompt() {
   };
 
   return (
-    <div className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-md rounded-2xl border border-white/70 bg-card/95 p-3 text-card-foreground shadow-card backdrop-blur-xl sm:bottom-5">
-      <div className="flex gap-3">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+    <div className="fixed inset-x-2 bottom-2 z-50 mx-auto max-h-[calc(100dvh-1rem)] max-w-md overflow-y-auto rounded-2xl border border-white/70 bg-card/95 p-3 text-card-foreground shadow-card backdrop-blur-xl sm:inset-x-3 sm:bottom-5">
+      <div className="flex gap-2 min-[360px]:gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground min-[360px]:h-11 min-[360px]:w-11">
           <Smartphone className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1">
@@ -121,7 +121,7 @@ export function InstallPwaPrompt() {
             </p>
           ) : null}
 
-          <div className="mt-3 flex gap-2">
+          <div className="mt-3 grid gap-2 min-[360px]:flex">
             {installEvent ? (
               <Button type="button" size="sm" className="h-9 flex-1" onClick={() => void install()}>
                 <Download className="h-4 w-4" />

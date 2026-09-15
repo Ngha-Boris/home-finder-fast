@@ -120,10 +120,13 @@ export async function deleteHouse(house: House): Promise<void> {
   if (error) throw error;
 }
 
-export async function insertImages(rows: Database["public"]["Tables"]["house_images"]["Insert"][]) {
-  if (!rows.length) return;
-  const { error } = await supabase.from("house_images").insert(rows);
+export async function insertImages(
+  rows: Database["public"]["Tables"]["house_images"]["Insert"][],
+): Promise<HouseImageRow[]> {
+  if (!rows.length) return [];
+  const { data, error } = await supabase.from("house_images").insert(rows).select("*");
   if (error) throw error;
+  return data as HouseImageRow[];
 }
 
 export async function deleteImage(image: HouseImageRow) {
@@ -147,18 +150,16 @@ export async function setCoverImage(houseId: string, imageId: string) {
   if (e2) throw e2;
 }
 
-export async function updateHouseImageOrder(
-  imageId: string,
-  sortOrder: number,
-  isCover: boolean,
+export async function reorderHouseImages(
   houseId: string,
-) {
-  const { error } = await supabase
-    .from("house_images")
-    .update({ sort_order: sortOrder, is_cover: isCover })
-    .eq("id", imageId)
-    .eq("house_id", houseId);
+  imageIds: string[],
+): Promise<HouseImageRow[]> {
+  const { data, error } = await supabase.rpc("reorder_house_images", {
+    p_house_id: houseId,
+    p_image_ids: imageIds,
+  });
   if (error) throw error;
+  return data as HouseImageRow[];
 }
 
 export async function assignLandlordRole(userId: string) {

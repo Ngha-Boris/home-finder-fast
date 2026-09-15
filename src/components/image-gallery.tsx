@@ -80,7 +80,7 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
             <Button
               size="icon"
               variant="secondary"
-              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full opacity-90"
+              className="absolute left-1.5 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full opacity-90 sm:left-2 sm:h-10 sm:w-10"
               onClick={() => go(-1)}
               aria-label="Previous photo"
             >
@@ -89,13 +89,13 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
             <Button
               size="icon"
               variant="secondary"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full opacity-90"
+              className="absolute right-1.5 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full opacity-90 sm:right-2 sm:h-10 sm:w-10"
               onClick={() => go(1)}
               aria-label="Next photo"
             >
               <ChevronRight className="h-5 w-5" />
             </Button>
-            <span className="absolute bottom-3 right-3 rounded-full bg-foreground/70 px-2.5 py-1 text-xs text-background">
+            <span className="absolute bottom-2 right-2 rounded-full bg-foreground/70 px-2.5 py-1 text-xs text-background sm:bottom-3 sm:right-3">
               {index + 1} / {count}
             </span>
           </>
@@ -103,13 +103,13 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
       </div>
 
       {count > 1 ? (
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="mobile-scroll flex gap-2 overflow-x-auto pb-1">
           {images.map((img, i) => (
             <button
               key={img.id}
               type="button"
               onClick={() => setIndex(i)}
-              className={`h-16 w-24 shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
+              className={`h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-colors sm:h-16 sm:w-24 ${
                 i === index ? "border-primary" : "border-transparent opacity-70"
               }`}
               aria-label={`Show photo ${i + 1}`}
@@ -131,7 +131,7 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
 
       {lightbox ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/90 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/90 p-2 sm:p-4"
           role="dialog"
           aria-modal="true"
           onClick={() => setLightbox(false)}
@@ -141,13 +141,13 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
             alt={`${alt} — photo ${index + 1}`}
             sizes="100vw"
             responsiveWidths={[768, 1024, 1440, 1600]}
-            className="max-h-full max-w-full rounded-lg object-contain"
+            className="max-h-[calc(100dvh-1rem)] max-w-full rounded-lg object-contain sm:max-h-full"
             onClick={(e) => e.stopPropagation()}
           />
           <Button
             size="icon"
             variant="secondary"
-            className="absolute right-4 top-4 rounded-full"
+            className="absolute right-2 top-2 rounded-full sm:right-4 sm:top-4"
             onClick={() => setLightbox(false)}
             aria-label="Close"
           >
@@ -158,7 +158,7 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
               <Button
                 size="icon"
                 variant="secondary"
-                className="absolute left-4 rounded-full"
+                className="absolute left-2 rounded-full sm:left-4"
                 onClick={(e) => {
                   e.stopPropagation();
                   go(-1);
@@ -170,7 +170,7 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
               <Button
                 size="icon"
                 variant="secondary"
-                className="absolute right-4 top-1/2 rounded-full"
+                className="absolute right-2 top-1/2 rounded-full sm:right-4"
                 onClick={(e) => {
                   e.stopPropagation();
                   go(1);

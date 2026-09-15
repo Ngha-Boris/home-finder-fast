@@ -149,7 +149,7 @@ function HouseDetailsPage() {
         ) : !house ? (
           <ErrorState message="This listing is no longer available." />
         ) : (
-          <div className="grid min-w-0 gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-8">
+          <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(20rem,1fr)] lg:gap-8">
             <div>
               <ImageGallery
                 images={sortedImages(house)}
@@ -290,7 +290,7 @@ function HouseDetailsPage() {
                         Report listing
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-lg">
+                    <DialogContent>
                       <DialogHeader>
                         <DialogTitle>Report this listing</DialogTitle>
                       </DialogHeader>

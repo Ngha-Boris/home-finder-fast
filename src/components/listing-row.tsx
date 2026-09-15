@@ -122,7 +122,7 @@ export function ListingRow({
   };
 
   return (
-    <Card className="grid min-w-0 gap-4 p-3 transition-shadow hover:shadow-card-hover sm:p-4 md:grid-cols-[9rem_1fr_auto] md:items-center">
+    <Card className="grid min-w-0 gap-3 p-3 transition-shadow hover:shadow-card-hover min-[375px]:gap-4 sm:p-4 md:grid-cols-[9rem_1fr_auto] md:items-center">
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-secondary sm:max-h-56 md:w-36">
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
           <Home className="h-5 w-5" />
@@ -169,8 +169,8 @@ export function ListingRow({
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap md:items-center md:justify-end">
-        <label className="col-span-2 flex h-10 items-center justify-center gap-2 rounded-full border border-border bg-secondary/50 px-3 text-sm md:col-span-1">
+      <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2 md:flex md:flex-wrap md:items-center md:justify-end">
+        <label className="flex h-10 items-center justify-center gap-2 rounded-full border border-border bg-secondary/50 px-3 text-sm min-[380px]:col-span-2 md:col-span-1">
           <Switch
             checked={house.availability === "available"}
             disabled={toggle.isPending}
@@ -180,7 +180,7 @@ export function ListingRow({
           <span>Available</span>
         </label>
 
-        <Button asChild variant="outline" size="sm" className="w-full md:w-auto">
+        <Button asChild variant="outline" size="sm" className="min-h-10 w-full md:w-auto">
           <Link to="/houses/$id" params={{ id: house.id }}>
             <Eye className="h-4 w-4" />
             View
@@ -188,7 +188,7 @@ export function ListingRow({
         </Button>
 
         {!adminMode ? (
-          <Button asChild variant="outline" size="sm" className="w-full md:w-auto">
+          <Button asChild variant="outline" size="sm" className="min-h-10 w-full md:w-auto">
             <Link to="/landlord/listings/$id/edit" params={{ id: house.id }}>
               <Pencil className="h-4 w-4" />
               Edit
@@ -201,14 +201,14 @@ export function ListingRow({
             <Button
               variant="destructive"
               size="sm"
-              className="w-full md:w-auto"
+              className="min-h-10 w-full md:w-auto"
               disabled={remove.isPending}
             >
               <Trash2 className="h-4 w-4" />
               Delete
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-lg">
+          <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure you want to delete this listing?</AlertDialogTitle>
               <AlertDialogDescription>

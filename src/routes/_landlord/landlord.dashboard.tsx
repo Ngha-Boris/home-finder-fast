@@ -36,7 +36,7 @@ function DashboardPage() {
 
   return (
     <LandlordShell>
-      <div className="stage-surface overflow-hidden rounded-2xl border border-white/15 p-5 text-primary-foreground shadow-card sm:p-7">
+      <div className="stage-surface overflow-hidden rounded-2xl border border-white/15 p-4 text-primary-foreground shadow-card min-[375px]:p-5 sm:p-7">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <h1 className="font-display text-2xl font-extrabold sm:text-3xl">Dashboard</h1>
@@ -53,7 +53,7 @@ function DashboardPage() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
+      <div className="mt-5 grid gap-3 min-[420px]:grid-cols-3 sm:mt-6 sm:gap-4">
         <StatCard icon={Home} label="Total listings" value={isPending ? null : houses.length} />
         <StatCard icon={CheckCircle2} label="Available" value={isPending ? null : available} />
         <StatCard
@@ -103,11 +103,11 @@ function StatCard({
   value: number | null;
 }) {
   return (
-    <Card className="flex items-center gap-4 border-white/70 p-5 shadow-card">
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
-        <Icon className="h-6 w-6" />
+    <Card className="flex min-w-0 items-center gap-3 border-white/70 p-4 shadow-card sm:gap-4 sm:p-5">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground sm:h-12 sm:w-12">
+        <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
       </span>
-      <div>
+      <div className="min-w-0">
         <p className="text-sm text-muted-foreground">{label}</p>
         {value === null ? (
           <Skeleton className="mt-1 h-7 w-10" />

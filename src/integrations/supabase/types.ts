@@ -268,6 +268,13 @@ export type Database = {
       };
       house_is_public: { Args: { _house_id: string }; Returns: boolean };
       owns_house: { Args: { _house_id: string }; Returns: boolean };
+      reorder_house_images: {
+        Args: {
+          p_house_id: string;
+          p_image_ids: string[];
+        };
+        Returns: Database["public"]["Tables"]["house_images"]["Row"][];
+      };
     };
     Enums: {
       app_role: "admin" | "landlord";

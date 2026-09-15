@@ -1,5 +1,5 @@
 // Bump this value whenever the app shell or cached asset strategy changes.
-const VERSION = "easy-rent-v2-20260915";
+const VERSION = "easy-rent-v2-6e6a4aad5760";
 const SHELL_CACHE = `${VERSION}-shell`;
 const ASSET_CACHE = `${VERSION}-assets`;
 const IMAGE_CACHE = `${VERSION}-images`;

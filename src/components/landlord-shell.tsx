@@ -67,7 +67,7 @@ export function LandlordShell({ children }: { children: ReactNode }) {
             <span className="hidden sm:inline">Logout</span>
           </Button>
         </div>
-        <nav className="container-page flex gap-1 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <nav className="mobile-scroll container-page flex gap-1 overflow-x-auto pb-2">
           {nav.map((item) => {
             const active = pathname === item.to;
             return (
@@ -76,11 +76,11 @@ export function LandlordShell({ children }: { children: ReactNode }) {
                 asChild
                 size="sm"
                 variant={active ? "default" : "ghost"}
-                className="h-9 shrink-0 px-2.5 text-xs sm:px-3 sm:text-sm"
+                className="h-9 shrink-0 px-2 text-xs min-[375px]:px-2.5 sm:px-3 sm:text-sm"
               >
                 <Link to={item.to}>
                   <item.icon className="h-4 w-4" />
-                  {item.label}
+                  <span className="whitespace-nowrap">{item.label}</span>
                 </Link>
               </Button>
             );
