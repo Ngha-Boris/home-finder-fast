@@ -90,7 +90,7 @@ export function InstallPwaPrompt() {
   };
 
   return (
-    <div className="fixed inset-x-2 bottom-2 z-50 mx-auto max-h-[calc(100dvh-1rem)] max-w-md overflow-y-auto rounded-2xl border border-white/70 bg-card/95 p-3 text-card-foreground shadow-card backdrop-blur-xl sm:inset-x-3 sm:bottom-5">
+    <div className="fixed inset-x-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-50 mx-auto max-h-[calc(100dvh-6rem)] max-w-md overflow-y-auto rounded-2xl border border-white/70 bg-card/95 p-3 text-card-foreground shadow-card backdrop-blur-xl sm:inset-x-3 sm:bottom-5 sm:max-h-[calc(100dvh-1rem)]">
       <div className="flex gap-2 min-[360px]:gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground min-[360px]:h-11 min-[360px]:w-11">
           <Smartphone className="h-5 w-5" />
