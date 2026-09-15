@@ -6,6 +6,7 @@ import { ErrorState } from "@/components/states";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchMyHouse } from "@/lib/houses-api";
+import { useI18n } from "@/lib/i18n";
 import { phoneFromAuthIdentity, phoneInputValue } from "@/lib/phone";
 
 export const Route = createFileRoute("/_landlord/landlord/listings/$id/edit")({
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/_landlord/landlord/listings/$id/edit")({
 
 function EditListingPage() {
   const { id } = Route.useParams();
+  const { t } = useI18n();
 
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["edit-house", id],
@@ -46,12 +48,12 @@ function EditListingPage() {
 
   return (
     <LandlordShell>
-      <h1 className="font-display text-3xl font-bold">Edit listing</h1>
+      <h1 className="font-display text-3xl font-bold">{t("landlord.editTitle")}</h1>
       <div className="mt-6">
         {isPending ? (
           <Skeleton className="h-96 w-full rounded-xl" />
         ) : isError || !data?.house ? (
-          <ErrorState message="This listing could not be found." onRetry={() => refetch()} />
+          <ErrorState message={t("landlord.notFound")} onRetry={() => refetch()} />
         ) : (
           <HouseForm userId={data.userId} defaultPhone={data.phone} house={data.house} />
         )}

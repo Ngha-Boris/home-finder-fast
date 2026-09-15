@@ -1,6 +1,7 @@
 import { Download, Smartphone, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/lib/i18n";
 
 const INSTALL_PROMPT_SEEN_KEY = "easy-rent:pwa-install-prompt-seen";
 
@@ -42,6 +43,7 @@ export function InstallPwaPrompt() {
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIosHelp, setShowIosHelp] = useState(false);
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     if (isStandalone() || wasPromptSeen()) return;
@@ -98,34 +100,30 @@ export function InstallPwaPrompt() {
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="font-display text-base font-extrabold">Install Easy Rent</h2>
+              <h2 className="font-display text-base font-extrabold">{t("pwa.installTitle")}</h2>
               <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                {showIosHelp
-                  ? "Add Easy Rent to your Home Screen for faster access."
-                  : "Add Easy Rent to your device for a faster app-like experience."}
+                {showIosHelp ? t("pwa.iosText") : t("pwa.installText")}
               </p>
             </div>
             <button
               type="button"
               className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               onClick={dismiss}
-              aria-label="Dismiss install prompt"
+              aria-label={t("pwa.notNow")}
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
           {showIosHelp ? (
-            <p className="mt-3 text-xs leading-5 text-muted-foreground">
-              Tap Share, then choose Add to Home Screen.
-            </p>
+            <p className="mt-3 text-xs leading-5 text-muted-foreground">{t("pwa.iosText")}</p>
           ) : null}
 
           <div className="mt-3 grid gap-2 min-[360px]:flex">
             {installEvent ? (
               <Button type="button" size="sm" className="h-9 flex-1" onClick={() => void install()}>
                 <Download className="h-4 w-4" />
-                Install
+                {t("pwa.install")}
               </Button>
             ) : null}
             <Button
@@ -135,7 +133,7 @@ export function InstallPwaPrompt() {
               className="h-9 flex-1"
               onClick={dismiss}
             >
-              {installEvent ? "Not now" : "Got it"}
+              {installEvent ? t("pwa.notNow") : t("pwa.gotIt")}
             </Button>
           </div>
         </div>

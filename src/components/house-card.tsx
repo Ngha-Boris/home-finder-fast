@@ -4,16 +4,14 @@ import { StorageImage } from "@/components/storage-image";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  coverImage,
-  formatDate,
-  formatPrice,
-  houseTypeLabel,
-  type House,
-} from "@/lib/houses-types";
+import { coverImage, formatPrice, type House } from "@/lib/houses-types";
+import { useI18n } from "@/lib/i18n";
 
 export function HouseCard({ house }: { house: House }) {
   const cover = coverImage(house);
+  const { t, houseType, formatDate } = useI18n();
+  const typeLabel = houseType(house.house_type);
+
   return (
     <Link
       to="/houses/$id"
@@ -25,7 +23,7 @@ export function HouseCard({ house }: { house: House }) {
           {cover ? (
             <StorageImage
               image={cover}
-              alt={`${houseTypeLabel(house.house_type)} in ${house.location}`}
+              alt={t("listing.title", { type: typeLabel, location: house.location })}
               loading="lazy"
               width={800}
               height={600}
@@ -35,14 +33,14 @@ export function HouseCard({ house }: { house: House }) {
             />
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-              No photo
+              {t("common.noPhoto")}
             </div>
           )}
           <Badge
             className="absolute left-2 top-2 max-w-[calc(100%-1rem)] border-white/40 bg-card/90 text-card-foreground shadow-sm backdrop-blur sm:left-3 sm:top-3"
             variant="secondary"
           >
-            <span className="truncate">{houseTypeLabel(house.house_type)}</span>
+            <span className="truncate">{typeLabel}</span>
           </Badge>
         </div>
 
@@ -51,7 +49,7 @@ export function HouseCard({ house }: { house: House }) {
             <p className="break-words font-display text-base font-extrabold text-foreground sm:text-xl">
               {formatPrice(house.rent_price)}
             </p>
-            <p className="text-xs text-muted-foreground">per month</p>
+            <p className="text-xs text-muted-foreground">{t("common.perMonth")}</p>
           </div>
           <p className="flex min-w-0 items-start gap-1.5 text-xs font-medium sm:text-sm">
             <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
@@ -67,13 +65,13 @@ export function HouseCard({ house }: { house: House }) {
             {house.rooms ? (
               <span className="flex items-center gap-1">
                 <BedDouble className="h-3.5 w-3.5" />
-                {house.rooms} room{house.rooms > 1 ? "s" : ""}
+                {house.rooms} {house.rooms > 1 ? t("card.rooms") : t("card.room")}
               </span>
             ) : null}
             {house.bathrooms ? (
               <span className="flex items-center gap-1">
                 <Bath className="h-3.5 w-3.5" />
-                {house.bathrooms} bath
+                {house.bathrooms} {t("common.bathrooms").toLowerCase()}
               </span>
             ) : null}
             <span className="flex items-center gap-1">

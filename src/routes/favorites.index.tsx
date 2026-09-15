@@ -8,6 +8,7 @@ import { EmptyState, ErrorState } from "@/components/states";
 import { useSession } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchFavoriteHouses } from "@/lib/houses-api";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/favorites/")({
   ssr: false,
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/favorites/")({
 
 function FavoritesPage() {
   const { user } = useSession();
+  const { t } = useI18n();
   const favorites = useQuery({
     queryKey: ["favorite-houses", user?.id],
     queryFn: () => fetchFavoriteHouses(user!.id),
@@ -36,7 +38,7 @@ function FavoritesPage() {
       <main className="container-page flex-1 pb-24 pt-5 sm:py-8">
         <div className="mb-5 flex items-center gap-2">
           <Heart className="h-5 w-5 text-primary" />
-          <h1 className="font-display text-2xl font-extrabold">Favorite houses</h1>
+          <h1 className="font-display text-2xl font-extrabold">{t("favorites.pageTitle")}</h1>
         </div>
 
         {favorites.isPending ? (
@@ -49,8 +51,8 @@ function FavoritesPage() {
           <ErrorState onRetry={() => void favorites.refetch()} />
         ) : favorites.data.length === 0 ? (
           <EmptyState
-            title="No favorite houses yet"
-            description="Save a house from its details page and it will appear here."
+            title={t("favorites.emptyTitle")}
+            description={t("favorites.emptyDescription")}
           />
         ) : (
           <div className="grid grid-cols-2 gap-2 min-[375px]:gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">

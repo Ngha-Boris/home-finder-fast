@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fetchLandlordsAdmin } from "@/lib/houses-api";
+import { useI18n } from "@/lib/i18n";
 import { formatPhoneDisplay } from "@/lib/phone";
 
 export const Route = createFileRoute("/_admin/admin/landlords")({
@@ -32,15 +33,14 @@ export const Route = createFileRoute("/_admin/admin/landlords")({
 
 function AdminLandlordsPage() {
   const landlords = useQuery({ queryKey: ["admin-landlords"], queryFn: fetchLandlordsAdmin });
+  const { t } = useI18n();
 
   return (
     <LandlordShell>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl font-bold">Admin landlords</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Review registered landlords and listing counts.
-          </p>
+          <h1 className="font-display text-3xl font-bold">{t("admin.landlordsPageTitle")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("admin.landlordsSubtitle")}</p>
         </div>
         <Button
           variant="outline"
@@ -48,7 +48,7 @@ function AdminLandlordsPage() {
           disabled={landlords.isFetching}
         >
           <RefreshCw className={`h-4 w-4 ${landlords.isFetching ? "animate-spin" : ""}`} />
-          Refresh
+          {t("admin.refresh")}
         </Button>
       </div>
 
@@ -59,23 +59,23 @@ function AdminLandlordsPage() {
           <ErrorState onRetry={() => landlords.refetch()} />
         ) : (landlords.data ?? []).length === 0 ? (
           <EmptyState
-            title="No landlords yet"
-            description="Registered landlord profiles will appear here."
+            title={t("admin.noLandlords")}
+            description={t("admin.noLandlordsDescription")}
           />
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead className="text-right">Listings</TableHead>
+                <TableHead>{t("admin.name")}</TableHead>
+                <TableHead>{t("admin.phone")}</TableHead>
+                <TableHead className="text-right">{t("nav.listings")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {(landlords.data ?? []).map((landlord) => (
                 <TableRow key={landlord.id}>
                   <TableCell className="font-medium">
-                    {landlord.display_name ?? "No name yet"}
+                    {landlord.display_name ?? t("admin.noName")}
                   </TableCell>
                   <TableCell>
                     {landlord.phone_number ? formatPhoneDisplay(landlord.phone_number) : "-"}

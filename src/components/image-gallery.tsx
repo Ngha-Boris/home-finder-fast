@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import { StorageImage } from "@/components/storage-image";
 import { Button } from "@/components/ui/button";
 import type { HouseImageRow } from "@/lib/houses-types";
+import { useI18n } from "@/lib/i18n";
 
 export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: string }) {
+  const { t } = useI18n();
   const [index, setIndex] = useState(0);
   const [lightbox, setLightbox] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -47,7 +49,7 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
   if (!count) {
     return (
       <div className="flex aspect-[4/3] items-center justify-center rounded-xl bg-muted text-muted-foreground">
-        No photos
+        {t("gallery.noPhotos")}
       </div>
     );
   }
@@ -61,11 +63,11 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
           onTouchEnd={(e) => handleTouchEnd(e.changedTouches[0]?.clientX ?? 0)}
           onClick={() => setLightbox(true)}
           className="block w-full cursor-zoom-in"
-          aria-label="Open larger photo"
+          aria-label={t("gallery.open")}
         >
           <StorageImage
             image={images[index]!}
-            alt={`${alt} — photo ${index + 1}`}
+            alt={`${alt} - photo ${index + 1}`}
             loading="eager"
             fetchPriority="high"
             width={1024}
@@ -82,7 +84,7 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
               variant="secondary"
               className="absolute left-1.5 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full opacity-90 sm:left-2 sm:h-10 sm:w-10"
               onClick={() => go(-1)}
-              aria-label="Previous photo"
+              aria-label={t("gallery.previous")}
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
@@ -91,7 +93,7 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
               variant="secondary"
               className="absolute right-1.5 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full opacity-90 sm:right-2 sm:h-10 sm:w-10"
               onClick={() => go(1)}
-              aria-label="Next photo"
+              aria-label={t("gallery.next")}
             >
               <ChevronRight className="h-5 w-5" />
             </Button>
@@ -112,7 +114,7 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
               className={`h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-colors sm:h-16 sm:w-24 ${
                 i === index ? "border-primary" : "border-transparent opacity-70"
               }`}
-              aria-label={`Show photo ${i + 1}`}
+              aria-label={t("gallery.show", { number: i + 1 })}
             >
               <StorageImage
                 image={img}
@@ -138,7 +140,7 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
         >
           <StorageImage
             image={images[index]!}
-            alt={`${alt} — photo ${index + 1}`}
+            alt={`${alt} - photo ${index + 1}`}
             sizes="100vw"
             responsiveWidths={[768, 1024, 1440, 1600]}
             className="max-h-[calc(100dvh-1rem)] max-w-full rounded-lg object-contain sm:max-h-full"
@@ -149,7 +151,7 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
             variant="secondary"
             className="absolute right-2 top-2 rounded-full sm:right-4 sm:top-4"
             onClick={() => setLightbox(false)}
-            aria-label="Close"
+            aria-label={t("gallery.close")}
           >
             <X className="h-5 w-5" />
           </Button>
@@ -163,7 +165,7 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
                   e.stopPropagation();
                   go(-1);
                 }}
-                aria-label="Previous photo"
+                aria-label={t("gallery.previous")}
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
@@ -175,7 +177,7 @@ export function ImageGallery({ images, alt }: { images: HouseImageRow[]; alt: st
                   e.stopPropagation();
                   go(1);
                 }}
-                aria-label="Next photo"
+                aria-label={t("gallery.next")}
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>

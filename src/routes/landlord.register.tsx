@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSession } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/lib/i18n";
 import { isValidLocalPhone, normalizePhone } from "@/lib/phone";
 
 const LANDLORD_AUTH_DRAFT_KEY = "easy-rent:landlord-auth-draft";
@@ -63,6 +64,7 @@ function RegisterPage() {
   const [confirm, setConfirm] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     if (!loading && user) navigate({ to: "/landlord/dashboard", replace: true });
@@ -79,9 +81,9 @@ function RegisterPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const next: Record<string, string> = {};
-    if (!isValidLocalPhone(phone)) next["phone"] = "Enter a valid 9-digit phone number.";
-    if (password.length < 6) next["password"] = "Use at least 6 characters.";
-    if (password !== confirm) next["confirm"] = "Passwords do not match.";
+    if (!isValidLocalPhone(phone)) next["phone"] = t("auth.validation.validPhone");
+    if (password.length < 6) next["password"] = t("auth.validation.shortPassword");
+    if (password !== confirm) next["confirm"] = t("auth.validation.passwordMismatch");
     setErrors(next);
     if (Object.keys(next).length) return;
 
@@ -97,7 +99,7 @@ function RegisterPage() {
 
     if (!response.ok) {
       setSubmitting(false);
-      toast.error(result.error ?? "Unable to create landlord account right now.");
+      toast.error(result.error ?? t("auth.createFailed"));
       return;
     }
 
@@ -109,12 +111,12 @@ function RegisterPage() {
     setSubmitting(false);
     clearAuthDraft();
     if (error) {
-      toast.success("Account created. Log in with your phone number and password.");
+      toast.success(t("auth.createdLogin"));
       navigate({ to: "/landlord/login" });
       return;
     }
 
-    toast.success("Account created — welcome!");
+    toast.success(t("auth.createdWelcome"));
     navigate({ to: "/landlord/dashboard" });
   };
 
@@ -128,16 +130,14 @@ function RegisterPage() {
               <Phone className="h-5 w-5" />
             </div>
             <h1 className="font-display text-xl font-extrabold sm:text-2xl">
-              Create your landlord account
+              {t("auth.registerTitle")}
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Tenants will call and WhatsApp you on this number.
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{t("auth.registerSubtitle")}</p>
           </div>
 
           <form onSubmit={onSubmit} noValidate className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="name">Your name (optional)</Label>
+              <Label htmlFor="name">{t("auth.nameOptional")}</Label>
               <div className="relative">
                 <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -151,7 +151,7 @@ function RegisterPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="phone">Phone number</Label>
+              <Label htmlFor="phone">{t("auth.phone")}</Label>
               <div className="relative">
                 <span className="pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 items-center gap-1 text-sm text-muted-foreground">
                   <Phone className="h-4 w-4" />
@@ -161,7 +161,7 @@ function RegisterPage() {
                   id="phone"
                   inputMode="numeric"
                   autoComplete="tel-national"
-                  placeholder="9-digit phone number"
+                  placeholder={t("auth.phonePlaceholder")}
                   className="h-12 pl-20"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -174,7 +174,7 @@ function RegisterPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("auth.password")}</Label>
               <div className="relative">
                 <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -193,7 +193,7 @@ function RegisterPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="confirm">Confirm password</Label>
+              <Label htmlFor="confirm">{t("auth.confirmPassword")}</Label>
               <div className="relative">
                 <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -213,18 +213,18 @@ function RegisterPage() {
 
             <Button type="submit" size="lg" className="h-12 w-full" disabled={submitting}>
               {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
-              {submitting ? "Creating account…" : "Register"}
+              {submitting ? t("auth.creating") : t("auth.register")}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground">
-            Already registered?{" "}
+            {t("auth.alreadyRegistered")}{" "}
             <Link
               to="/landlord/login"
               className="font-medium text-primary hover:underline"
               onClick={() => saveAuthDraft(phone, password)}
             >
-              Log in
+              {t("auth.logIn")}
             </Link>
           </p>
         </Card>

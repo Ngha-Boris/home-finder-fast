@@ -1,12 +1,15 @@
 import { Link } from "@tanstack/react-router";
 import { Heart, Home, PlusCircle } from "lucide-react";
+import { LanguageToggle } from "@/components/language-toggle";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/use-auth";
+import { useI18n } from "@/lib/i18n";
 
 export function SiteHeader() {
   const { user } = useSession();
+  const { t } = useI18n();
   const accountPath = user ? "/landlord/dashboard" : "/landlord/login";
-  const accountLabel = user ? "Dashboard" : "Add a house";
+  const accountLabel = user ? t("common.dashboard") : t("landlord.addAHouse");
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-card/82 shadow-sm backdrop-blur-xl">
@@ -16,15 +19,16 @@ export function SiteHeader() {
             <Home className="h-5 w-5" />
           </span>
           <span className="truncate font-display text-lg font-extrabold tracking-normal">
-            Easy Rent
+            {t("common.brand")}
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-1 sm:flex">
-          <Button asChild>
-            <Link to={user ? "/landlord/dashboard" : "/landlord/login"}>
+        <nav className="flex items-center gap-2">
+          <LanguageToggle compact />
+          <Button asChild className="hidden sm:inline-flex">
+            <Link to={accountPath}>
               <PlusCircle className="h-4 w-4" />
-              {user ? "Dashboard" : "Add House"}
+              {accountLabel}
             </Link>
           </Button>
         </nav>
@@ -38,7 +42,7 @@ export function SiteHeader() {
           <Button asChild className="h-11 min-w-0 flex-1 justify-center">
             <Link to="/favorites">
               <Heart className="h-4 w-4" />
-              Favorites
+              {t("favorites.title")}
             </Link>
           </Button>
           <Button asChild variant="outline" className="h-11 min-w-0 flex-1 justify-center">
