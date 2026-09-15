@@ -3,7 +3,19 @@
 // Use this for admin operations in server functions and server routes only.
 // For user-authenticated queries (with RLS), use the auth middleware instead.
 import { createClient } from "@supabase/supabase-js";
+import { createRequire } from "node:module";
 import type { Database } from "./types";
+
+const require = createRequire(import.meta.url);
+
+// Node < 22 has no native WebSocket; supabase realtime needs one at client init.
+if (typeof globalThis.WebSocket === "undefined") {
+  try {
+    globalThis.WebSocket = require("ws") as unknown as typeof WebSocket;
+  } catch {
+    // realtime will fail only if actually used
+  }
+}
 
 function isNewSupabaseApiKey(value: string): boolean {
   return value.startsWith("sb_publishable_") || value.startsWith("sb_secret_");

@@ -46,15 +46,6 @@ export function LandlordShell({ children }: { children: ReactNode }) {
     });
   }, [user]);
 
-  const nav = admin.data
-    ? [
-        ...NAV.map((item) => ({ ...item, label: t(item.label) })),
-        { to: "/admin", label: t("nav.admin"), icon: ShieldCheck },
-        { to: "/admin/listings", label: t("nav.listings"), icon: Building2 },
-        { to: "/admin/landlords", label: t("nav.landlords"), icon: Users },
-      ]
-    : NAV.map((item) => ({ ...item, label: t(item.label) }));
-
   return (
     <div className="app-surface flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b border-border/70 bg-card/85 shadow-sm backdrop-blur-xl">
@@ -81,25 +72,6 @@ export function LandlordShell({ children }: { children: ReactNode }) {
             </Button>
           </div>
         </div>
-        <nav className="mobile-scroll container-page hidden gap-1 overflow-x-auto pb-2 sm:flex">
-          {nav.map((item) => {
-            const active = pathname === item.to;
-            return (
-              <Button
-                key={item.to}
-                asChild
-                size="sm"
-                variant={active ? "default" : "ghost"}
-                className="h-9 shrink-0 px-2 text-xs min-[375px]:px-2.5 sm:px-3 sm:text-sm"
-              >
-                <Link to={item.to}>
-                  <item.icon className="h-4 w-4" />
-                  <span className="whitespace-nowrap">{item.label}</span>
-                </Link>
-              </Button>
-            );
-          })}
-        </nav>
       </header>
 
       {!online ? (
@@ -114,9 +86,9 @@ export function LandlordShell({ children }: { children: ReactNode }) {
 
       <nav
         aria-label="Landlord navigation"
-        className="fixed inset-x-0 bottom-3 z-50 px-3 pb-[env(safe-area-inset-bottom)] sm:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-border/80 bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl sm:hidden"
       >
-        <div className="mx-auto flex w-fit max-w-[calc(100vw-1.5rem)] items-center justify-center gap-1.5 rounded-full border border-border/80 bg-card/95 p-1.5 shadow-[0_12px_36px_rgba(16,19,28,0.22)] backdrop-blur-xl">
+        <div className="mx-auto flex w-full max-w-md items-stretch gap-1 p-2">
           {NAV.map((item) => {
             const active = pathname === item.to;
             const label = t(item.label);
@@ -124,13 +96,14 @@ export function LandlordShell({ children }: { children: ReactNode }) {
               <Button
                 key={item.to}
                 asChild
-                size="icon"
                 variant={active ? "default" : "ghost"}
-                className="h-11 w-11 shrink-0 rounded-full min-[375px]:h-12 min-[375px]:w-12"
+                className="h-14 flex-1 flex-col gap-1 rounded-xl px-1"
               >
                 <Link to={item.to}>
                   <item.icon className="h-5 w-5 shrink-0" />
-                  <span className="sr-only">{label}</span>
+                  <span className="w-full truncate text-center text-[11px] font-medium">
+                    {label}
+                  </span>
                 </Link>
               </Button>
             );
