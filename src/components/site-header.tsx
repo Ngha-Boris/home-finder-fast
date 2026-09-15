@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Home, PlusCircle, Search } from "lucide-react";
+import { Heart, Home, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/use-auth";
 
@@ -36,9 +36,9 @@ export function SiteHeader() {
       >
         <div className="mx-auto flex max-w-lg items-center gap-2">
           <Button asChild className="h-11 min-w-0 flex-1 justify-center">
-            <Link to="/houses">
-              <Search className="h-4 w-4" />
-              Browse houses
+            <Link to="/favorites">
+              <Heart className="h-4 w-4" />
+              Favorites
             </Link>
           </Button>
           <Button asChild variant="outline" className="h-11 min-w-0 flex-1 justify-center">
