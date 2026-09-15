@@ -114,9 +114,9 @@ export function LandlordShell({ children }: { children: ReactNode }) {
 
       <nav
         aria-label="Landlord navigation"
-        className="fixed inset-x-0 bottom-0 z-50 flex border-t border-border/80 bg-card/95 px-1 pb-[env(safe-area-inset-bottom)] pt-1 shadow-[0_-8px_24px_rgba(16,19,28,0.08)] backdrop-blur-xl sm:hidden"
+        className="fixed inset-x-0 bottom-3 z-50 px-3 pb-[env(safe-area-inset-bottom)] sm:hidden"
       >
-        <div className="mx-auto flex w-full max-w-lg items-center justify-around gap-1">
+        <div className="mx-auto flex w-fit max-w-[calc(100vw-1.5rem)] items-center justify-center gap-1.5 rounded-full border border-border/80 bg-card/95 p-1.5 shadow-[0_12px_36px_rgba(16,19,28,0.22)] backdrop-blur-xl">
           {NAV.map((item) => {
             const active = pathname === item.to;
             const label = t(item.label);
@@ -124,13 +124,13 @@ export function LandlordShell({ children }: { children: ReactNode }) {
               <Button
                 key={item.to}
                 asChild
-                size="sm"
+                size="icon"
                 variant={active ? "default" : "ghost"}
-                className="h-11 min-w-0 flex-1 gap-1 px-1 text-[11px] font-medium min-[390px]:text-xs"
+                className="h-11 w-11 shrink-0 rounded-full min-[375px]:h-12 min-[375px]:w-12"
               >
                 <Link to={item.to}>
-                  <item.icon className="h-4 w-4 shrink-0" />
-                  <span className="hidden truncate min-[340px]:inline">{label}</span>
+                  <item.icon className="h-5 w-5 shrink-0" />
+                  <span className="sr-only">{label}</span>
                 </Link>
               </Button>
             );

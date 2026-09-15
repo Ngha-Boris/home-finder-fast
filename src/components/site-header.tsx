@@ -36,23 +36,19 @@ export function SiteHeader() {
 
       <nav
         aria-label="Primary navigation"
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-border/80 bg-card/95 px-2 pb-[env(safe-area-inset-bottom)] pt-1.5 shadow-[0_-8px_24px_rgba(16,19,28,0.08)] backdrop-blur-xl sm:hidden"
+        className="fixed inset-x-0 bottom-3 z-50 px-4 pb-[env(safe-area-inset-bottom)] sm:hidden"
       >
-        <div className="mx-auto flex max-w-lg items-center gap-2">
-          <Button asChild className="h-11 min-w-0 flex-1 justify-center gap-1 px-2">
+        <div className="mx-auto flex w-fit items-center gap-2 rounded-full border border-border/80 bg-card/95 p-1.5 shadow-[0_12px_36px_rgba(16,19,28,0.22)] backdrop-blur-xl">
+          <Button asChild size="icon" className="h-12 w-12 shrink-0 rounded-full">
             <Link to="/favorites">
-              <Heart className="h-4 w-4" />
-              <span className="hidden truncate min-[360px]:inline">{t("favorites.title")}</span>
+              <Heart className="h-5 w-5" />
+              <span className="sr-only">{t("favorites.title")}</span>
             </Link>
           </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="h-11 min-w-0 flex-1 justify-center gap-1 px-2"
-          >
+          <Button asChild size="icon" variant="outline" className="h-12 w-12 shrink-0 rounded-full">
             <Link to={accountPath}>
-              <PlusCircle className="h-4 w-4" />
-              <span className="hidden truncate min-[360px]:inline">{accountLabel}</span>
+              <PlusCircle className="h-5 w-5" />
+              <span className="sr-only">{accountLabel}</span>
             </Link>
           </Button>
         </div>
