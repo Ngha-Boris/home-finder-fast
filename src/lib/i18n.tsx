@@ -267,6 +267,10 @@ const dictionaries = {
     "admin.landlordsPageTitle": "Admin landlords",
     "admin.landlordsSubtitle": "Review registered landlords and listing counts.",
     "admin.noName": "No name yet",
+    "favorites.title": "Favorites",
+    "favorites.pageTitle": "Favorite houses",
+    "favorites.emptyTitle": "No favorite houses yet",
+    "favorites.emptyDescription": "Save a house from its details page and it will appear here.",
     "pwa.installTitle": "Install Easy Rent",
     "pwa.installText": "Add Easy Rent to your phone for quicker access and offline browsing.",
     "pwa.iosText": "On iPhone, use Share then Add to Home Screen.",
@@ -550,6 +554,11 @@ const dictionaries = {
     "admin.landlordsPageTitle": "Bailleurs admin",
     "admin.landlordsSubtitle": "Consultez les bailleurs inscrits et le nombre de leurs annonces.",
     "admin.noName": "Aucun nom pour le moment",
+    "favorites.title": "Favoris",
+    "favorites.pageTitle": "Maisons favorites",
+    "favorites.emptyTitle": "Aucune maison favorite pour le moment",
+    "favorites.emptyDescription":
+      "Enregistrez une maison depuis sa page de détails et elle apparaîtra ici.",
     "pwa.installTitle": "Installer Easy Rent",
     "pwa.installText":
       "Ajoutez Easy Rent à votre téléphone pour un accès plus rapide et la consultation hors ligne.",

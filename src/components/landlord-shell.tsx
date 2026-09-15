@@ -75,7 +75,7 @@ export function LandlordShell({ children }: { children: ReactNode }) {
             </Button>
           </div>
         </div>
-        <nav className="mobile-scroll container-page flex gap-1 overflow-x-auto pb-2">
+        <nav className="mobile-scroll container-page hidden gap-1 overflow-x-auto pb-2 sm:flex">
           {nav.map((item) => {
             const active = pathname === item.to;
             return (
@@ -102,7 +102,34 @@ export function LandlordShell({ children }: { children: ReactNode }) {
         </div>
       ) : null}
 
-      <main className="container-page flex-1 py-5 sm:py-8">{children}</main>
+      <main className="container-page flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] pt-5 sm:py-8">
+        {children}
+      </main>
+
+      <nav
+        aria-label="Landlord navigation"
+        className="fixed inset-x-0 bottom-0 z-50 flex border-t border-border/80 bg-card/95 px-1 pb-[env(safe-area-inset-bottom)] pt-1 shadow-[0_-8px_24px_rgba(16,19,28,0.08)] backdrop-blur-xl sm:hidden"
+      >
+        <div className="mx-auto flex w-full max-w-lg items-center justify-around gap-1">
+          {NAV.map((item) => {
+            const active = pathname === item.to;
+            return (
+              <Button
+                key={item.to}
+                asChild
+                size="sm"
+                variant={active ? "default" : "ghost"}
+                className="h-11 min-w-0 flex-1 gap-1 px-1 text-[11px] font-medium"
+              >
+                <Link to={item.to}>
+                  <item.icon className="h-4 w-4 shrink-0" />
+                  <span className="truncate">{item.label}</span>
+                </Link>
+              </Button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

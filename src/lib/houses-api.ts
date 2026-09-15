@@ -215,6 +215,20 @@ export async function fetchFavoriteIds(userId: string): Promise<string[]> {
   return (data ?? []).map((row) => row.house_id);
 }
 
+export async function fetchFavoriteHouses(userId: string): Promise<House[]> {
+  const ids = await fetchFavoriteIds(userId);
+  if (!ids.length) return [];
+
+  const { data, error } = await supabase
+    .from("houses")
+    .select(HOUSE_SELECT)
+    .in("id", ids)
+    .eq("availability", "available")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data as House[];
+}
+
 export async function setFavoriteHouse(userId: string, houseId: string, favorite: boolean) {
   if (favorite) {
     const { error } = await supabase

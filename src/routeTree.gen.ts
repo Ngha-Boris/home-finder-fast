@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as LandlordRouteImport } from './routes/_landlord'
+import { Route as FavoritesIndexRouteImport } from './routes/favorites.index'
 import { Route as HousesIndexRouteImport } from './routes/houses.index'
 import { Route as HousesIdRouteImport } from './routes/houses.$id'
 import { Route as LandlordLoginRouteImport } from './routes/landlord.login'
@@ -39,6 +40,11 @@ const AdminRoute = AdminRouteImport.update({
 } as any)
 const LandlordRoute = LandlordRouteImport.update({
   id: '/_landlord',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FavoritesIndexRoute = FavoritesIndexRouteImport.update({
+  id: '/favorites/',
+  path: '/favorites/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HousesIndexRoute = HousesIndexRouteImport.update({
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/landlord/login': typeof LandlordLoginRoute
   '/landlord/register': typeof LandlordRegisterRoute
   '/landlord/reset-password': typeof LandlordResetPasswordRoute
+  '/favorites/': typeof FavoritesIndexRoute
   '/houses/': typeof HousesIndexRoute
   '/admin/landlords': typeof AdminAdminLandlordsRoute
   '/admin/listings': typeof AdminAdminListingsRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByTo {
   '/landlord/login': typeof LandlordLoginRoute
   '/landlord/register': typeof LandlordRegisterRoute
   '/landlord/reset-password': typeof LandlordResetPasswordRoute
+  '/favorites': typeof FavoritesIndexRoute
   '/houses': typeof HousesIndexRoute
   '/admin/landlords': typeof AdminAdminLandlordsRoute
   '/admin/listings': typeof AdminAdminListingsRoute
@@ -166,6 +174,7 @@ export interface FileRoutesById {
   '/landlord/login': typeof LandlordLoginRoute
   '/landlord/register': typeof LandlordRegisterRoute
   '/landlord/reset-password': typeof LandlordResetPasswordRoute
+  '/favorites/': typeof FavoritesIndexRoute
   '/houses/': typeof HousesIndexRoute
   '/_admin/admin/landlords': typeof AdminAdminLandlordsRoute
   '/_admin/admin/listings': typeof AdminAdminListingsRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/landlord/login'
     | '/landlord/register'
     | '/landlord/reset-password'
+    | '/favorites/'
     | '/houses/'
     | '/admin/landlords'
     | '/admin/listings'
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/landlord/login'
     | '/landlord/register'
     | '/landlord/reset-password'
+    | '/favorites'
     | '/houses'
     | '/admin/landlords'
     | '/admin/listings'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/landlord/login'
     | '/landlord/register'
     | '/landlord/reset-password'
+    | '/favorites/'
     | '/houses/'
     | '/_admin/admin/landlords'
     | '/_admin/admin/listings'
@@ -245,6 +257,7 @@ export interface RootRouteChildren {
   LandlordLoginRoute: typeof LandlordLoginRoute
   LandlordRegisterRoute: typeof LandlordRegisterRoute
   LandlordResetPasswordRoute: typeof LandlordResetPasswordRoute
+  FavoritesIndexRoute: typeof FavoritesIndexRoute
   HousesIndexRoute: typeof HousesIndexRoute
   ApiLandlordRegisterRoute: typeof ApiLandlordRegisterRoute
   ApiPublicImgSplatRoute: typeof ApiPublicImgSplatRoute
@@ -271,6 +284,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof LandlordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/favorites/': {
+      id: '/favorites/'
+      path: '/favorites'
+      fullPath: '/favorites/'
+      preLoaderRoute: typeof FavoritesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/houses/': {
@@ -423,6 +443,7 @@ const rootRouteChildren: RootRouteChildren = {
   LandlordLoginRoute: LandlordLoginRoute,
   LandlordRegisterRoute: LandlordRegisterRoute,
   LandlordResetPasswordRoute: LandlordResetPasswordRoute,
+  FavoritesIndexRoute: FavoritesIndexRoute,
   HousesIndexRoute: HousesIndexRoute,
   ApiLandlordRegisterRoute: ApiLandlordRegisterRoute,
   ApiPublicImgSplatRoute: ApiPublicImgSplatRoute,

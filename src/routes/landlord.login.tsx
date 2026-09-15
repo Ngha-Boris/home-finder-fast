@@ -96,7 +96,7 @@ function LoginPage() {
   return (
     <div className="app-surface flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="container-page flex flex-1 items-center justify-center py-6 sm:py-12">
+      <main className="container-page flex flex-1 items-center justify-center pb-24 pt-6 sm:py-12">
         <Card className="w-full max-w-md space-y-5 border-white/70 p-4 shadow-card sm:space-y-6 sm:p-8">
           <div>
             <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">

@@ -162,7 +162,7 @@ function HousesPage() {
       <SiteHeader />
       <OfflineBanner />
 
-      <main className="container-page flex-1 py-5 sm:py-8">
+      <main className="container-page flex-1 pb-24 pt-5 sm:py-8">
         <div className="stage-surface overflow-hidden rounded-2xl border border-white/15 p-4 text-primary-foreground shadow-card min-[375px]:p-5 sm:p-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
@@ -321,7 +321,7 @@ function HousesPage() {
           <CachedNotice show={isFromCache} />
 
           {isLoading ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-2 min-[375px]:gap-3 sm:gap-4 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <HouseCardSkeleton key={i} />
               ))}
@@ -332,7 +332,7 @@ function HousesPage() {
             <EmptyState title={t("houses.emptyTitle")} description={t("houses.emptyDescription")} />
           ) : (
             <>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-2 gap-2 min-[375px]:gap-3 sm:gap-4 lg:grid-cols-3">
                 {filtered.slice(0, visible).map((house) => (
                   <HouseCard key={house.id} house={house} />
                 ))}
