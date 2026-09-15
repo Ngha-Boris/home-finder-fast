@@ -58,18 +58,24 @@ export function LandlordShell({ children }: { children: ReactNode }) {
   return (
     <div className="app-surface flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b border-border/70 bg-card/85 shadow-sm backdrop-blur-xl">
-        <div className="container-page flex h-14 items-center justify-between gap-3 sm:h-16">
+        <div className="container-page flex h-14 items-center justify-between gap-2 sm:h-16 sm:gap-3">
           <Link to="/" className="flex min-w-0 items-center gap-2">
-            <span className="gradient-brand flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-primary-foreground shadow-card">
-              <Home className="h-5 w-5" />
+            <span className="gradient-brand flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-primary-foreground shadow-card min-[375px]:h-9 min-[375px]:w-9">
+              <Home className="h-4 w-4 min-[375px]:h-5 min-[375px]:w-5" />
             </span>
-            <span className="truncate font-display text-lg font-extrabold">
+            <span className="truncate font-display text-base font-extrabold min-[375px]:text-lg">
               {t("common.brand")}
             </span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <LanguageToggle compact />
-            <Button variant="ghost" size="sm" className="shrink-0" onClick={() => void signOut()}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 shrink-0 px-2 min-[375px]:h-9 sm:h-9"
+              onClick={() => void signOut()}
+              aria-label={t("common.logout")}
+            >
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline">{t("common.logout")}</span>
             </Button>
@@ -113,17 +119,18 @@ export function LandlordShell({ children }: { children: ReactNode }) {
         <div className="mx-auto flex w-full max-w-lg items-center justify-around gap-1">
           {NAV.map((item) => {
             const active = pathname === item.to;
+            const label = t(item.label);
             return (
               <Button
                 key={item.to}
                 asChild
                 size="sm"
                 variant={active ? "default" : "ghost"}
-                className="h-11 min-w-0 flex-1 gap-1 px-1 text-[11px] font-medium"
+                className="h-11 min-w-0 flex-1 gap-1 px-1 text-[11px] font-medium min-[390px]:text-xs"
               >
                 <Link to={item.to}>
                   <item.icon className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{item.label}</span>
+                  <span className="hidden truncate min-[340px]:inline">{label}</span>
                 </Link>
               </Button>
             );

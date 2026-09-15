@@ -35,14 +35,14 @@ function FavoritesPage() {
     <div className="app-surface flex min-h-screen flex-col">
       <SiteHeader />
       <OfflineBanner />
-      <main className="container-page flex-1 pb-24 pt-5 sm:py-8">
+      <main className="container-page flex-1 pb-[calc(5.25rem+env(safe-area-inset-bottom))] pt-4 sm:py-8">
         <div className="mb-5 flex items-center gap-2">
           <Heart className="h-5 w-5 text-primary" />
           <h1 className="font-display text-2xl font-extrabold">{t("favorites.pageTitle")}</h1>
         </div>
 
         {favorites.isPending ? (
-          <div className="grid grid-cols-2 gap-2 min-[375px]:gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 min-[430px]:grid-cols-2 sm:gap-4 lg:grid-cols-3">
             {Array.from({ length: 4 }).map((_, index) => (
               <HouseCardSkeleton key={index} />
             ))}
@@ -55,7 +55,7 @@ function FavoritesPage() {
             description={t("favorites.emptyDescription")}
           />
         ) : (
-          <div className="grid grid-cols-2 gap-2 min-[375px]:gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 min-[430px]:grid-cols-2 sm:gap-4 lg:grid-cols-3">
             {favorites.data.map((house) => (
               <HouseCard key={house.id} house={house} />
             ))}
