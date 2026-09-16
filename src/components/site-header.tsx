@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Heart, PlusCircle } from "lucide-react";
+import { LanguageToggle } from "@/components/language-toggle";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/use-auth";
 import { useI18n } from "@/lib/i18n";
@@ -12,7 +13,13 @@ export function SiteHeader() {
   const accountLabel = user ? t("common.dashboard") : t("landlord.addAHouse");
   const onLoginPage = pathname === "/landlord/login";
 
-  if (onLoginPage) return null;
+  if (onLoginPage) {
+    return (
+      <div className="fixed right-3 top-3 z-50">
+        <LanguageToggle compact />
+      </div>
+    );
+  }
 
   return (
     <nav
@@ -32,6 +39,7 @@ export function SiteHeader() {
             <span className="text-xs font-medium">{accountLabel}</span>
           </Link>
         </Button>
+        <LanguageToggle className="h-14 flex-1 rounded-xl" />
       </div>
     </nav>
   );
