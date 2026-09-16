@@ -152,7 +152,7 @@ function HouseDetailsPage() {
           <ErrorState message={t("detail.gone")} />
         ) : (
           <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(20rem,1fr)] lg:gap-8">
-            <div>
+            <div className="min-w-0">
               <ImageGallery
                 images={sortedImages(house)}
                 alt={t("listing.title", {
@@ -223,7 +223,7 @@ function HouseDetailsPage() {
               </div>
             </div>
 
-            <aside className="lg:sticky lg:top-24 lg:self-start">
+            <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
               <Card className="space-y-5 border-white/70 p-4 shadow-card sm:p-6">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="secondary">{houseType(house.house_type)}</Badge>
