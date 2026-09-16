@@ -158,6 +158,47 @@ export async function reorderHouseImages(
     p_house_id: houseId,
     p_image_ids: imageIds,
   });
+  if (error) {
+    if (!isMissingReorderFunction(error)) throw error;
+    return reorderHouseImagesWithUpdates(houseId, imageIds);
+  }
+  return data as HouseImageRow[];
+}
+
+function isMissingReorderFunction(error: unknown) {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "object" && error && "message" in error
+        ? String(error.message)
+        : "";
+  return (
+    message.includes("reorder_house_images") &&
+    (message.includes("Could not find the function") || message.includes("schema cache"))
+  );
+}
+
+async function reorderHouseImagesWithUpdates(
+  houseId: string,
+  imageIds: string[],
+): Promise<HouseImageRow[]> {
+  await Promise.all(
+    imageIds.map(async (id, sortOrder) => {
+      const { error } = await supabase
+        .from("house_images")
+        .update({ sort_order: sortOrder, is_cover: sortOrder === 0 })
+        .eq("house_id", houseId)
+        .eq("id", id);
+      if (error) throw error;
+    }),
+  );
+
+  const { data, error } = await supabase
+    .from("house_images")
+    .select("*")
+    .eq("house_id", houseId)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
   if (error) throw error;
   return data as HouseImageRow[];
 }

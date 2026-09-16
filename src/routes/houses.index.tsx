@@ -55,12 +55,12 @@ export const Route = createFileRoute("/houses/")({
   }),
   head: () => ({
     meta: [
-      { title: "Browse rental houses — Easy Rent" },
+      { title: "Easy Rent" },
       {
         name: "description",
         content: "Browse available studio apartments, rooms and houses across Cameroon.",
       },
-      { property: "og:title", content: "Browse rental houses — Easy Rent" },
+      { property: "og:title", content: "Easy Rent" },
       {
         property: "og:description",
         content: "Browse available rental houses and contact landlords directly.",
