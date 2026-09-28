@@ -11,6 +11,7 @@ const requiredFiles = [
   "src/routes/landlord.reset-password.tsx",
   "src/lib/idb-cache.ts",
   "src/routes/api/public/img/$.ts",
+  "supabase/migrations/20260928083704_harden_role_rpc_and_policy_idempotency.sql",
   ".github/workflows/ci-cd.yml",
   "public/sw.js",
   "scripts/set-sw-version.mjs",
@@ -59,7 +60,14 @@ if (!registerPage.includes("/api/landlord/register")) {
 }
 
 const registerApi = readFileSync("src/routes/api/landlord/register.ts", "utf8");
-for (const needle of ["admin.auth.admin.createUser", "phone_confirm: true", "user_roles"]) {
+for (const needle of [
+  "isSameOrigin",
+  "application/json",
+  "contentLength > 4096",
+  "admin.auth.admin.createUser",
+  "phone_confirm: true",
+  "user_roles",
+]) {
   if (!registerApi.includes(needle)) {
     throw new Error(`Missing server registration behavior: ${needle}`);
   }
@@ -73,6 +81,9 @@ if (!cache.includes("feedSearch")) {
 const imageProxy = readFileSync("src/routes/api/public/img/$.ts", "utf8");
 if (!imageProxy.includes("Image service is not configured")) {
   throw new Error("Public image proxy should fail cleanly when server secrets are missing.");
+}
+if (!imageProxy.includes("x-content-type-options")) {
+  throw new Error("Public image proxy should attach browser security headers.");
 }
 
 const housesIndex = readFileSync("src/routes/houses.index.tsx", "utf8");
@@ -163,6 +174,36 @@ if (!rateLimitMigration.includes("interval '5 seconds'")) {
   throw new Error(
     "Contact analytics database throttle should avoid broad 30-second undercounting.",
   );
+}
+
+const consolidatedMigration = readFileSync(
+  "supabase/migrations/20260916120000_consolidated_db_fix.sql",
+  "utf8",
+);
+if (!consolidatedMigration.includes('DROP POLICY IF EXISTS "Users can update own landlord role"')) {
+  throw new Error("Consolidated database fix must be safe to replay on newer databases.");
+}
+
+const roleHardeningMigration = readFileSync(
+  "supabase/migrations/20260928083704_harden_role_rpc_and_policy_idempotency.sql",
+  "utf8",
+);
+for (const needle of ["_user_id = auth.uid()", "REVOKE EXECUTE", "GRANT EXECUTE"]) {
+  if (!roleHardeningMigration.includes(needle)) {
+    throw new Error(`Missing role RPC hardening: ${needle}`);
+  }
+}
+
+const server = readFileSync("src/server.ts", "utf8");
+for (const needle of [
+  "x-content-type-options",
+  "referrer-policy",
+  "x-frame-options",
+  "permissions-policy",
+]) {
+  if (!server.includes(needle)) {
+    throw new Error(`Missing global security header: ${needle}`);
+  }
 }
 
 console.log("Smoke checks passed.");

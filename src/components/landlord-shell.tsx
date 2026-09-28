@@ -88,7 +88,7 @@ export function LandlordShell({ children }: { children: ReactNode }) {
         aria-label="Landlord navigation"
         className="fixed inset-x-0 bottom-0 z-50 border-t border-border/80 bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl sm:hidden"
       >
-        <div className="mx-auto flex w-full max-w-md items-stretch gap-1 p-2">
+        <div className="mx-auto flex w-full max-w-sm items-center justify-center gap-3 p-2">
           {NAV.map((item) => {
             const active = pathname === item.to;
             const label = t(item.label);
@@ -97,13 +97,11 @@ export function LandlordShell({ children }: { children: ReactNode }) {
                 key={item.to}
                 asChild
                 variant={active ? "default" : "ghost"}
-                className="h-14 flex-1 flex-col gap-1 rounded-xl px-1"
+                size="icon"
+                className="h-12 w-12 rounded-full"
               >
-                <Link to={item.to}>
+                <Link to={item.to} aria-label={label}>
                   <item.icon className="h-5 w-5 shrink-0" />
-                  <span className="w-full truncate text-center text-[11px] font-medium">
-                    {label}
-                  </span>
                 </Link>
               </Button>
             );
