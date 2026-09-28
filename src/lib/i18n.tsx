@@ -270,7 +270,9 @@ const dictionaries = {
     "favorites.title": "Favorites",
     "favorites.pageTitle": "Favorite houses",
     "favorites.emptyTitle": "No favorite houses yet",
-    "favorites.emptyDescription": "Save a house from its details page and it will appear here.",
+    "favorites.emptyDescription":
+      "Tap the heart on any house card and it will appear here for this session.",
+    "favorites.loginRequired": "Log in to save houses.",
     "pwa.installTitle": "Install Easy Rent",
     "pwa.installText": "Add Easy Rent to your phone for quicker access and offline browsing.",
     "pwa.iosText": "On iPhone, use Share then Add to Home Screen.",
@@ -558,7 +560,8 @@ const dictionaries = {
     "favorites.pageTitle": "Maisons favorites",
     "favorites.emptyTitle": "Aucune maison favorite pour le moment",
     "favorites.emptyDescription":
-      "Enregistrez une maison depuis sa page de détails et elle apparaîtra ici.",
+      "Touchez le coeur sur une maison et elle apparaîtra ici pendant cette session.",
+    "favorites.loginRequired": "Connectez-vous pour enregistrer des maisons.",
     "pwa.installTitle": "Installer Easy Rent",
     "pwa.installText":
       "Ajoutez Easy Rent à votre téléphone pour un accès plus rapide et la consultation hors ligne.",

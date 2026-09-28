@@ -83,7 +83,8 @@ function LoginPage() {
 
     if (error) {
       toast.error(
-        error.message.toLowerCase().includes("invalid")
+        error.message.toLowerCase().includes("invalid") ||
+          error.message.toLowerCase().includes("phone logins are disabled")
           ? t("auth.wrongCredentials")
           : error.message,
       );

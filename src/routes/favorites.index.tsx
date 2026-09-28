@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
 import { HouseCard, HouseCardSkeleton } from "@/components/house-card";
@@ -6,16 +6,12 @@ import { OfflineBanner } from "@/components/offline-banner";
 import { SiteHeader } from "@/components/site-header";
 import { EmptyState, ErrorState } from "@/components/states";
 import { useSession } from "@/hooks/use-auth";
-import { supabase } from "@/integrations/supabase/client";
-import { fetchFavoriteHouses } from "@/lib/houses-api";
+import { fetchAvailableHousesByIds, fetchFavoriteHouses } from "@/lib/houses-api";
 import { useI18n } from "@/lib/i18n";
+import { getSessionFavoriteIds } from "@/lib/session-favorites";
 
 export const Route = createFileRoute("/favorites/")({
   ssr: false,
-  beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/landlord/login" });
-  },
   head: () => ({
     meta: [{ title: "Favorite houses — Easy Rent" }],
   }),
@@ -23,12 +19,14 @@ export const Route = createFileRoute("/favorites/")({
 });
 
 function FavoritesPage() {
-  const { user } = useSession();
+  const { user, loading } = useSession();
   const { t } = useI18n();
+  const favoritesOwner = user?.id ?? "session";
   const favorites = useQuery({
-    queryKey: ["favorite-houses", user?.id],
-    queryFn: () => fetchFavoriteHouses(user!.id),
-    enabled: !!user,
+    queryKey: ["favorite-houses", favoritesOwner],
+    queryFn: () =>
+      user ? fetchFavoriteHouses(user.id) : fetchAvailableHousesByIds(getSessionFavoriteIds()),
+    enabled: !loading,
   });
 
   return (
@@ -41,7 +39,7 @@ function FavoritesPage() {
           <h1 className="font-display text-2xl font-extrabold">{t("favorites.pageTitle")}</h1>
         </div>
 
-        {favorites.isPending ? (
+        {loading || favorites.isPending ? (
           <div className="grid grid-cols-1 gap-3 min-[430px]:grid-cols-2 sm:gap-4 lg:grid-cols-3">
             {Array.from({ length: 4 }).map((_, index) => (
               <HouseCardSkeleton key={index} />

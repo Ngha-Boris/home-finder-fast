@@ -1,24 +1,60 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Bath, BedDouble, CalendarDays, MapPin } from "lucide-react";
+import { Bath, BedDouble, CalendarDays, Heart, MapPin } from "lucide-react";
+import type { MouseEvent } from "react";
+import { toast } from "sonner";
 import { StorageImage } from "@/components/storage-image";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSession } from "@/hooks/use-auth";
 import { coverImage, formatPrice, type House } from "@/lib/houses-types";
+import { fetchFavoriteIds, setFavoriteHouse } from "@/lib/houses-api";
+import { getSessionFavoriteIds, setSessionFavoriteHouse } from "@/lib/session-favorites";
 import { useI18n } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 export function HouseCard({ house }: { house: House }) {
   const cover = coverImage(house);
+  const { user } = useSession();
+  const qc = useQueryClient();
   const { t, houseType, formatDate } = useI18n();
   const typeLabel = houseType(house.house_type);
+  const favoritesOwner = user?.id ?? "session";
+  const favoritesQueryKey = ["favorites", favoritesOwner] as const;
+
+  const favorites = useQuery({
+    queryKey: favoritesQueryKey,
+    queryFn: () => (user ? fetchFavoriteIds(user.id) : getSessionFavoriteIds()),
+  });
+  const isFavorite = !!favorites.data?.includes(house.id);
+
+  const favoriteMutation = useMutation({
+    mutationFn: (nextFavorite: boolean) =>
+      user
+        ? setFavoriteHouse(user.id, house.id, nextFavorite)
+        : Promise.resolve(setSessionFavoriteHouse(house.id, nextFavorite)),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: favoritesQueryKey });
+      qc.invalidateQueries({ queryKey: ["favorite-houses", favoritesOwner] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const toggleFavorite = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    favoriteMutation.mutate(!isFavorite);
+  };
 
   return (
-    <Link
-      to="/houses/$id"
-      params={{ id: house.id }}
-      className="group block min-w-0 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring"
-    >
-      <Card className="flex min-w-0 flex-col overflow-hidden p-0 transition-all group-hover:-translate-y-1 group-hover:shadow-card-hover">
+    <Card className="group relative flex min-w-0 flex-col overflow-hidden p-0 transition-all hover:-translate-y-1 hover:shadow-card-hover">
+      <Link
+        to="/houses/$id"
+        params={{ id: house.id }}
+        className="block min-w-0 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
         <div className="relative block aspect-[4/3] overflow-hidden bg-secondary">
           {cover ? (
             <StorageImage
@@ -37,7 +73,7 @@ export function HouseCard({ house }: { house: House }) {
             </div>
           )}
           <Badge
-            className="absolute left-2 top-2 max-w-[calc(100%-1rem)] border-white/40 bg-card/90 text-card-foreground shadow-sm backdrop-blur sm:left-3 sm:top-3"
+            className="absolute left-2 top-2 max-w-[calc(100%-4.5rem)] border-white/40 bg-card/90 text-card-foreground shadow-sm backdrop-blur sm:left-3 sm:top-3"
             variant="secondary"
           >
             <span className="truncate">{typeLabel}</span>
@@ -80,8 +116,21 @@ export function HouseCard({ house }: { house: House }) {
             </span>
           </div>
         </div>
-      </Card>
-    </Link>
+      </Link>
+
+      <button
+        type="button"
+        aria-label={isFavorite ? t("common.saved") : t("detail.saveHouse")}
+        disabled={favoriteMutation.isPending}
+        onClick={toggleFavorite}
+        className={cn(
+          "absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/50 bg-card/90 text-foreground shadow-sm backdrop-blur transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-70 sm:right-3 sm:top-3",
+          isFavorite && "bg-primary text-primary-foreground",
+        )}
+      >
+        <Heart className={cn("h-5 w-5", isFavorite && "fill-current")} />
+      </button>
+    </Card>
   );
 }
 
