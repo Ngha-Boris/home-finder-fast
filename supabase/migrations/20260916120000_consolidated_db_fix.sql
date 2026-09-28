@@ -165,6 +165,7 @@ GRANT EXECUTE ON FUNCTION public.reorder_house_images(uuid, uuid[]) TO authentic
 --    assignLandlordRole() uses INSERT ... ON CONFLICT DO NOTHING, which
 --    still requires an UPDATE policy when the row already exists.
 -- =====================================================================
+DROP POLICY IF EXISTS "Users can update own landlord role" ON public.user_roles;
 CREATE POLICY "Users can update own landlord role" ON public.user_roles
   FOR UPDATE TO authenticated
   USING (user_id = auth.uid())

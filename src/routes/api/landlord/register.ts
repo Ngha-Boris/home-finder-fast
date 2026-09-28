@@ -16,12 +16,35 @@ function errorResponse(message: string, status = 400) {
   return json({ error: message }, { status });
 }
 
+function isSameOrigin(request: Request) {
+  const origin = request.headers.get("origin");
+  if (!origin) return true;
+
+  try {
+    return origin === new URL(request.url).origin;
+  } catch {
+    return false;
+  }
+}
+
 export const Route = createFileRoute("/api/landlord/register")({
   server: {
     handlers: {
       POST: async () => {
         const request = getRequest();
         if (!request) return errorResponse("Registration is not available.", 500);
+
+        if (!isSameOrigin(request)) return errorResponse("Invalid registration origin.", 403);
+
+        const contentType = request.headers.get("content-type") ?? "";
+        if (!contentType.toLowerCase().includes("application/json")) {
+          return errorResponse("Registration request must be JSON.", 415);
+        }
+
+        const contentLength = Number(request.headers.get("content-length") ?? 0);
+        if (Number.isFinite(contentLength) && contentLength > 4096) {
+          return errorResponse("Registration request is too large.", 413);
+        }
 
         let body: unknown;
         try {

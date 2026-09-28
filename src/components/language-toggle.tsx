@@ -5,9 +5,11 @@ import { cn } from "@/lib/utils";
 
 export function LanguageToggle({
   compact = false,
+  iconOnly = false,
   className,
 }: {
   compact?: boolean;
+  iconOnly?: boolean;
   className?: string;
 }) {
   const { language, setLanguage } = useI18n();
@@ -28,7 +30,7 @@ export function LanguageToggle({
       title={language === "en" ? "Passer en français" : "Switch to English"}
     >
       <Languages className="h-3.5 w-3.5 min-[375px]:h-4 min-[375px]:w-4" />
-      <span className="font-semibold uppercase">{next}</span>
+      {iconOnly ? null : <span className="font-semibold uppercase">{next}</span>}
     </Button>
   );
 }

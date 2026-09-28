@@ -48,6 +48,8 @@ export const Route = createFileRoute("/api/public/img/$")({
             headers: {
               "content-type": blob.type || "image/jpeg",
               "cache-control": "public, max-age=86400, stale-while-revalidate=604800",
+              "x-content-type-options": "nosniff",
+              "content-security-policy": "default-src 'none'; img-src 'self'; sandbox",
             },
           });
         } catch (error) {

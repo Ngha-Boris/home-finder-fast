@@ -5,15 +5,18 @@ import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/use-auth";
 import { useI18n } from "@/lib/i18n";
 
-export function SiteHeader() {
+export function SiteHeader({ showMobileDock = true }: { showMobileDock?: boolean }) {
   const { user } = useSession();
   const { t } = useI18n();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const accountPath = user ? "/landlord/dashboard" : "/landlord/login";
   const accountLabel = user ? t("common.dashboard") : t("landlord.addAHouse");
-  const onLoginPage = pathname === "/landlord/login";
+  const onAuthPage =
+    pathname === "/landlord/login" ||
+    pathname === "/landlord/register" ||
+    pathname === "/landlord/reset-password";
 
-  if (onLoginPage) {
+  if (onAuthPage || !showMobileDock) {
     return (
       <div className="fixed right-3 top-3 z-50">
         <LanguageToggle compact />
@@ -26,20 +29,18 @@ export function SiteHeader() {
       aria-label="Primary navigation"
       className="fixed inset-x-0 bottom-0 z-50 border-t border-border/80 bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl"
     >
-      <div className="mx-auto flex w-full max-w-md items-stretch gap-2 p-2">
-        <Button asChild variant="ghost" className="h-14 flex-1 flex-col gap-1 rounded-xl">
-          <Link to="/favorites">
+      <div className="mx-auto flex w-full max-w-sm items-center justify-center gap-3 p-2">
+        <Button asChild variant="ghost" size="icon" className="h-12 w-12 rounded-full">
+          <Link to="/favorites" aria-label={t("favorites.title")}>
             <Heart className="h-5 w-5" />
-            <span className="text-xs font-medium">{t("favorites.title")}</span>
           </Link>
         </Button>
-        <Button asChild variant="ghost" className="h-14 flex-1 flex-col gap-1 rounded-xl">
-          <Link to={accountPath}>
+        <Button asChild variant="ghost" size="icon" className="h-12 w-12 rounded-full">
+          <Link to={accountPath} aria-label={accountLabel}>
             <PlusCircle className="h-5 w-5" />
-            <span className="text-xs font-medium">{accountLabel}</span>
           </Link>
         </Button>
-        <LanguageToggle className="h-14 flex-1 rounded-xl" />
+        <LanguageToggle compact iconOnly className="h-12 w-12 rounded-full p-0" />
       </div>
     </nav>
   );
