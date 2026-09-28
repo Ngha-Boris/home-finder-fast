@@ -65,6 +65,20 @@ export async function fetchHouse(id: string): Promise<House | null> {
   return (data as House | null) ?? null;
 }
 
+export async function fetchAvailableHousesByIds(ids: string[]): Promise<House[]> {
+  if (!ids.length) return [];
+
+  const { data, error } = await supabase
+    .from("houses")
+    .select(HOUSE_SELECT)
+    .in("id", ids)
+    .eq("availability", "available");
+  if (error) throw error;
+
+  const order = new Map(ids.map((id, index) => [id, index]));
+  return (data as House[]).sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+}
+
 /** Landlord: own listings (RLS scopes to the signed-in user). */
 export async function fetchMyHouses(): Promise<House[]> {
   const { data: auth, error: authError } = await supabase.auth.getUser();

@@ -80,7 +80,7 @@ export function LandlordShell({ children }: { children: ReactNode }) {
         </div>
       ) : null}
 
-      <main className="container-page flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] pt-5 sm:py-8">
+      <main className="container-page flex-1 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-5 sm:py-8">
         {children}
       </main>
 
@@ -88,7 +88,7 @@ export function LandlordShell({ children }: { children: ReactNode }) {
         aria-label="Landlord navigation"
         className="fixed inset-x-0 bottom-0 z-50 border-t border-border/80 bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl sm:hidden"
       >
-        <div className="mx-auto flex w-full max-w-sm items-center justify-center gap-3 p-2">
+        <div className="mx-auto grid w-full max-w-md grid-cols-4 items-center gap-1 px-2 py-1.5">
           {NAV.map((item) => {
             const active = pathname === item.to;
             const label = t(item.label);
@@ -97,11 +97,13 @@ export function LandlordShell({ children }: { children: ReactNode }) {
                 key={item.to}
                 asChild
                 variant={active ? "default" : "ghost"}
-                size="icon"
-                className="h-12 w-12 rounded-full"
+                className="h-14 min-w-0 rounded-xl px-1"
               >
-                <Link to={item.to} aria-label={label}>
+                <Link to={item.to} aria-label={label} className="flex-col gap-1">
                   <item.icon className="h-5 w-5 shrink-0" />
+                  <span className="w-full truncate text-center text-[10px] leading-none min-[375px]:text-[11px]">
+                    {label}
+                  </span>
                 </Link>
               </Button>
             );
